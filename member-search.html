@@ -247,42 +247,8 @@
     </div>
   </footer>
 
-  <script>
-    (function () {
-      var navToggle = document.getElementById("navToggle");
-      var navMenu = document.getElementById("navMenu");
-      if (!navToggle || !navMenu) return;
-
-      function setExpanded(v) { navToggle.setAttribute("aria-expanded", v ? "true" : "false"); }
-      function openMenu(){ navMenu.classList.add("open"); setExpanded(true); }
-      function closeMenu(){ navMenu.classList.remove("open"); setExpanded(false); }
-
-      navToggle.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (navMenu.classList.contains("open")) closeMenu(); else openMenu();
-      }, { passive: false });
-
-      document.addEventListener("click", function (e) {
-        if (!navMenu.classList.contains("open")) return;
-        if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
-        closeMenu();
-      });
-
-      navMenu.addEventListener("click", function (e) {
-        var a = e.target.closest && e.target.closest("a");
-        if (a) closeMenu();
-      });
-
-      window.addEventListener("resize", function () {
-        if (window.innerWidth > 860) closeMenu();
-      });
-
-      var y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
-    })();
-  </script>
-
+  <script src="nav.js"></script>
   <script type="module" src="member-search.js"></script>
 </body>
 </html>
+
