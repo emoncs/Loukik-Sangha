@@ -1,0 +1,408 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loukik Sangha | Dashboard</title>
+
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+      <span class="brand-logo">
+        <img src="Images/logo.png" alt="Loukik Sangha Logo">
+      </span>
+      <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>Seva is Our Dharma. 🕉️</small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav class="menu" id="navMenu">
+      <a class="nav-link" data-page="index.html" href="index.html">Home</a>
+      <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
+      <a class="nav-link" data-page="dashboard.html" href="dashboard.html">Dashboard</a>
+
+      <a class="btn btn-primary" id="adminLoginLink" data-page="admin-login.html" href="admin-login.html">
+        <i class="fa-solid fa-right-to-bracket"></i><span>Admin Login</span>
+      </a>
+      <button class="btn btn-soft" id="logoutBtn" type="button" style="display:none;">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+      </button>
+      <span class="role-badge" id="roleBadge" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-card">
+        <div class="hero-left">
+          <div class="hero-kicker"><i class="fa-solid fa-sparkles"></i><span>Admin Panel</span></div>
+          <h1 class="hero-title">Dashboard</h1>
+          <p class="hero-sub">Excel import, member & payment management, auto due calculation.</p>
+          <div class="hero-meta">
+            <div class="meta-pill"><i class="fa-solid fa-lock"></i><span>Protected</span></div>
+            <div class="meta-pill"><i class="fa-solid fa-cloud"></i><span>Firestore</span></div>
+            <div class="meta-pill"><i class="fa-solid fa-bolt"></i><span>Realtime</span></div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-chip"><i class="fa-solid fa-file-excel"></i><span>Excel Import</span></div>
+          <div class="hero-chip"><i class="fa-solid fa-receipt"></i><span>Payments</span></div>
+          <div class="hero-chip"><i class="fa-solid fa-users"></i><span>Members</span></div>
+          <div class="hero-chip"><i class="fa-solid fa-chart-line"></i><span>Fund</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="wrap">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Excel Upload</h2>
+            <p class="hint">Excel must have sheets: <b>Members</b> and <b>Payments</b>. (Columns below)</p>
+          </div>
+          <div class="panel-badge"><i class="fa-solid fa-file-arrow-up"></i></div>
+        </div>
+
+        <div class="row">
+          <label class="filebox">
+            <input id="excelFile" type="file" accept=".xlsx,.xls" />
+            <span class="filebox-ui">
+              <i class="fa-solid fa-paperclip"></i>
+              <span>Select Excel file</span>
+            </span>
+          </label>
+
+          <button class="btn btn-primary" id="parseBtn" type="button">
+            <i class="fa-solid fa-eye"></i><span>Preview</span>
+          </button>
+
+          <button class="btn btn-soft" id="importBtn" type="button" disabled>
+            <i class="fa-solid fa-cloud-arrow-up"></i><span>Import</span>
+          </button>
+        </div>
+
+        <div class="grid2">
+          <div class="box">
+            <div class="box-head">
+              <h3>Members Preview</h3>
+              <span class="pill"><i class="fa-solid fa-table"></i> Members</span>
+            </div>
+            <pre id="membersPreview" class="pre"></pre>
+          </div>
+          <div class="box">
+            <div class="box-head">
+              <h3>Payments Preview</h3>
+              <span class="pill"><i class="fa-solid fa-table"></i> Payments</span>
+            </div>
+            <pre id="paymentsPreview" class="pre"></pre>
+          </div>
+        </div>
+
+        <p class="hint">
+          Members columns: <code>memberCode, name, phone, joinMonth, monthlyDue</code><br/>
+          Payments columns: <code>memberCode, amount, method, paidAtMonth</code> (YYYY-MM)
+        </p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Add / Update Member</h2>
+            <p class="hint">Save member then due/total auto recalculates.</p>
+          </div>
+          <div class="panel-badge"><i class="fa-solid fa-user-plus"></i></div>
+        </div>
+
+        <div class="grid3">
+          <input id="mCode" placeholder="memberCode (LS-001)" />
+          <input id="mName" placeholder="name" />
+          <input id="mPhone" placeholder="phone (admin-only)" />
+
+          <select id="mGender">
+            <option value="">gender (select)</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <input id="mJoin" placeholder="joinMonth (YYYY-MM)" />
+          <input id="mMonthly" placeholder="monthlyDue (number)" />
+
+          <button class="btn btn-primary btn-sm save-member-btn" id="saveMemberBtn" type="button">
+            <i class="fa-solid fa-floppy-disk"></i><span>Save Member</span>
+          </button>
+        </div>
+
+        <p class="hint" id="memberMsg"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Add Payment</h2>
+            <p class="hint">Add payment then member totals auto update.</p>
+          </div>
+          <div class="panel-badge"><i class="fa-solid fa-money-bill-wave"></i></div>
+        </div>
+
+        <div class="grid3">
+          <input id="pCode" placeholder="memberCode (LS-001)" />
+          <input id="pAmt" placeholder="amount" />
+          <input id="pMethod" placeholder="method (bKash/Nagad/Bank/Cash)" />
+          <input id="pMonth" placeholder="paidAtMonth (YYYY-MM)" />
+          <button class="btn btn-primary" id="addPayBtn" type="button">
+            <i class="fa-solid fa-circle-plus"></i><span>Add Payment</span>
+          </button>
+        </div>
+        <p class="hint" id="payMsg"></p>
+      </div>
+
+      <div class="panel">
+        <div class="row space">
+          <div>
+            <h2 style="margin:0;">Payments Manager</h2>
+            <p class="hint" style="margin:6px 0 0;">Search, edit, and save payments.</p>
+          </div>
+          <button class="btn btn-soft" id="reloadPaymentsBtn" type="button">
+            <i class="fa-solid fa-rotate"></i><span>Reload</span>
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="paySearch" placeholder="Search by memberCode (LS-001) or method..." />
+          </div>
+
+          <select id="payLimit" class="select">
+            <option value="50">Show 50</option>
+            <option value="100">Show 100</option>
+            <option value="200">Show 200</option>
+          </select>
+        </div>
+
+        <div class="tableWrap" style="margin-top:12px;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Payment ID</th>
+                <th>Member</th>
+                <th>Month</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="warn">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Edits affect member totals & fund immediately after save.</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row space">
+          <div>
+            <h2 style="margin:0;">Members List</h2>
+            <p class="hint" style="margin:6px 0 0;">Inline edit then Save per row.</p>
+          </div>
+          <button class="btn btn-soft" id="refreshBtn" type="button">
+            <i class="fa-solid fa-rotate"></i><span>Refresh</span>
+          </button>
+        </div>
+
+        <div class="tableWrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Join</th>
+                <th>Monthly</th>
+                <th>Total Paid</th>
+                <th>Due</th>
+                <th>Advanced</th>
+                <th>Save</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody id="membersTbody"></tbody>
+          </table>
+        </div>
+        <p class="hint">Phone is <b>hidden from users.</b></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Income &amp; Expense</h2>
+            <p class="hint">Add transactions and totals update automatically.</p>
+          </div>
+          <div class="panel-badge"><i class="fa-solid fa-coins"></i></div>
+        </div>
+
+        <div class="grid3">
+          <select id="txType">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <input id="txTitle" placeholder="Title (Donation / Rent / Bill)" />
+          <input id="txAmount" placeholder="Amount" />
+          <input id="txNote" placeholder="Note (optional)" />
+
+          <button class="btn btn-primary" id="addTxBtn" type="button">
+            <i class="fa-solid fa-circle-plus"></i><span>Add Transaction</span>
+          </button>
+        </div>
+
+        <p class="hint" id="txMsg"></p>
+
+        <hr class="sep">
+
+        <div class="kpi3">
+          <div class="kpi">
+            <div class="kpi-top">
+              <span class="kpi-ic"><i class="fa-solid fa-arrow-trend-up"></i></span>
+              <span class="kpi-lbl">Total Income</span>
+            </div>
+            <div class="kpi-val">৳<span id="sumIncome">0</span></div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-top">
+              <span class="kpi-ic"><i class="fa-solid fa-arrow-trend-down"></i></span>
+              <span class="kpi-lbl">Total Expense</span>
+            </div>
+            <div class="kpi-val">৳<span id="sumExpense">0</span></div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-top">
+              <span class="kpi-ic"><i class="fa-solid fa-wallet"></i></span>
+              <span class="kpi-lbl">Available Fund</span>
+            </div>
+            <div class="kpi-val">৳<span id="sumFund">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row space">
+          <div>
+            <h2 style="margin:0;">Income/Expense List</h2>
+            <p class="hint" style="margin:6px 0 0;">Edit & Save or Delete. Totals auto update.</p>
+          </div>
+          <button class="btn btn-soft" id="reloadTxBtn" type="button">
+            <i class="fa-solid fa-rotate"></i><span>Reload</span>
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="txSearch" placeholder="Search by title / note / type..." />
+          </div>
+
+          <select id="txLimit" class="select">
+            <option value="50">Show 50</option>
+            <option value="100">Show 100</option>
+            <option value="200">Show 200</option>
+          </select>
+        </div>
+
+        <div class="tableWrap" style="margin-top:12px;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="txTbody"></tbody>
+          </table>
+        </div>
+
+        <p class="hint">Wrong entry হলে Edit করে Save, অথবা Delete করলে totals auto update হবে।</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+
+    <div class="f-col">
+      <div class="f-brand">
+        <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
+        <div>
+          <h3 class="f-title">Loukik Sangha</h3>
+          <p class="f-text">
+            Building a stronger community through collective support and transparent
+            financial management.
+          </p>
+        </div>
+      </div>
+
+      <div class="f-social" aria-label="Social links">
+        <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
+      </div>
+    </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Quick Links</h3>
+        <a class="f-link" href="donate.html">Donate</a>
+        <a class="f-link" href="rules.html">Rules</a>
+        <a class="f-link" href="privacy.html">Privacy Policy</a>
+        <a class="f-link" href="terms.html">Terms & Conditions</a>
+        <a class="f-link" href="contact.html">Contact</a>
+      </div>
+
+    <div class="f-col">
+      <h3 class="f-title">Contact</h3>
+      <p class="f-text">Email: info@loukiksangha.org</p>
+      <p class="f-text">Phone: +880 1XXX-XXXXXX</p>
+      <p class="f-text">Address: Dhaka, Bangladesh</p>
+    </div>
+  </div>
+
+  <div class="wrap f-bottom">
+    <div class="f-line"></div>
+    <div class="f-copy">
+      © <span id="year"></span> Loukik Sangha. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="dashboard.js"></script>
+</body>
+</html>

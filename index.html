@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
+
+
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+        <span class="brand-logo">
+          <img src="Images/logo.png" alt="Loukik Sangha Logo">
+        </span>
+        <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>Seva is Our Dharma. 🕉️</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <nav class="menu" id="navMenu" aria-label="Main Navigation">
+        <a class="nav-link" data-page="index.html" href="index.html">Home</a>
+        <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
+        <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
+        <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
+        <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
+        <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+        <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div class="wrap hero-inner">
+
+        <h1 class="hero-title">
+          Welcome to <span class="g1">Loukik</span> <span class="g2">Sangha</span>
+        </h1>
+
+        <p class="hero-sub">
+          Building a stronger community through collective support and transparent
+          financial management. Track donations, view member records, and
+          contribute to our shared vision.
+        </p>
+
+        <div class="searchbar" role="search" aria-label="Member Search">
+          <input id="heroSearch" type="text" placeholder="Search by member name or phone..." autocomplete="off" />
+          <button id="heroSearchBtn" class="btn btn-primary btn-search" type="button">
+            <i class="fa-solid fa-magnifying-glass"></i> Search
+          </button>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="donate.html"><i class="fa-regular fa-heart"></i> Donate Now</a>
+          <a class="btn btn-soft" href="rules.html"><i class="fa-regular fa-file-lines"></i> View Rules</a>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="wrap stats-grid">
+
+        <article class="stat-card stat-blue">
+          <div class="stat-head">
+            <i class="fa-solid fa-user-group"></i>
+            <span>Total Members</span>
+          </div>
+          <div class="stat-num" id="statMembers">0</div>
+          <div class="stat-foot">Active community members</div>
+        </article>
+
+        <article class="stat-card stat-green">
+          <div class="stat-head">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+            <span>Total Collected (YTD)</span>
+          </div>
+          <div class="stat-num">৳<span id="statCollected">0</span></div>
+          <div class="stat-foot">Year to date collections</div>
+        </article>
+
+        <article class="stat-card stat-orange">
+          <div class="stat-head">
+            <i class="fa-regular fa-heart"></i>
+            <span>Total Dues</span>
+          </div>
+          <div class="stat-num">৳<span id="statDues">0</span></div>
+          <div class="stat-foot">Outstanding payments</div>
+        </article>
+
+        <article class="stat-card stat-green">
+          <div class="stat-head">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Available Fund</span>
+          </div>
+          <div class="stat-num">৳<span id="statFund">0</span></div>
+          <div class="stat-foot">Current balance</div>
+        </article>
+
+        <article class="stat-card stat-blue">
+          <div class="stat-head">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Other Income</span>
+          </div>
+          <div class="stat-num">৳<span id="statOtherIncome">0</span></div>
+          <div class="stat-foot">Current Income</div>
+        </article>
+
+        <article class="stat-card stat-orange">
+          <div class="stat-head">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Other Expense</span>
+          </div>
+          <div class="stat-num">৳<span id="statExpense">0</span></div>
+          <div class="stat-foot">Current Expense</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="wrap">
+        <h2 class="section-title">Current Year Monthly Fund Report</h2>
+
+        <div class="panel" style="height:420px;">
+          <canvas id="monthlyFundChart"></canvas>
+          <p class="hint" id="chartYearText" style="text-align:center;margin-top:12px;"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ✅ What We Do & Our Activities -->
+    <section class="impact">
+      <div class="wrap">
+        <h2 class="section-title">What We Do &amp; Our Future Plan</h2>
+        <p class="impact-sub">
+          A simple story of our work—today’s support and tomorrow’s vision.
+        </p>
+
+        <div class="slider" id="impactSlider" aria-label="Impact Slider">
+          <div class="slides" id="impactSlides">
+
+            <article class="slide is-active">
+              <img src="Images/1.jpg" alt="Community support">
+              <div class="slide-caption">
+                <h3>Community Support</h3>
+                <p>We stand with members in need through collective help and quick action.</p>
+              </div>
+            </article>
+
+            <article class="slide">
+              <img src="Images/2.jpg" alt="Transparency">
+              <div class="slide-caption">
+                <h3>Transparency</h3>
+                <p>Every fund entry and expense is recorded to keep everything clear for everyone.</p>
+              </div>
+            </article>
+
+            <article class="slide">
+              <img src="Images/3.jpg" alt="Future initiatives">
+              <div class="slide-caption">
+                <h3>Future Initiatives</h3>
+                <p>Education, emergency aid, and long-term welfare programs for a stronger society.</p>
+              </div>
+            </article>
+
+          </div>
+
+          <div class="slider-dots" id="impactDots" aria-label="Slider controls">
+            <button class="dot is-active" type="button" aria-label="Slide 1"></button>
+            <button class="dot" type="button" aria-label="Slide 2"></button>
+            <button class="dot" type="button" aria-label="Slide 3"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="activities">
+      <div class="wrap">
+        <h2 class="section-title">Our Activities</h2>
+        <p class="impact-sub" style="text-align:center;">
+          Add your real photos later—these cards will stay the same shape everywhere.
+        </p>
+
+        <div class="activity-grid">
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Relief Distribution</h3>
+              <p>Essential help for families in difficult times.</p>
+            </div>
+          </article>
+
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Community Meeting</h3>
+              <p>Regular meetings to make decisions together.</p>
+            </div>
+          </article>
+
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Medical Support</h3>
+              <p>Emergency support for members when needed.</p>
+            </div>
+          </article>
+
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Education Aid</h3>
+              <p>Supporting students with resources and guidance.</p>
+            </div>
+          </article>
+
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Volunteer Work</h3>
+              <p>Local volunteer programs to support community needs.</p>
+            </div>
+          </article>
+
+          <article class="activity-card">
+            <div class="activity-media">
+              <img src="Images/4.jpg" alt="Activity">
+            </div>
+            <div class="activity-body">
+              <h3>Awareness Program</h3>
+              <p>Creating awareness and bringing people together.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+
+      <div class="f-col">
+        <div class="f-brand">
+          <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
+          <div>
+            <h3 class="f-title">Loukik Sangha</h3>
+            <p class="f-text">
+              Building a stronger community through collective support and transparent
+              financial management.
+            </p>
+          </div>
+        </div>
+
+        <div class="f-social" aria-label="Social links">
+          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email">
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Quick Links</h3>
+        <a class="f-link" href="donate.html">Donate</a>
+        <a class="f-link" href="rules.html">Rules</a>
+        <a class="f-link" href="privacy.html">Privacy Policy</a>
+        <a class="f-link" href="terms.html">Terms & Conditions</a>
+        <a class="f-link" href="contact.html">Contact</a>
+      </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Contact</h3>
+        <p class="f-text">Email: info@loukiksangha.org</p>
+        <p class="f-text">Phone: +880 1XXX-XXXXXX</p>
+        <p class="f-text">Address: Dhaka, Bangladesh</p>
+      </div>
+    </div>
+
+    <div class="wrap f-bottom">
+      <div class="f-line"></div>
+      <div class="f-copy">
+        © <span id="year"></span> Loukik Sangha. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var navToggle = document.getElementById("navToggle");
+      var navMenu = document.getElementById("navMenu");
+      if (!navToggle || !navMenu) return;
+
+      function setExpanded(v){ navToggle.setAttribute("aria-expanded", v ? "true" : "false"); }
+      function openMenu(){ navMenu.classList.add("open"); setExpanded(true); }
+      function closeMenu(){ navMenu.classList.remove("open"); setExpanded(false); }
+
+      navToggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (navMenu.classList.contains("open")) closeMenu(); else openMenu();
+      }, { passive: false });
+
+      document.addEventListener("click", function (e) {
+        if (!navMenu.classList.contains("open")) return;
+        if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
+        closeMenu();
+      });
+
+      navMenu.addEventListener("click", function (e) {
+        var a = e.target.closest && e.target.closest("a");
+        if (a) closeMenu();
+      });
+
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 860) closeMenu();
+      });
+
+      var year = document.getElementById("year");
+      if (year) year.textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <script>
+    (function(){
+      var slider = document.getElementById("impactSlider");
+      var slidesWrap = document.getElementById("impactSlides");
+      var slides = slidesWrap ? slidesWrap.querySelectorAll(".slide") : [];
+      var dotsWrap = document.getElementById("impactDots");
+      var dots = dotsWrap ? dotsWrap.querySelectorAll(".dot") : [];
+      if (!slider || !slides.length || !dots.length) return;
+
+      var idx = 0;
+      var timer = null;
+
+      function setActive(i){
+        slides[idx].classList.remove("is-active");
+        dots[idx].classList.remove("is-active");
+
+        idx = i;
+
+        slides[idx].classList.add("is-active");
+        dots[idx].classList.add("is-active");
+      }
+
+      function next(){
+        setActive((idx + 1) % slides.length);
+      }
+
+      function start(){
+        stop();
+        timer = setInterval(next, 4500);
+      }
+
+      function stop(){
+        if (timer) clearInterval(timer);
+        timer = null;
+      }
+
+      dots.forEach(function(btn, i){
+        btn.addEventListener("click", function(){
+          setActive(i);
+          start();
+        });
+      });
+
+      slider.addEventListener("mouseenter", stop);
+      slider.addEventListener("mouseleave", start);
+
+      start();
+    })();
+  </script>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

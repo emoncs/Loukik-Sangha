@@ -1,0 +1,333 @@
+<!-- donate.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Donate for Community Welfare | Loukik Sangha</title>
+
+  <link rel="stylesheet" href="donate.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+        <span class="brand-logo">
+          <img src="Images/logo.png" alt="Loukik Sangha Logo">
+        </span>
+        <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>Seva is Our Dharma. 🕉️</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <nav class="menu" id="navMenu" aria-label="Main Navigation">
+        <a class="nav-link" data-page="index.html" href="index.html">Home</a>
+        <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
+        <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
+        <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
+        <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
+        <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+        <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div class="wrap hero-inner">
+        <h1 class="hero-title">Donate</h1>
+        <p class="hero-sub">Support the community. Choose a method to donate securely.</p>
+
+        <div class="hero-note">
+          <h2 class="hero-note-title">মানবিক সহায়তায় পাশে থাকুন</h2>
+          <p class="hero-note-text">
+            আপনার সামান্য দানও কারও বড় সহায়তা হতে পারে। Loukik Sangha এর মাধ্যমে অসহায় মানুষদের চিকিৎসা,
+            শিক্ষা, দুর্যোগ সহায়তা ও জরুরি প্রয়োজনে সাহায্য পৌঁছে দেওয়া হয়।
+          </p>
+          <p class="hero-note-text">
+            Even a small contribution can create a big impact. Your donation helps us support people with medical aid,
+            education support, disaster relief, and urgent community needs—transparently and responsibly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="wrap">
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Donation Methods</h2>
+            <span class="pill"><i class="fa-solid fa-shield-heart"></i> Verified</span>
+          </div>
+
+<!-- Donation Methods (REPLACE THIS WHOLE .cards BLOCK) -->
+<div class="cards">
+
+  <!-- bKash -->
+  <div class="card">
+    <div class="card-top">
+      <div class="ic green"><i class="fa-solid fa-mobile-screen"></i></div>
+      <div class="card-title">
+        <h3>bKash</h3>
+        <p class="meta">Send Money / Payment to our personal number</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="kv"><span>Number</span><b id="bkashNumber">01XXXXXXXXX</b></div>
+      <div class="kv"><span>Type</span><b>Personal</b></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-soft btn-sm" type="button" data-copy="#bkashNumber">
+        <i class="fa-regular fa-copy"></i> Copy Number
+      </button>
+
+      <!-- just replace the phone number later -->
+      <a class="btn btn-primary btn-sm" href="tel:+8801XXXXXXXXX">
+        <i class="fa-solid fa-phone"></i> Call
+      </a>
+    </div>
+  </div>
+
+  <!-- Nagad -->
+  <div class="card">
+    <div class="card-top">
+      <div class="ic blue"><i class="fa-solid fa-wallet"></i></div>
+      <div class="card-title">
+        <h3>Nagad</h3>
+        <p class="meta">Send Money / Payment to our personal number</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="kv"><span>Number</span><b id="nagadNumber">01XXXXXXXXX</b></div>
+      <div class="kv"><span>Type</span><b>Personal</b></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-soft btn-sm" type="button" data-copy="#nagadNumber">
+        <i class="fa-regular fa-copy"></i> Copy Number
+      </button>
+
+      <!-- just replace the phone number later -->
+      <a class="btn btn-primary btn-sm" href="tel:+8801XXXXXXXXX">
+        <i class="fa-solid fa-phone"></i> Call
+      </a>
+    </div>
+  </div>
+
+  <!-- Bank -->
+  <div class="card">
+    <div class="card-top">
+      <div class="ic green"><i class="fa-solid fa-building-columns"></i></div>
+      <div class="card-title">
+        <h3>Bank</h3>
+        <p class="meta">Direct bank transfer (use details below)</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="kv"><span>Account</span><b id="bankAccount">XXXXXXXXXX</b></div>
+      <div class="kv"><span>Branch</span><b>Dhaka</b></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount">
+        <i class="fa-regular fa-copy"></i> Copy Account
+      </button>
+      <a class="btn btn-primary btn-sm" href="#bankDetails">
+        <i class="fa-solid fa-circle-info"></i> View Details
+      </a>
+    </div>
+  </div>
+
+  <!-- Cash -->
+  <div class="card">
+    <div class="card-top">
+      <div class="ic blue"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+      <div class="card-title">
+        <h3>Cash</h3>
+        <p class="meta">Submit cash with receipt entry</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="kv"><span>Process</span><b>Contact Admin</b></div>
+      <div class="kv"><span>Receipt</span><b>Manual entry</b></div>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-primary btn-sm" href="contact.html">
+        <i class="fa-solid fa-location-dot"></i> Contact
+      </a>
+      <!-- you will add the phone number later -->
+      <a class="btn btn-soft btn-sm" href="tel:+8801XXXXXXXXX">
+        <i class="fa-solid fa-phone"></i> Call
+      </a>
+    </div>
+  </div>
+
+</div>
+
+
+          <!-- NEW: Bank details (realistic for transfer) -->
+          <div class="bank-details" id="bankDetails">
+            <div class="bank-head">
+              <div class="bank-ic"><i class="fa-solid fa-building-columns"></i></div>
+              <div>
+                <h3 class="bank-title">Bank Transfer Details</h3>
+                <p class="bank-sub">Use these details to send money via your bank app/branch, then submit confirmation below.</p>
+              </div>
+            </div>
+
+            <div class="bank-grid">
+              <div class="bank-kv"><span>Bank Name</span><b id="bankName">Your Bank Name</b></div>
+              <div class="bank-kv"><span>Account Name</span><b id="bankAccName">Loukik Sangha</b></div>
+              <div class="bank-kv"><span>Account Number</span><b id="bankAccount2">XXXXXXXXXX</b></div>
+              <div class="bank-kv"><span>Branch</span><b id="bankBranch">Dhaka</b></div>
+              <div class="bank-kv"><span>Routing No</span><b id="bankRouting">XXXXXXXXX</b></div>
+              <div class="bank-kv"><span>Reference</span><b>Donation</b></div>
+            </div>
+
+            <div class="bank-actions">
+              <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount2">
+                <i class="fa-regular fa-copy"></i> Copy Account
+              </button>
+              <a class="btn btn-primary btn-sm" href="#donateForm">
+                <i class="fa-solid fa-pen-to-square"></i> Submit Confirmation
+              </a>
+            </div>
+          </div>
+
+          <div class="premium">
+            <div class="premium-head">
+              <div class="premium-ic"><i class="fa-solid fa-receipt"></i></div>
+              <div>
+                <h3 class="premium-title">Donation Confirmation</h3>
+                <p class="premium-sub">Submit a confirmation so admin can verify and record your donation.</p>
+              </div>
+            </div>
+
+            <form class="form" id="donateForm">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Full Name</label>
+                  <input id="dName" required placeholder="Your name" />
+                </div>
+
+                <div class="field">
+                  <label>Phone</label>
+                  <input id="dPhone" required placeholder="01XXXXXXXXX" />
+                </div>
+
+                <div class="field">
+                  <label>Method</label>
+                  <select id="dMethod" required>
+                    <option value="">Select method</option>
+                    <option>bKash</option>
+                    <option>Nagad</option>
+                    <option>Bank</option>
+                    <option>Cash</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Amount (৳)</label>
+                  <input id="dAmount" type="number" min="1" required placeholder="e.g. 500" />
+                </div>
+
+                <div class="field">
+                  <label>Transaction ID (TrxID)</label>
+                  <input id="dTrx" required placeholder="e.g. 9A7B... (from payment app)" />
+                </div>
+
+                <div class="field">
+                  <label>Message (Optional)</label>
+                  <input id="dMsg" placeholder="Purpose / note (optional)" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Submit Confirmation</button>
+                <button class="btn btn-soft" type="button" id="clearBtn"><i class="fa-solid fa-rotate-left"></i> Clear</button>
+              </div>
+
+              <p class="hint" id="formMsg"></p>
+            </form>
+          </div>
+
+          <div class="note">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>After payment, submit confirmation (name, phone, amount, TrxID). Admin will verify and update records.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+
+      <div class="f-col">
+        <div class="f-brand">
+          <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
+          <div>
+            <h3 class="f-title">Loukik Sangha</h3>
+            <p class="f-text">
+              Building a stronger community through collective support and transparent
+              financial management.
+            </p>
+          </div>
+        </div>
+
+        <div class="f-social" aria-label="Social links">
+          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email">
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Quick Links</h3>
+        <a class="f-link" href="donate.html">Donate</a>
+        <a class="f-link" href="rules.html">Rules</a>
+        <a class="f-link" href="privacy.html">Privacy Policy</a>
+        <a class="f-link" href="terms.html">Terms & Conditions</a>
+        <a class="f-link" href="contact.html">Contact</a>
+      </div>
+      <div class="f-col">
+        <h3 class="f-title">Contact</h3>
+        <p class="f-text">Email: info@loukiksangha.org</p>
+        <p class="f-text">Phone: +880 1XXX-XXXXXX</p>
+        <p class="f-text">Address: Dhaka, Bangladesh</p>
+      </div>
+    </div>
+
+    <div class="wrap f-bottom">
+      <div class="f-line"></div>
+      <div class="f-copy">
+        © <span id="year"></span> Loukik Sangha. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+<script type="module" src="donate.js"></script>
+
+</html>

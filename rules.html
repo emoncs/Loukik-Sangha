@@ -1,0 +1,303 @@
+<!-- rules.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rules & Guidelines | Loukik Sangha</title>
+
+  <link rel="stylesheet" href="rules.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+      <span class="brand-logo">
+        <img src="Images/logo.png" alt="Loukik Sangha Logo">
+      </span>
+      <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>Seva is Our Dharma. 🕉️</small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav class="menu" id="navMenu">
+      <a class="nav-link" data-page="index.html" href="index.html">Home</a>
+      <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
+      <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
+      <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
+      <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
+      <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+      <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- HERO (Premium + Realistic) -->
+  <section class="hero hero-rules">
+    <div class="wrap hero-inner">
+
+      <!-- LEFT -->
+      <div class="hero-left">
+        <span class="hero-pill" id="heroPill">
+          <i class="fa-solid fa-om"></i>
+          <span id="pillText">Hindu Charity &amp; Welfare</span>
+        </span>
+
+        <h1 class="hero-title" id="pageTitle">Rules & Guidelines</h1>
+        <p class="hero-sub" id="pageSub">
+          Clear policies for donations, membership, and monthly installments to ensure transparency and dharma-driven service.
+        </p>
+
+        <div class="hero-actions">
+
+          <!-- Language selector (Premium light) -->
+          <div class="lang-card" role="group" aria-label="Language selector">
+            <div class="lang-label">
+              <span class="lang-ico"><i class="fa-solid fa-language"></i></span>
+              <div class="lang-meta">
+                <span class="lang-title" id="langTitle">Language</span>
+                <span class="lang-sub" id="langSub">Choose to translate rules</span>
+              </div>
+            </div>
+
+            <div class="lang-select-wrap">
+              <select id="langSelect" class="lang-select" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+                <option value="hi">Hindi</option>
+              </select>
+              <span class="lang-caret" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+            </div>
+          </div>
+
+          <div class="mini-note" id="miniNote">
+            <i class="fa-solid fa-shield-heart"></i>
+            <span id="miniNoteText">Transparency • Respect • Seva</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT (NEW Premium Purpose Stack) -->
+      <aside class="hero-right" aria-label="Purpose and highlights">
+        <div class="purpose-stack">
+          <div class="purpose-card">
+            <div class="pc-head">
+              <span class="pc-ic"><i class="fa-solid fa-hands-praying"></i></span>
+              <div class="pc-meta">
+                <div class="pc-kicker" id="purposeKicker">Our Mission</div>
+                <h3 class="pc-title" id="heroCardTitle">Purpose</h3>
+              </div>
+            </div>
+
+            <p class="pc-text" id="heroCardText">
+              Support community welfare, emergency help, religious events, and charity work with proper records.
+            </p>
+
+            <div class="pc-divider"></div>
+
+            <div class="pc-points" aria-label="Highlights">
+              <div class="pc-point">
+                <span class="dot dot-blue"></span>
+                <span id="p1">Transparent records & approvals</span>
+              </div>
+              <div class="pc-point">
+                <span class="dot dot-teal"></span>
+                <span id="p2">Welfare-first spending policy</span>
+              </div>
+              <div class="pc-point">
+                <span class="dot dot-cyan"></span>
+                <span id="p3">Respectful community conduct</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="purpose-mini">
+            <div class="pm-chip">
+              <i class="fa-solid fa-scroll"></i>
+              <span id="pm1">Clear Rules</span>
+            </div>
+            <div class="pm-chip">
+              <i class="fa-solid fa-receipt"></i>
+              <span id="pm2">Proper Accounting</span>
+            </div>
+            <div class="pm-chip">
+              <i class="fa-solid fa-hand-holding-heart"></i>
+              <span id="pm3">Community Support</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <section class="content">
+    <div class="wrap">
+
+      <!-- Top Info Cards -->
+      <div class="grid-3">
+        <article class="info-card">
+          <div class="ic-top">
+            <span class="ic-badge"><i class="fa-solid fa-hand-holding-heart"></i></span>
+            <h3 class="ic-title" id="donorTitle">Open Donation</h3>
+          </div>
+          <p class="ic-text" id="donorText">
+            Anyone can donate at any time using the available donation methods. Donations are used strictly for welfare purposes.
+          </p>
+        </article>
+
+        <article class="info-card">
+          <div class="ic-top">
+            <span class="ic-badge"><i class="fa-solid fa-id-card"></i></span>
+            <h3 class="ic-title" id="memberTitle">Membership</h3>
+          </div>
+          <p class="ic-text" id="memberText">
+            Members must keep their information correct and follow respectful behavior inside the organization.
+          </p>
+        </article>
+
+        <article class="info-card">
+          <div class="ic-top">
+            <span class="ic-badge"><i class="fa-solid fa-calendar-check"></i></span>
+            <h3 class="ic-title" id="installTitle">Monthly Installment</h3>
+          </div>
+          <p class="ic-text" id="installText">
+            Members pay monthly installments by the last date set by the organization. Installments are not refundable.
+          </p>
+        </article>
+      </div>
+
+      <!-- Rules Panels -->
+      <div class="panel-stack">
+
+        <section class="panel premium">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-dot"></span>
+              <h2 class="panel-title" id="orgRulesTitle">Organization Rules</h2>
+            </div>
+            <span class="panel-chip" id="orgChip"><i class="fa-solid fa-scroll"></i> Policies</span>
+          </div>
+
+          <ul class="rule-list" id="orgRulesList"></ul>
+        </section>
+
+        <section class="panel premium">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-dot"></span>
+              <h2 class="panel-title" id="donationRulesTitle">Donation Rules</h2>
+            </div>
+            <span class="panel-chip" id="donationChip"><i class="fa-solid fa-sack-dollar"></i> Donations</span>
+          </div>
+
+          <ul class="rule-list" id="donationRulesList"></ul>
+        </section>
+
+        <section class="panel premium">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-dot"></span>
+              <h2 class="panel-title" id="installmentRulesTitle">Monthly Installment Rules</h2>
+            </div>
+            <span class="panel-chip" id="installChip"><i class="fa-solid fa-receipt"></i> Member Dues</span>
+          </div>
+
+          <div class="notice" id="installNotice">
+            <i class="fa-solid fa-circle-info"></i>
+            <p id="installNoticeText">
+              Installments are a contribution to collective welfare and are not refundable. Late payments may affect membership benefits.
+            </p>
+          </div>
+
+          <ul class="rule-list" id="installmentRulesList"></ul>
+        </section>
+
+        <section class="panel subtle">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-dot"></span>
+              <h2 class="panel-title" id="disciplineTitle">Respect & Discipline</h2>
+            </div>
+            <span class="panel-chip" id="disciplineChip"><i class="fa-solid fa-handshake-angle"></i> Conduct</span>
+          </div>
+
+          <div class="two-col">
+            <div class="sub-card">
+              <h3 class="sub-title" id="conductTitle">Community Conduct</h3>
+              <ul class="mini-list" id="conductList"></ul>
+            </div>
+
+            <div class="sub-card">
+              <h3 class="sub-title" id="adminTitle">Admin & Records</h3>
+              <ul class="mini-list" id="adminList"></ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+
+    <div class="f-col">
+      <div class="f-brand">
+        <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
+        <div>
+          <h3 class="f-title">Loukik Sangha</h3>
+          <p class="f-text">
+            Building a stronger community through collective support and transparent
+            financial management.
+          </p>
+        </div>
+      </div>
+
+      <div class="f-social" aria-label="Social links">
+        <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
+      </div>
+    </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Quick Links</h3>
+        <a class="f-link" href="donate.html">Donate</a>
+        <a class="f-link" href="rules.html">Rules</a>
+        <a class="f-link" href="privacy.html">Privacy Policy</a>
+        <a class="f-link" href="terms.html">Terms & Conditions</a>
+        <a class="f-link" href="contact.html">Contact</a>
+      </div>
+
+    <div class="f-col">
+      <h3 class="f-title">Contact</h3>
+      <p class="f-text">Email: info@loukiksangha.org</p>
+      <p class="f-text">Phone: +880 1XXX-XXXXXX</p>
+      <p class="f-text">Address: Dhaka, Bangladesh</p>
+    </div>
+  </div>
+
+  <div class="wrap f-bottom">
+    <div class="f-line"></div>
+    <div class="f-copy">
+      © <span id="year"></span> Loukik Sangha. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="rules.js"></script>
+</body>
+</html>

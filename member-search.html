@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Member Directory | Loukik Sangha</title>
+
+  <link rel="stylesheet" href="member-search.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+ <header class="topbar">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+        <span class="brand-logo">
+          <img src="Images/logo.png" alt="Loukik Sangha Logo">
+        </span>
+        <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>Seva is Our Dharma. 🕉️</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <nav class="menu" id="navMenu" aria-label="Main Navigation">
+        <a class="nav-link" data-page="index.html" href="index.html">Home</a>
+        <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
+        <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
+        <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
+        <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
+        <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+        <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div class="wrap hero-inner">
+        <h1 class="hero-title">Member Search</h1>
+        <p class="hero-sub">Search member by name or phone and view donation records.</p>
+
+        <div class="searchbar" role="search">
+          <input id="q" type="text" placeholder="Search by member name or phone..." autocomplete="off" />
+          <button id="searchBtn" class="btn btn-primary btn-search" type="button">
+            <i class="fa-solid fa-magnifying-glass"></i> Search
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="wrap">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Results</h2>
+            <span class="badge" id="count">0</span>
+          </div>
+
+          <p class="hint" id="searchMsg"></p>
+
+          <!-- Cards Results -->
+          <div id="results" class="results">
+            <div class="empty" id="emptyState">
+              <i class="fa-regular fa-folder-open"></i>
+              <p>No results yet. Search to see member records.</p>
+            </div>
+
+            <div class="cards" id="cards" style="display:none;"></div>
+          </div>
+
+          <!-- Keep table (same as before) but we will not use for search results -->
+          <div class="tableWrap" id="tableWrap" style="display:none;">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:70px;">Serial</th>
+                  <th style="width:120px;">Joining Date</th>
+                  <th>Name</th>
+                  <th style="width:160px;">Monthly Installment</th>
+                  <th style="width:110px;">Paid</th>
+                  <th style="width:110px;">Due</th>
+                  <th style="width:120px;">Advanced</th>
+                  <th style="width:130px;">Total</th>
+                  <th style="width:180px;">Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Become a Member (NEW) -->
+          <div class="divider"></div>
+
+          <div class="panel-head">
+            <h2>Become a Member</h2>
+            <span class="badge badge-soft" id="joinBadge"><i class="fa-solid fa-user-plus"></i> Join</span>
+          </div>
+
+          <p class="hint" id="joinMsg">Fill the form to request membership. Photo is optional.</p>
+
+          <form class="join-form" id="joinForm" autocomplete="off">
+            <div class="f-grid">
+              <div class="f-field">
+                <label class="f-label" for="jName">Full Name</label>
+                <input class="f-input" id="jName" type="text" placeholder="Your full name" required />
+              </div>
+
+              <div class="f-field">
+                <label class="f-label" for="jPhone">Phone</label>
+                <input class="f-input" id="jPhone" type="tel" placeholder="+8801XXXXXXXXX" required />
+              </div>
+
+              <div class="f-field">
+                <label class="f-label" for="jGender">Gender</label>
+                <select class="f-input" id="jGender" required>
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+
+              <div class="f-field">
+                <label class="f-label" for="jJoinMonth">Joining Date (Month)</label>
+                <input class="f-input" id="jJoinMonth" type="month" required />
+              </div>
+
+              <div class="f-field">
+                <label class="f-label" for="jMonthly">Monthly Installment</label>
+                <input class="f-input" id="jMonthly" type="number" min="0" step="1" placeholder="e.g. 200" required />
+              </div>
+
+              <div class="f-field">
+                <label class="f-label" for="jAddress">Address</label>
+                <input class="f-input" id="jAddress" type="text" placeholder="Village/Thana/District" required />
+              </div>
+
+              <div class="f-field f-wide">
+                <label class="f-label" for="jRemarks">Remarks (optional)</label>
+                <input class="f-input" id="jRemarks" type="text" placeholder="Any note..." />
+              </div>
+
+              <div class="f-field f-wide">
+                <label class="f-label" for="jPhoto">Photo (optional)</label>
+                <input class="f-input" id="jPhoto" type="file" accept="image/*" />
+                <small class="f-help">Optional. If you upload, it will show on your membership card.</small>
+              </div>
+            </div>
+
+            <div class="f-actions">
+              <button class="btn btn-primary" type="submit" id="joinSubmit">
+                <i class="fa-solid fa-paper-plane"></i> Submit Request
+              </button>
+              <button class="btn btn-soft" type="button" id="joinReset">
+                <i class="fa-solid fa-rotate-left"></i> Reset
+              </button>
+            </div>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="panel-head">
+            <h2>All Members</h2>
+            <span class="badge" id="allCount">0</span>
+          </div>
+
+          <div class="tableWrap" id="allTableWrap" style="display:none;">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:70px;">Serial</th>
+                  <th style="width:120px;">Joining Date</th>
+                  <th>Name</th>
+                  <th style="width:160px;">Monthly Installment</th>
+                  <th style="width:110px;">Paid</th>
+                  <th style="width:110px;">Due</th>
+                  <th style="width:120px;">Advanced</th>
+                  <th style="width:130px;">Total</th>
+                  <th style="width:180px;">Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="allTbody"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div class="f-col">
+        <div class="f-brand">
+          <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
+          <div>
+            <h3 class="f-title">Loukik Sangha</h3>
+            <p class="f-text">
+              Building a stronger community through collective support and transparent
+              financial management.
+            </p>
+          </div>
+        </div>
+
+        <div class="f-social" aria-label="Social links">
+          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email">
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Quick Links</h3>
+        <a class="f-link" href="donate.html">Donate</a>
+        <a class="f-link" href="rules.html">Rules</a>
+        <a class="f-link" href="privacy.html">Privacy Policy</a>
+        <a class="f-link" href="terms.html">Terms & Conditions</a>
+        <a class="f-link" href="contact.html">Contact</a>
+      </div>
+
+      <div class="f-col">
+        <h3 class="f-title">Contact</h3>
+        <p class="f-text">Email: info@loukiksangha.org</p>
+        <p class="f-text">Phone: +880 1XXX-XXXXXX</p>
+        <p class="f-text">Address: Dhaka, Bangladesh</p>
+      </div>
+    </div>
+
+    <div class="wrap f-bottom">
+      <div class="f-line"></div>
+      <div class="f-copy">
+        © <span id="year"></span> Loukik Sangha. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var navToggle = document.getElementById("navToggle");
+      var navMenu = document.getElementById("navMenu");
+      if (!navToggle || !navMenu) return;
+
+      function setExpanded(v) { navToggle.setAttribute("aria-expanded", v ? "true" : "false"); }
+      function openMenu(){ navMenu.classList.add("open"); setExpanded(true); }
+      function closeMenu(){ navMenu.classList.remove("open"); setExpanded(false); }
+
+      navToggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (navMenu.classList.contains("open")) closeMenu(); else openMenu();
+      }, { passive: false });
+
+      document.addEventListener("click", function (e) {
+        if (!navMenu.classList.contains("open")) return;
+        if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
+        closeMenu();
+      });
+
+      navMenu.addEventListener("click", function (e) {
+        var a = e.target.closest && e.target.closest("a");
+        if (a) closeMenu();
+      });
+
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 860) closeMenu();
+      });
+
+      var y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <script type="module" src="member-search.js"></script>
+</body>
+</html>
