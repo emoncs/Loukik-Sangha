@@ -864,5 +864,17 @@ body{
   .f-brand{ align-items:center; }
   .f-logo{ width:46px; height:46px; }
 }
+/* ✅ FIX: ensure notice ALWAYS visible + smooth infinite scroll */
+#noticeBar{ display:block !important; }
+
+.notice-track{
+  width:max-content;
+  min-width:200%;
+}
+@keyframes noticeScroll{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(-50%); }
+}
+
 
 
