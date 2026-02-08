@@ -69,26 +69,22 @@ function escapeHtml(s){
     .replaceAll('"',"&quot;");
 }
 
-// ✅ Firestore docId safe for putting inside HTML attributes
 function encId(id){ return encodeURIComponent(String(id ?? "")); }
 function decId(id){ return decodeURIComponent(String(id ?? "")); }
 
-// ✅ MemberCode: FirstName-LastName (remove junk, replace spaces with -, no /)
 function makeMemberCodeFromName(fullName){
   const raw = String(fullName || "").trim();
   if (!raw) return "";
 
-  // split by spaces
   const parts = raw.split(/\s+/).filter(Boolean);
   const first = parts[0] || "";
   const last  = parts.length > 1 ? parts[parts.length - 1] : "";
 
   const codeRaw = (last ? `${first}-${last}` : first);
 
-  // sanitize: remove slashes, collapse dashes, trim dashes
   return codeRaw
     .replaceAll("/", "-")
-    .replace(/[^\p{L}\p{N}\-_.]/gu, "-")   // keep letters/numbers/-/_/.
+    .replace(/[^\p{L}\p{N}\-_.]/gu, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 }
@@ -163,7 +159,6 @@ importBtn?.addEventListener("click", async () => {
       const batch = writeBatch(db);
 
       chunk.forEach((r) => {
-        // ✅ memberCode missing থাকলে name থেকে বানাবে
         const name = String(r.name || "").trim();
         let memberCode = String(r.memberCode || "").trim();
         if (!memberCode) memberCode = makeMemberCodeFromName(name);
@@ -264,10 +259,9 @@ $("#saveMemberBtn")?.addEventListener("click", async () => {
   const name = (mName?.value || "").trim();
   let memberCode = (mCode?.value || "").trim();
 
-  // ✅ mCode empty হলে name থেকে First-Last বানাবে
   if (!memberCode) {
     memberCode = makeMemberCodeFromName(name);
-    if (mCode) mCode.value = memberCode; // UI তে দেখাবে
+    if (mCode) mCode.value = memberCode;
   }
 
   const phone = (mPhone?.value || "").trim();
@@ -365,27 +359,37 @@ $("#addPayBtn")?.addEventListener("click", async () => {
 });
 
 /* =========================
-   Members table
+   Members table (FIXED DELETE)
 ========================= */
 const tbody = $("#membersTbody");
 
-async function deleteMemberTransferToIncome(memberCode){
+/**
+ * ✅ FIX:
+ * docId দিয়ে members doc পড়বো + delete করবো
+ * payments archive হবে memberCode field দিয়ে
+ */
+async function deleteMemberTransferToIncome(docId, memberCodeLabel){
   const ok = confirm(
-    `Delete member ${memberCode}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`
+    `Delete member ${memberCodeLabel}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`
   );
   if (!ok) return;
 
   try {
-    const memRef = doc(db, "members", memberCode);
+    const memRef = doc(db, "members", docId);
     const memSnap = await getDoc(memRef);
+
     if (!memSnap.exists()) {
-      alert("Member not found.");
+      alert("Member not found (docId mismatch).");
       return;
     }
+
     const mem = memSnap.data() || {};
     const name = mem.name || "Unknown";
 
-    const qPay = query(collection(db, "payments"), where("memberCode", "==", memberCode));
+    // ✅ payments query uses real stored memberCode field
+    const realMemberCode = String(mem.memberCode || memberCodeLabel || docId).trim();
+
+    const qPay = query(collection(db, "payments"), where("memberCode", "==", realMemberCode));
     const paySnap = await getDocs(qPay);
 
     let total = 0;
@@ -405,7 +409,7 @@ async function deleteMemberTransferToIncome(memberCode){
           archived: true,
           archivedAt: serverTimestamp(),
           archivedReason: "member_deleted",
-          archivedByMemberDelete: memberCode
+          archivedByMemberDelete: realMemberCode
         }, { merge: true });
       });
       await batch.commit();
@@ -414,16 +418,23 @@ async function deleteMemberTransferToIncome(memberCode){
     if (total > 0) {
       await addDoc(collection(db, "transactions"), {
         type: "income",
-        title: `Member deleted: ${name} (${memberCode})`,
+        title: `Member deleted: ${name} (${realMemberCode})`,
         amount: total,
         note: "Auto: member payments transferred to income on delete (payments archived)",
         createdAt: serverTimestamp()
       });
     }
 
-    // ✅ actual deletes
-    await deleteDoc(doc(db, "members", memberCode));
-    await deleteDoc(doc(db, "members_private", memberCode)); // exist না থাকলেও error হবে না
+    // ✅ delete actual member doc
+    await deleteDoc(doc(db, "members", docId));
+
+    // ✅ delete private doc:
+    // - যদি private collection এ docId == memberCode হয় -> realMemberCode use
+    // - আর যদি private এ random id হয়, delete না হলেও issue না (harmless)
+    await Promise.allSettled([
+      deleteDoc(doc(db, "members_private", realMemberCode)),
+      deleteDoc(doc(db, "members_private", docId))
+    ]);
 
     await updateGlobalStats();
     await recalcFund();
@@ -443,9 +454,12 @@ async function loadMembersTable() {
 
   tbody.innerHTML = `<tr><td colspan="10">Loading...</td></tr>`;
   const snap = await getDocs(collection(db, "members"));
+
+  // ✅ IMPORTANT: store docId too
   const rows = [];
-  snap.forEach(d => rows.push(d.data()));
-  rows.sort((a,b)=> (a.memberCode||"").localeCompare(b.memberCode||""));
+  snap.forEach(d => rows.push({ __id: d.id, ...d.data() }));
+
+  rows.sort((a,b)=> (String(a.memberCode||a.__id||"")).localeCompare(String(b.memberCode||b.__id||"")));
 
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="10">No members</td></tr>`;
@@ -455,10 +469,11 @@ async function loadMembersTable() {
   tbody.innerHTML = rows.map(m => {
     const due = Number(m.due || 0);
     const adv = Number(m.advance || 0);
-    const mcode = String(m.memberCode || "");
+    const docId = String(m.__id || "");
+    const mcode = String(m.memberCode || docId);
 
     return `
-      <tr data-code-enc="${escapeHtml(encId(mcode))}">
+      <tr data-id-enc="${escapeHtml(encId(docId))}" data-code-enc="${escapeHtml(encId(mcode))}">
         <td>${escapeHtml(mcode)}</td>
         <td><input class="in" data-k="name" value="${escapeHtml(m.name||"")}" /></td>
         <td>${genderSelectHTML(m.gender || "")}</td>
@@ -478,16 +493,19 @@ tbody?.addEventListener("click", async (e) => {
   const saveBtn = e.target.closest("[data-act='saveRow']");
   const delBtn  = e.target.closest("[data-act='delMember']");
   const tr = e.target.closest("tr");
-  const codeEnc = tr?.getAttribute("data-code-enc");
-  if (!codeEnc) return;
 
-  const code = decId(codeEnc); // ✅ real memberCode (no HTML escape issue)
+  const idEnc = tr?.getAttribute("data-id-enc");
+  const codeEnc = tr?.getAttribute("data-code-enc");
+  if (!idEnc) return;
+
+  const docId = decId(idEnc);
+  const memberCodeLabel = codeEnc ? decId(codeEnc) : docId;
 
   if (delBtn) {
     delBtn.disabled = true;
     delBtn.textContent = "Deleting...";
     try {
-      await deleteMemberTransferToIncome(code);
+      await deleteMemberTransferToIncome(docId, memberCodeLabel);
     } finally {
       delBtn.disabled = false;
       delBtn.textContent = "Delete";
@@ -502,7 +520,8 @@ tbody?.addEventListener("click", async (e) => {
   inputs.forEach(i => data[i.getAttribute("data-k")] = (i.value || "").trim());
 
   try {
-    await setDoc(doc(db, "members", code), {
+    // ✅ update doc by docId
+    await setDoc(doc(db, "members", docId), {
       name: data.name,
       nameLower: (data.name || "").toLowerCase(),
       gender: data.gender || "",
@@ -512,12 +531,15 @@ tbody?.addEventListener("click", async (e) => {
       updatedAt: serverTimestamp()
     }, { merge: true });
 
-    await recalcMember(code);
+    // ✅ recalc by memberCode (field), fallback docId
+    const recalcKey = memberCodeLabel || docId;
+
+    await recalcMember(recalcKey);
     await updateGlobalStats();
     await recalcFund();
 
     scheduleReloadAll();
-    alert(`Saved ${code} ✅`);
+    alert(`Saved ${memberCodeLabel} ✅`);
   } catch (err) {
     alert(err?.message || String(err));
   }
@@ -611,7 +633,7 @@ async function recalcFund() {
 }
 
 /* =========================
-   Payments Manager (same as your code)
+   Payments Manager (UNCHANGED)
 ========================= */
 const paymentsTbody = $("#paymentsTbody");
 const reloadPaymentsBtn = $("#reloadPaymentsBtn");
