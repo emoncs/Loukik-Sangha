@@ -15,12 +15,15 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   Mobile Nav
+   Mobile Nav (FIXED: wait for DOM)
 ========================= */
-(() => {
+window.addEventListener("DOMContentLoaded", () => {
   const navToggle = $("#navToggle");
   const navMenu = $("#navMenu");
-  if (!navToggle || !navMenu) return;
+  if (!navToggle || !navMenu) {
+    console.warn("❌ navToggle/navMenu not found:", { navToggle, navMenu });
+    return;
+  }
 
   const setExpanded = (v) => navToggle.setAttribute("aria-expanded", v ? "true" : "false");
   const closeMenu = () => { navMenu.classList.remove("open"); setExpanded(false); };
@@ -47,7 +50,8 @@ const $ = (s, p = document) => p.querySelector(s);
   window.addEventListener("resize", () => {
     if (window.innerWidth > 860) closeMenu();
   });
-})();
+});
+
 
 /* =========================
    Firestore Stats
@@ -251,5 +255,6 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
 
 
