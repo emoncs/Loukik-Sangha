@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
-
+  <title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
 
   <link rel="stylesheet" href="index.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <!-- ✅ Chart.js removed -->
 </head>
 <body>
 
@@ -39,6 +38,26 @@
       </nav>
     </div>
   </header>
+
+  <!-- ✅ NEW: Notice / Announcement Ticker (Sticky) -->
+  <div class="noticebar" id="noticeBar" role="region" aria-label="Announcements">
+    <div class="wrap notice-inner">
+      <div class="notice-left">
+        <span class="notice-badge"><i class="fa-solid fa-bullhorn"></i> Notice</span>
+        <span class="notice-label">Announcements:</span>
+      </div>
+
+      <div class="notice-marquee" aria-live="polite">
+        <div class="notice-track" id="noticeTrack">
+          <!-- JS will render items here -->
+        </div>
+      </div>
+
+      <button class="notice-close" id="noticeClose" type="button" aria-label="Close notice">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
 
   <main class="main">
     <section class="hero">
@@ -128,13 +147,152 @@
       </div>
     </section>
 
+    <!-- ✅ CHART SECTION REMOVED -> Replaced with Committee/Team -->
     <section class="stats">
       <div class="wrap">
-        <h2 class="section-title">Current Year Monthly Fund Report</h2>
+        <h2 class="section-title">Committee &amp; Verification Contact</h2>
 
-        <div class="panel" style="height:420px;">
-          <canvas id="monthlyFundChart"></canvas>
-          <p class="hint" id="chartYearText" style="text-align:center;margin-top:12px;"></p>
+        <div class="panel team-panel">
+          <div class="team-head">
+            <div>
+              <h3 class="team-title">Our Committee</h3>
+              <p class="team-sub">
+                Verified leadership for transparency and donation confirmation.
+              </p>
+            </div>
+
+            <div class="verify-actions">
+              <a class="btn btn-primary" href="contact.html">
+                <i class="fa-solid fa-phone"></i> Contact for Verification
+              </a>
+              <a class="btn btn-soft" href="donate.html">
+                <i class="fa-regular fa-heart"></i> Donate
+              </a>
+            </div>
+          </div>
+
+          <div class="team-grid">
+
+            <article class="team-card">
+              <div class="team-avatar">
+                <img src="Images/team-president.jpg" alt="President" loading="lazy">
+              </div>
+              <div class="team-body">
+                <h4 class="team-name">Shishir Shil</h4>
+                <p class="team-role">President</p>
+                <div class="team-meta">
+                  <span class="chip"><i class="fa-solid fa-shield-halved"></i> Authority</span>
+                  <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                </div>
+                <div class="team-cta">
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call President" title="Call">
+                    <i class="fa-solid fa-phone"></i>
+                  </a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email President" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                  </a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp President" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <article class="team-card">
+              <div class="team-avatar">
+                <img src="Images/team-secretary.jpg" alt="Secretary" loading="lazy">
+              </div>
+              <div class="team-body">
+                <h4 class="team-name">Pujan Sharma</h4>
+                <p class="team-role">General Secretary</p>
+                <div class="team-meta">
+                  <span class="chip"><i class="fa-solid fa-clipboard-check"></i> Records</span>
+                  <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                </div>
+                <div class="team-cta">
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Secretary" title="Call">
+                    <i class="fa-solid fa-phone"></i>
+                  </a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Secretary" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                  </a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Secretary" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <article class="team-card">
+              <div class="team-avatar">
+                <img src="Images/team-treasurer.jpg" alt="Treasurer" loading="lazy">
+              </div>
+              <div class="team-body">
+                <h4 class="team-name">Sajal Nath</h4>
+                <p class="team-role">Treasurer</p>
+                <div class="team-meta">
+                  <span class="chip"><i class="fa-solid fa-coins"></i> Finance</span>
+                  <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                </div>
+                <div class="team-cta">
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Treasurer" title="Call">
+                    <i class="fa-solid fa-phone"></i>
+                  </a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Treasurer" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                  </a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Treasurer" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <article class="team-card">
+              <div class="team-avatar">
+                <img src="Images/team-volunteer.jpg" alt="Volunteer Lead" loading="lazy">
+              </div>
+              <div class="team-body">
+                <h4 class="team-name">Emon Chandra Shil</h4>
+                <p class="team-role">Social Media Manager</p>
+                <div class="team-meta">
+                  <span class="chip"><i class="fa-solid fa-people-group"></i> Team</span>
+                  <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                </div>
+                <div class="team-cta">
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Volunteer Lead" title="Call">
+                    <i class="fa-solid fa-phone"></i>
+                  </a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Volunteer Lead" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                  </a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Volunteer Lead" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+          </div>
+
+          <div class="verify-box">
+            <div class="verify-left">
+              <div class="verify-ic"><i class="fa-solid fa-circle-check"></i></div>
+              <div>
+                <h4 class="verify-title">Donation Verification</h4>
+                <p class="verify-text">
+                  Donation confirm করতে <b>Contact</b> page থেকে call/WhatsApp করুন বা ইমেইল দিন।
+                  Payment proof (screenshot) দিলে দ্রুত verify করা হবে।
+                </p>
+              </div>
+            </div>
+            <div class="verify-right">
+              <a class="btn btn-primary" href="contact.html">
+                <i class="fa-solid fa-shield-halved"></i> Verify Donation
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -314,6 +472,7 @@
     </div>
   </footer>
 
+  <!-- ✅ keep your existing inline scripts as-is -->
   <script>
     (function () {
       var navToggle = document.getElementById("navToggle");
