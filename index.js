@@ -25,10 +25,13 @@ function initNoticeTicker(){
     }
   } catch {}
 
-  // ✅ Edit these notices anytime
+function initNoticeTicker(){
+  const track = document.getElementById("noticeTrack");
+  if (!track) return;
+
   const notices = [
     { text: "আগামী শুক্রবার সেবা কার্যক্রম", icon: "fa-hands-praying", linkText: "Details", link: "vision.html" },
-    { text: "সদস্য সংগ্রহ — রেজিস্ট্রেশন চলছে", icon: "fa-snowflake", linkText: "Register", link: "contact.html" },
+    { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-snowflake", linkText: "Register", link: "contact.html" },
     { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" }
   ];
 
@@ -41,8 +44,10 @@ function initNoticeTicker(){
     </span>
   `).join("");
 
-  // Duplicate content for seamless loop animation (CSS uses -50% scroll)
+  // duplicate for seamless infinite scroll
   track.innerHTML = html + html;
+}
+
 
   closeBtn?.addEventListener("click", () => {
     bar.style.display = "none";
@@ -127,3 +132,4 @@ function initNoticeTicker(){
 window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
 });
+
