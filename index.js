@@ -15,66 +15,67 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   Mobile Nav
+   Mobile Nav (FINAL FIX)
 ========================= */
 (() => {
-  const setExpanded = (v) => {
-    const btn = document.getElementById("navToggle");
-    if (btn) btn.setAttribute("aria-expanded", v ? "true" : "false");
-  };
-
-  const closeMenu = () => {
-    const menu = document.getElementById("navMenu");
-    if (!menu) return;
-    menu.classList.remove("open");
-    setExpanded(false);
-  };
-
-  const toggleMenu = () => {
-    const menu = document.getElementById("navMenu");
-    if (!menu) return;
-    const open = !menu.classList.contains("open");
-    menu.classList.toggle("open", open);
-    setExpanded(open);
-  };
-
   const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
 
-  const onPress = (e) => {
-    const btn = e.target.closest("#navToggle");
-    if (!btn) return;
-    if (!isMobile()) return;
-    e.preventDefault();
-    e.stopPropagation();
-    toggleMenu();
+  const getBtn  = () => document.getElementById("navToggle");
+  const getMenu = () => document.getElementById("navMenu");
+
+  const setOpen = (open) => {
+    const btn = getBtn();
+    const menu = getMenu();
+    if (!btn || !menu) return;
+    menu.classList.toggle("open", !!open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
   };
 
-  document.addEventListener("pointerdown", onPress, true);
-  document.addEventListener("click", onPress, true);
+  // ✅ remove duplicate listeners if file hot-reloads / double import
+  if (window.__LS_NAV_BOUND__) return;
+  window.__LS_NAV_BOUND__ = true;
 
+  // ✅ Capture phase so it wins even if other scripts stopPropagation later
   document.addEventListener("click", (e) => {
-    const menu = document.getElementById("navMenu");
-    if (!menu?.classList.contains("open")) return;
     if (!isMobile()) return;
-    if (e.target.closest("#navMenu") || e.target.closest("#navToggle")) return;
-    closeMenu();
+
+    const btn = e.target.closest("#navToggle");
+    const menu = getMenu();
+
+    // toggle click
+    if (btn) {
+      e.preventDefault();
+      const isOpen = menu?.classList.contains("open");
+      setOpen(!isOpen);
+      return;
+    }
+
+    // outside click close
+    if (menu?.classList.contains("open")) {
+      const insideMenu = e.target.closest("#navMenu");
+      const insideBtn  = e.target.closest("#navToggle");
+      if (!insideMenu && !insideBtn) setOpen(false);
+    }
   }, true);
 
+  // close on link click
   document.addEventListener("click", (e) => {
-    const menu = document.getElementById("navMenu");
-    if (!menu?.classList.contains("open")) return;
     if (!isMobile()) return;
-    if (e.target.closest("#navMenu a")) closeMenu();
+    const menu = getMenu();
+    if (!menu?.classList.contains("open")) return;
+
+    if (e.target.closest("#navMenu a")) setOpen(false);
   }, true);
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
+    if (e.key === "Escape") setOpen(false);
   });
 
   window.addEventListener("resize", () => {
-    if (!isMobile()) closeMenu();
+    if (!isMobile()) setOpen(false);
   });
 })();
+
 
 /* =========================
    Firestore Stats
@@ -277,3 +278,4 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
