@@ -72,6 +72,11 @@ function escapeHtml(s){
 function encId(id){ return encodeURIComponent(String(id ?? "")); }
 function decId(id){ return decodeURIComponent(String(id ?? "")); }
 
+// ✅ remove hidden spaces/newlines for matching memberCode safely
+function normCode(x){
+  return String(x ?? "").replace(/\s+/g, "").trim();
+}
+
 function makeMemberCodeFromName(fullName){
   const raw = String(fullName || "").trim();
   if (!raw) return "";
@@ -162,6 +167,7 @@ importBtn?.addEventListener("click", async () => {
         const name = String(r.name || "").trim();
         let memberCode = String(r.memberCode || "").trim();
         if (!memberCode) memberCode = makeMemberCodeFromName(name);
+        memberCode = normCode(memberCode);
         if (!memberCode) return;
 
         const phone = String(r.phone || "").trim();
@@ -198,7 +204,7 @@ importBtn?.addEventListener("click", async () => {
       const batch = writeBatch(db);
 
       chunk.forEach((r, idx) => {
-        const memberCode = String(r.memberCode || "").trim();
+        const memberCode = normCode(String(r.memberCode || "").trim());
         const amount = Number(r.amount || 0);
         const method = String(r.method || "").trim() || "Unknown";
         const paidAtMonth = String(r.paidAtMonth || "").trim();
@@ -263,6 +269,7 @@ $("#saveMemberBtn")?.addEventListener("click", async () => {
     memberCode = makeMemberCodeFromName(name);
     if (mCode) mCode.value = memberCode;
   }
+  memberCode = normCode(memberCode);
 
   const phone = (mPhone?.value || "").trim();
   const gender = (mGender?.value || "").trim();
@@ -321,7 +328,7 @@ const setPayMsg = (t, ok=false) => {
 $("#addPayBtn")?.addEventListener("click", async () => {
   const pCode = $("#pCode"), pAmt = $("#pAmt"), pMethod = $("#pMethod"), pMonth = $("#pMonth");
 
-  const memberCode = (pCode?.value || "").trim();
+  const memberCode = normCode((pCode?.value || "").trim());
   const amount = Number((pAmt?.value || "0").trim());
   const method = (pMethod?.value || "").trim() || "Unknown";
   const paidAtMonth = (pMonth?.value || "").trim();
@@ -359,36 +366,45 @@ $("#addPayBtn")?.addEventListener("click", async () => {
 });
 
 /* =========================
-   Members table (FIXED DELETE)
+   Members table (FULL FIX)
 ========================= */
 const tbody = $("#membersTbody");
 
-/**
- * ✅ FIX:
- * docId দিয়ে members doc পড়বো + delete করবো
- * payments archive হবে memberCode field দিয়ে
- */
+// ✅ docId mismatch / newline code mismatch safe delete
 async function deleteMemberTransferToIncome(docId, memberCodeLabel){
+  const label = String(memberCodeLabel || docId);
   const ok = confirm(
-    `Delete member ${memberCodeLabel}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`
+    `Delete member ${label}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`
   );
   if (!ok) return;
 
   try {
-    const memRef = doc(db, "members", docId);
-    const memSnap = await getDoc(memRef);
+    // 1) try by docId
+    let memRef = doc(db, "members", docId);
+    let memSnap = await getDoc(memRef);
 
+    // 2) fallback: try by memberCode field (normalized)
     if (!memSnap.exists()) {
-      alert("Member not found (docId mismatch).");
-      return;
+      const codeNorm = normCode(memberCodeLabel);
+      const qMem = query(collection(db, "members"), where("memberCode", "==", codeNorm));
+      const sMem = await getDocs(qMem);
+
+      if (sMem.empty) {
+        alert("Member not found.");
+        return;
+      }
+
+      const d0 = sMem.docs[0];
+      memRef = d0.ref;
+      memSnap = d0;
+      docId = d0.id;
     }
 
     const mem = memSnap.data() || {};
     const name = mem.name || "Unknown";
+    const realMemberCode = normCode(mem.memberCode || memberCodeLabel || docId);
 
-    // ✅ payments query uses real stored memberCode field
-    const realMemberCode = String(mem.memberCode || memberCodeLabel || docId).trim();
-
+    // archive payments
     const qPay = query(collection(db, "payments"), where("memberCode", "==", realMemberCode));
     const paySnap = await getDocs(qPay);
 
@@ -425,12 +441,10 @@ async function deleteMemberTransferToIncome(docId, memberCodeLabel){
       });
     }
 
-    // ✅ delete actual member doc
+    // delete member
     await deleteDoc(doc(db, "members", docId));
 
-    // ✅ delete private doc:
-    // - যদি private collection এ docId == memberCode হয় -> realMemberCode use
-    // - আর যদি private এ random id হয়, delete না হলেও issue না (harmless)
+    // delete private (two possible patterns)
     await Promise.allSettled([
       deleteDoc(doc(db, "members_private", realMemberCode)),
       deleteDoc(doc(db, "members_private", docId))
@@ -455,7 +469,7 @@ async function loadMembersTable() {
   tbody.innerHTML = `<tr><td colspan="10">Loading...</td></tr>`;
   const snap = await getDocs(collection(db, "members"));
 
-  // ✅ IMPORTANT: store docId too
+  // ✅ include docId ALWAYS
   const rows = [];
   snap.forEach(d => rows.push({ __id: d.id, ...d.data() }));
 
@@ -474,7 +488,7 @@ async function loadMembersTable() {
 
     return `
       <tr data-id-enc="${escapeHtml(encId(docId))}" data-code-enc="${escapeHtml(encId(mcode))}">
-        <td>${escapeHtml(mcode)}</td>
+        <td style="white-space:pre-line;">${escapeHtml(mcode)}</td>
         <td><input class="in" data-k="name" value="${escapeHtml(m.name||"")}" /></td>
         <td>${genderSelectHTML(m.gender || "")}</td>
         <td><input class="in" data-k="joinMonth" value="${escapeHtml(m.joinMonth||"")}" /></td>
@@ -520,7 +534,6 @@ tbody?.addEventListener("click", async (e) => {
   inputs.forEach(i => data[i.getAttribute("data-k")] = (i.value || "").trim());
 
   try {
-    // ✅ update doc by docId
     await setDoc(doc(db, "members", docId), {
       name: data.name,
       nameLower: (data.name || "").toLowerCase(),
@@ -531,17 +544,17 @@ tbody?.addEventListener("click", async (e) => {
       updatedAt: serverTimestamp()
     }, { merge: true });
 
-    // ✅ recalc by memberCode (field), fallback docId
-    const recalcKey = memberCodeLabel || docId;
-
+    // recalc by memberCode field if exists, else docId
+    const recalcKey = normCode(memberCodeLabel || docId);
     await recalcMember(recalcKey);
+
     await updateGlobalStats();
     await recalcFund();
 
     scheduleReloadAll();
     alert(`Saved ${memberCodeLabel} ✅`);
   } catch (err) {
-    alert(err?.message || String(err));
+    alert(err?.message || String(err)));
   }
 });
 
@@ -633,7 +646,7 @@ async function recalcFund() {
 }
 
 /* =========================
-   Payments Manager (UNCHANGED)
+   Payments Manager (unchanged)
 ========================= */
 const paymentsTbody = $("#paymentsTbody");
 const reloadPaymentsBtn = $("#reloadPaymentsBtn");
@@ -657,7 +670,7 @@ async function deletePayment(payId, memberCode) {
 
   await deleteDoc(doc(db, "payments", payId));
 
-  if (memberCode) await recalcMember(memberCode);
+  if (memberCode) await recalcMember(normCode(memberCode));
   await updateGlobalStats();
   await recalcFund();
 
@@ -746,8 +759,8 @@ paymentsTbody?.addEventListener("click", async (e) => {
   const data = {};
   inputs.forEach(i => data[i.getAttribute("data-k")] = (i.value || "").trim());
 
-  const newCode = data.memberCode;
-  const newMonth = data.paidAtMonth;
+  const newCode = normCode(data.memberCode);
+  const newMonth = (data.paidAtMonth || "").trim();
   const newAmt = Number(data.amount || 0);
   const newMethod = data.method || "Unknown";
 
@@ -774,8 +787,8 @@ paymentsTbody?.addEventListener("click", async (e) => {
 
     tr.setAttribute("data-oldcode", newCode);
 
-    if (oldCode) await recalcMember(oldCode);
-    if (newCode && newCode !== oldCode) await recalcMember(newCode);
+    if (oldCode) await recalcMember(normCode(oldCode));
+    if (newCode && newCode !== normCode(oldCode)) await recalcMember(newCode);
 
     await updateGlobalStats();
     await recalcFund();
@@ -798,7 +811,7 @@ paySearch?.addEventListener("input", () => {
 payLimit?.addEventListener("change", loadPaymentsTable);
 
 /* =========================
-   Transactions table (same as your code)
+   Transactions table (same)
 ========================= */
 const txTbody = $("#txTbody");
 const reloadTxBtn = $("#reloadTxBtn");
