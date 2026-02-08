@@ -293,19 +293,17 @@ body{
   text-decoration:underline;
   text-underline-offset:3px;
 }
-.notice-close{
-  flex:0 0 auto;
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.12);
-  color:#fff;
-  border-radius:12px;
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
+/* notice bar is non-closable now */
+.notice-inner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 0;
 }
-.notice-close:hover{ transform:translateY(-1px); }
+
+/* remove/ignore close button styles (if any existed) */
+/* .notice-close { display:none; } */
+
 
 /* HERO */
 .main{ padding-bottom:20px; }
@@ -872,3 +870,4 @@ body{
   .f-brand{ align-items:center; }
   .f-logo{ width:46px; height:46px; }
 }
+
