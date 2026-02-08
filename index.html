@@ -7,7 +7,6 @@
 
   <link rel="stylesheet" href="index.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- ✅ Chart.js removed -->
 </head>
 <body>
 
@@ -39,22 +38,21 @@
     </div>
   </header>
 
-  <!-- ✅ NEW: Notice / Announcement Ticker (Sticky, non-closable) -->
-<div class="noticebar" id="noticeBar" role="region" aria-label="Announcements">
-  <div class="wrap notice-inner">
-    <div class="notice-left">
-      <span class="notice-badge"><i class="fa-solid fa-bullhorn"></i> Notice</span>
-      <span class="notice-label">Announcements:</span>
-    </div>
+  <!-- ✅ Notice / Announcement Ticker (Sticky, non-closable) -->
+  <div class="noticebar" id="noticeBar" role="region" aria-label="Announcements">
+    <div class="wrap notice-inner">
+      <div class="notice-left">
+        <span class="notice-badge"><i class="fa-solid fa-bullhorn"></i> Notice</span>
+        <span class="notice-label">Announcements:</span>
+      </div>
 
-    <div class="notice-marquee" aria-live="polite">
-      <div class="notice-track" id="noticeTrack">
-        <!-- JS will render items here -->
+      <div class="notice-marquee" aria-live="polite">
+        <div class="notice-track" id="noticeTrack">
+          <!-- JS will render items here -->
+        </div>
       </div>
     </div>
   </div>
-</div>
-
 
   <main class="main">
     <section class="hero">
@@ -144,7 +142,7 @@
       </div>
     </section>
 
-    <!-- ✅ CHART SECTION REMOVED -> Replaced with Committee/Team -->
+    <!-- ✅ Committee/Team section -->
     <section class="stats">
       <div class="wrap">
         <h2 class="section-title">Committee &amp; Verification Contact</h2>
@@ -153,9 +151,7 @@
           <div class="team-head">
             <div>
               <h3 class="team-title">Our Committee</h3>
-              <p class="team-sub">
-                Verified leadership for transparency and donation confirmation.
-              </p>
+              <p class="team-sub">Verified leadership for transparency and donation confirmation.</p>
             </div>
 
             <div class="verify-actions">
@@ -169,7 +165,6 @@
           </div>
 
           <div class="team-grid">
-
             <article class="team-card">
               <div class="team-avatar">
                 <img src="Images/male.png" alt="President" loading="lazy">
@@ -182,15 +177,9 @@
                   <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
                 </div>
                 <div class="team-cta">
-                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call President" title="Call">
-                    <i class="fa-solid fa-phone"></i>
-                  </a>
-                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email President" title="Email">
-                    <i class="fa-solid fa-envelope"></i>
-                  </a>
-                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp President" title="WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call President" title="Call"><i class="fa-solid fa-phone"></i></a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email President" title="Email"><i class="fa-solid fa-envelope"></i></a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp President" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
               </div>
             </article>
@@ -207,15 +196,9 @@
                   <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
                 </div>
                 <div class="team-cta">
-                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Secretary" title="Call">
-                    <i class="fa-solid fa-phone"></i>
-                  </a>
-                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Secretary" title="Email">
-                    <i class="fa-solid fa-envelope"></i>
-                  </a>
-                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Secretary" title="WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Secretary" title="Call"><i class="fa-solid fa-phone"></i></a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Secretary" title="Email"><i class="fa-solid fa-envelope"></i></a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Secretary" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
               </div>
             </article>
@@ -232,15 +215,9 @@
                   <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
                 </div>
                 <div class="team-cta">
-                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Treasurer" title="Call">
-                    <i class="fa-solid fa-phone"></i>
-                  </a>
-                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Treasurer" title="Email">
-                    <i class="fa-solid fa-envelope"></i>
-                  </a>
-                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Treasurer" title="WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
+                  <a class="iconbtn" href="tel:+8801XXXXXXXXX" aria-label="Call Treasurer" title="Call"><i class="fa-solid fa-phone"></i></a>
+                  <a class="iconbtn" href="mailto:info@loukiksangha.org" aria-label="Email Treasurer" title="Email"><i class="fa-solid fa-envelope"></i></a>
+                  <a class="iconbtn" href="https://wa.me/8801XXXXXXXXX" target="_blank" rel="noopener" aria-label="WhatsApp Treasurer" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
               </div>
             </article>
@@ -257,19 +234,12 @@
                   <span class="chip"><i class="fa-solid fa-circle-check"></i> Verified</span>
                 </div>
                 <div class="team-cta">
-                  <a class="iconbtn" href="tel:+880171386375" aria-label="Call Social Media Manager" title="Call">
-                    <i class="fa-solid fa-phone"></i>
-                  </a>
-                  <a class="iconbtn" href="mailto:emonshil2@gmail.com" aria-label="Email Socila Media Manager" title="Email">
-                    <i class="fa-solid fa-envelope"></i>
-                  </a>
-                  <a class="iconbtn" href="https://wa.me/880171386375" target="_blank" rel="noopener" aria-label="WhatsApp Socila Media Manager" title="WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
+                  <a class="iconbtn" href="tel:+880171386375" aria-label="Call Social Media Manager" title="Call"><i class="fa-solid fa-phone"></i></a>
+                  <a class="iconbtn" href="mailto:emonshil2@gmail.com" aria-label="Email Social Media Manager" title="Email"><i class="fa-solid fa-envelope"></i></a>
+                  <a class="iconbtn" href="https://wa.me/880171386375" target="_blank" rel="noopener" aria-label="WhatsApp Social Media Manager" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
               </div>
             </article>
-
           </div>
 
           <div class="verify-box">
@@ -294,17 +264,14 @@
       </div>
     </section>
 
-    <!-- ✅ What We Do & Our Activities -->
+    <!-- ✅ What We Do & Our Activities (unchanged) -->
     <section class="impact">
       <div class="wrap">
         <h2 class="section-title">What We Do &amp; Our Future Plan</h2>
-        <p class="impact-sub">
-          A simple story of our work—today’s support and tomorrow’s vision.
-        </p>
+        <p class="impact-sub">A simple story of our work—today’s support and tomorrow’s vision.</p>
 
         <div class="slider" id="impactSlider" aria-label="Impact Slider">
           <div class="slides" id="impactSlides">
-
             <article class="slide is-active">
               <img src="Images/1.jpg" alt="Community support">
               <div class="slide-caption">
@@ -328,7 +295,6 @@
                 <p>Education, emergency aid, and long-term welfare programs for a stronger society.</p>
               </div>
             </article>
-
           </div>
 
           <div class="slider-dots" id="impactDots" aria-label="Slider controls">
@@ -343,69 +309,37 @@
     <section class="activities">
       <div class="wrap">
         <h2 class="section-title">Our Activities</h2>
-        <p class="impact-sub" style="text-align:center;">
-          Add your real photos later—these cards will stay the same shape everywhere.
-        </p>
+        <p class="impact-sub" style="text-align:center;">Add your real photos later—these cards will stay the same shape everywhere.</p>
 
         <div class="activity-grid">
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Relief Distribution</h3>
-              <p>Essential help for families in difficult times.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Relief Distribution</h3><p>Essential help for families in difficult times.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Community Meeting</h3>
-              <p>Regular meetings to make decisions together.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Community Meeting</h3><p>Regular meetings to make decisions together.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Medical Support</h3>
-              <p>Emergency support for members when needed.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Medical Support</h3><p>Emergency support for members when needed.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Education Aid</h3>
-              <p>Supporting students with resources and guidance.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Education Aid</h3><p>Supporting students with resources and guidance.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Volunteer Work</h3>
-              <p>Local volunteer programs to support community needs.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Volunteer Work</h3><p>Local volunteer programs to support community needs.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media">
-              <img src="Images/4.jpg" alt="Activity">
-            </div>
-            <div class="activity-body">
-              <h3>Awareness Program</h3>
-              <p>Creating awareness and bringing people together.</p>
-            </div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-body"><h3>Awareness Program</h3><p>Creating awareness and bringing people together.</p></div>
           </article>
         </div>
       </div>
@@ -421,26 +355,15 @@
           <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
           <div>
             <h3 class="f-title">Loukik Sangha</h3>
-            <p class="f-text">
-              Building a stronger community through collective support and transparent
-              financial management.
-            </p>
+            <p class="f-text">Building a stronger community through collective support and transparent financial management.</p>
           </div>
         </div>
 
         <div class="f-social" aria-label="Social links">
-          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook">
-            <i class="fa-brands fa-facebook-f"></i>
-          </a>
-          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube">
-            <i class="fa-brands fa-youtube"></i>
-          </a>
-          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp">
-            <i class="fa-brands fa-whatsapp"></i>
-          </a>
-          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email">
-            <i class="fa-solid fa-envelope"></i>
-          </a>
+          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
         </div>
       </div>
 
@@ -463,9 +386,7 @@
 
     <div class="wrap f-bottom">
       <div class="f-line"></div>
-      <div class="f-copy">
-        © <span id="year"></span> Loukik Sangha. All rights reserved.
-      </div>
+      <div class="f-copy">© <span id="year"></span> Loukik Sangha. All rights reserved.</div>
     </div>
   </footer>
 
@@ -521,37 +442,21 @@
       function setActive(i){
         slides[idx].classList.remove("is-active");
         dots[idx].classList.remove("is-active");
-
         idx = i;
-
         slides[idx].classList.add("is-active");
         dots[idx].classList.add("is-active");
       }
 
-      function next(){
-        setActive((idx + 1) % slides.length);
-      }
-
-      function start(){
-        stop();
-        timer = setInterval(next, 4500);
-      }
-
-      function stop(){
-        if (timer) clearInterval(timer);
-        timer = null;
-      }
+      function next(){ setActive((idx + 1) % slides.length); }
+      function start(){ stop(); timer = setInterval(next, 4500); }
+      function stop(){ if (timer) clearInterval(timer); timer = null; }
 
       dots.forEach(function(btn, i){
-        btn.addEventListener("click", function(){
-          setActive(i);
-          start();
-        });
+        btn.addEventListener("click", function(){ setActive(i); start(); });
       });
 
       slider.addEventListener("mouseenter", stop);
       slider.addEventListener("mouseleave", start);
-
       start();
     })();
   </script>
@@ -559,9 +464,3 @@
   <script type="module" src="index.js"></script>
 </body>
 </html>
-
-
-
-
-
-
