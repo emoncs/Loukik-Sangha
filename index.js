@@ -3,103 +3,56 @@ import { db } from "./firebase.js";
 
 import {
   doc,
-  onSnapshot,
-  collection,
-  getDocs
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 initNavbarAuthUI();
 
-let __fundChart = null;
+/* =========================
+   Notice / Announcement Ticker (NEW)
+========================= */
+function initNoticeTicker(){
+  const track = document.getElementById("noticeTrack");
+  const closeBtn = document.getElementById("noticeClose");
+  const bar = document.getElementById("noticeBar");
+  if (!track || !bar) return;
 
-async function loadMonthlyFundChart() {
-  const msg = document.getElementById("chartYearText");
-  const canvas = document.getElementById("monthlyFundChart");
-
-  if (!canvas) {
-    if (msg) msg.textContent = "Chart canvas not found (#monthlyFundChart).";
-    return;
-  }
-
-  if (typeof window.Chart === "undefined") {
-    if (msg) msg.textContent = "Chart.js not loaded. Check script tag in <head>.";
-    return;
-  }
-
-  const year = new Date().getFullYear();
-  if (msg) msg.textContent = `Showing paid vs due amount for each month (${year})`;
-
-  try {
-    const membersSnap = await getDocs(collection(db, "members"));
-    const members = [];
-    membersSnap.forEach(d => members.push(d.data()));
-
-    const paySnap = await getDocs(collection(db, "payments"));
-    const payments = [];
-    paySnap.forEach(d => payments.push(d.data()));
-
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const paidArr = Array(12).fill(0);
-    const dueArr  = Array(12).fill(0);
-
-    for (let m = 0; m < 12; m++) {
-      const monthStr = `${year}-${String(m + 1).padStart(2, "0")}`;
-
-      let expected = 0;
-      for (const mem of members) {
-        if (mem.joinMonth && mem.joinMonth <= monthStr) {
-          expected += Number(mem.monthlyDue || 0);
-        }
-      }
-
-      let paid = 0;
-      for (const p of payments) {
-        if (!p.paidAt) continue;
-
-        if (typeof p.paidAt?.toDate === "function") {
-          const d = p.paidAt.toDate();
-          if (d.getFullYear() === year && d.getMonth() === m) {
-            paid += Number(p.amount || 0);
-          }
-        } else if (typeof p.paidAtMonth === "string") {
-          if (p.paidAtMonth === monthStr) paid += Number(p.amount || 0);
-        }
-      }
-
-      paidArr[m] = paid;
-      dueArr[m] = Math.max(expected - paid, 0);
+  // If user closed earlier
+  try{
+    if (localStorage.getItem("ls_notice_closed") === "1") {
+      bar.style.display = "none";
+      return;
     }
+  } catch {}
 
-    if (__fundChart) {
-      __fundChart.destroy();
-      __fundChart = null;
-    }
+  // ✅ Edit these notices anytime
+  const notices = [
+    { text: "আগামী শুক্রবার সেবা কার্যক্রম", icon: "fa-hands-praying", linkText: "Details", link: "vision.html" },
+    { text: "সদস্য সংগ্রহ — রেজিস্ট্রেশন চলছে", icon: "fa-snowflake", linkText: "Register", link: "contact.html" },
+    { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" }
+  ];
 
-    __fundChart = new window.Chart(canvas.getContext("2d"), {
-      type: "bar",
-      data: {
-        labels: months,
-        datasets: [
-          { label: "Paid (৳)", data: paidArr, backgroundColor: "#2563eb" },
-          { label: "Due (৳)",  data: dueArr,  backgroundColor: "#f97316" }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } },
-        scales: {
-          y: { beginAtZero: true, ticks: { callback: v => "৳" + v } }
-        }
-      }
-    });
+  const html = notices.map(n => `
+    <span class="notice-item">
+      <span class="notice-dot"></span>
+      <i class="fa-solid ${n.icon}"></i>
+      <b>${n.text}</b>
+      ${n.link ? `<a class="notice-link" href="${n.link}">${n.linkText || "View"}</a>` : ``}
+    </span>
+  `).join("");
 
-  } catch (err) {
-    console.error(err);
-    if (msg) msg.textContent = "Chart error: " + (err?.message || err);
-  }
+  // Duplicate content for seamless loop animation (CSS uses -50% scroll)
+  track.innerHTML = html + html;
+
+  closeBtn?.addEventListener("click", () => {
+    bar.style.display = "none";
+    try{ localStorage.setItem("ls_notice_closed","1"); } catch {}
+  });
 }
 
+/* =========================
+   Existing DOM helpers + nav (kept)
+========================= */
 (() => {
   const $ = (s, p = document) => p.querySelector(s);
 
@@ -137,24 +90,23 @@ async function loadMonthlyFundChart() {
     });
   }
 
-const statMembers = $("#statMembers");
-const statCollected = $("#statCollected");
-const statDues = $("#statDues");
-const statFund = $("#statFund");
-const statOtherIncome = $("#statOtherIncome");
-const statExpense = $("#statExpense");
+  const statMembers = $("#statMembers");
+  const statCollected = $("#statCollected");
+  const statDues = $("#statDues");
+  const statFund = $("#statFund");
+  const statOtherIncome = $("#statOtherIncome");
+  const statExpense = $("#statExpense");
 
-onSnapshot(doc(db, "stats", "global"), (snap) => {
-  const s = snap.data() || {};
-  if (statMembers) statMembers.textContent = s.totalMembers ?? 0;
-  if (statCollected) statCollected.textContent = s.totalCollectedYTD ?? 0;
-  if (statDues) statDues.textContent = s.totalDues ?? 0;
-  if (statFund) statFund.textContent = s.availableFund ?? 0;
+  onSnapshot(doc(db, "stats", "global"), (snap) => {
+    const s = snap.data() || {};
+    if (statMembers) statMembers.textContent = s.totalMembers ?? 0;
+    if (statCollected) statCollected.textContent = s.totalCollectedYTD ?? 0;
+    if (statDues) statDues.textContent = s.totalDues ?? 0;
+    if (statFund) statFund.textContent = s.availableFund ?? 0;
 
-  if (statOtherIncome) statOtherIncome.textContent = s.totalOtherIncome ?? 0;
-  if (statExpense) statExpense.textContent = s.totalExpense ?? 0;
-});
-
+    if (statOtherIncome) statOtherIncome.textContent = s.totalOtherIncome ?? 0;
+    if (statExpense) statExpense.textContent = s.totalExpense ?? 0;
+  });
 
   const heroSearch = $("#heroSearch");
   const heroSearchBtn = $("#heroSearchBtn");
@@ -172,4 +124,6 @@ onSnapshot(doc(db, "stats", "global"), (snap) => {
   });
 })();
 
-window.addEventListener("DOMContentLoaded", loadMonthlyFundChart);
+window.addEventListener("DOMContentLoaded", () => {
+  initNoticeTicker();
+});
