@@ -15,63 +15,66 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   Mobile Nav (FIX: works even if navbar is re-rendered)
+   Mobile Nav
 ========================= */
 (() => {
-  const setExpanded = (btn, v) => btn?.setAttribute("aria-expanded", v ? "true" : "false");
-
-  const closeMenu = () => {
+  const setExpanded = (v) => {
     const btn = document.getElementById("navToggle");
-    const menu = document.getElementById("navMenu");
-    if (!btn || !menu) return;
-    menu.classList.remove("open");
-    setExpanded(btn, false);
+    if (btn) btn.setAttribute("aria-expanded", v ? "true" : "false");
   };
 
-  // ✅ Delegated click: survives DOM replacement
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("#navToggle");
+  const closeMenu = () => {
     const menu = document.getElementById("navMenu");
+    if (!menu) return;
+    menu.classList.remove("open");
+    setExpanded(false);
+  };
 
-    // Toggle pressed
-    if (btn) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!menu) return;
+  const toggleMenu = () => {
+    const menu = document.getElementById("navMenu");
+    if (!menu) return;
+    const open = !menu.classList.contains("open");
+    menu.classList.toggle("open", open);
+    setExpanded(open);
+  };
 
-      const open = !menu.classList.contains("open");
-      menu.classList.toggle("open", open);
-      setExpanded(btn, open);
-      return;
-    }
+  const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
 
-    // Outside click closes (only if open)
-    if (menu?.classList.contains("open")) {
-      const clickedInsideMenu = e.target.closest("#navMenu");
-      if (!clickedInsideMenu) closeMenu();
-    }
-  }, { passive: false });
+  const onPress = (e) => {
+    const btn = e.target.closest("#navToggle");
+    if (!btn) return;
+    if (!isMobile()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMenu();
+  };
 
-  // Click menu link closes
+  document.addEventListener("pointerdown", onPress, true);
+  document.addEventListener("click", onPress, true);
+
   document.addEventListener("click", (e) => {
     const menu = document.getElementById("navMenu");
     if (!menu?.classList.contains("open")) return;
+    if (!isMobile()) return;
+    if (e.target.closest("#navMenu") || e.target.closest("#navToggle")) return;
+    closeMenu();
+  }, true);
 
-    const link = e.target.closest("#navMenu a");
-    if (link) closeMenu();
-  });
+  document.addEventListener("click", (e) => {
+    const menu = document.getElementById("navMenu");
+    if (!menu?.classList.contains("open")) return;
+    if (!isMobile()) return;
+    if (e.target.closest("#navMenu a")) closeMenu();
+  }, true);
 
-  // Esc closes
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();
   });
 
-  // Resize closes
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 860) closeMenu();
+    if (!isMobile()) closeMenu();
   });
 })();
-
 
 /* =========================
    Firestore Stats
@@ -143,7 +146,7 @@ function initNoticeTicker() {
     `;
   }).join("");
 
-  track.innerHTML = html + html; // duplicate for smooth infinite scroll
+  track.innerHTML = html + html;
 }
 
 /* =========================
@@ -199,6 +202,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
   initImpactSlider();
 });
+
 function todayBD() {
   const now = new Date();
   const bd = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
@@ -219,7 +223,6 @@ function showRitualPopup(dateStr, items){
 
   if (!modal || !list || !title) return;
 
-  // show once per day
   const seenKey = `ls_ritual_seen_${dateStr}`;
   try { if (localStorage.getItem(seenKey) === "1") return; } catch {}
 
@@ -271,11 +274,6 @@ async function initRitualPopupFromJSON(){
   }
 }
 
-// আপনার existing DOMContentLoaded-এ এটা call করুন:
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
-
-
-
-
