@@ -39,25 +39,22 @@
     </div>
   </header>
 
-  <!-- ✅ NEW: Notice / Announcement Ticker (Sticky) -->
-  <div class="noticebar" id="noticeBar" role="region" aria-label="Announcements">
-    <div class="wrap notice-inner">
-      <div class="notice-left">
-        <span class="notice-badge"><i class="fa-solid fa-bullhorn"></i> Notice</span>
-        <span class="notice-label">Announcements:</span>
-      </div>
+  <!-- ✅ NEW: Notice / Announcement Ticker (Sticky, non-closable) -->
+<div class="noticebar" id="noticeBar" role="region" aria-label="Announcements">
+  <div class="wrap notice-inner">
+    <div class="notice-left">
+      <span class="notice-badge"><i class="fa-solid fa-bullhorn"></i> Notice</span>
+      <span class="notice-label">Announcements:</span>
+    </div>
 
-      <div class="notice-marquee" aria-live="polite">
-        <div class="notice-track" id="noticeTrack">
-          <!-- JS will render items here -->
-        </div>
+    <div class="notice-marquee" aria-live="polite">
+      <div class="notice-track" id="noticeTrack">
+        <!-- JS will render items here -->
       </div>
-
-      <button class="notice-close" id="noticeClose" type="button" aria-label="Close notice">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
     </div>
   </div>
+</div>
+
 
   <main class="main">
     <section class="hero">
@@ -562,6 +559,7 @@
   <script type="module" src="index.js"></script>
 </body>
 </html>
+
 
 
 
