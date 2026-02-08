@@ -17,6 +17,9 @@ const $ = (s, p=document) => p.querySelector(s);
 const yearEl = $("#year");
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+/* =========================
+   Nav
+========================= */
 const navToggle = $("#navToggle");
 const navMenu = $("#navMenu");
 navToggle?.addEventListener("click", () => {
@@ -39,6 +42,9 @@ document.addEventListener("click", (e) => {
   });
 })();
 
+/* =========================
+   Reload helper
+========================= */
 let __reloadT = null;
 function scheduleReloadAll() {
   clearTimeout(__reloadT);
@@ -50,6 +56,53 @@ function scheduleReloadAll() {
       loadTxTable()
     ]);
   }, 50);
+}
+
+/* =========================
+   Helpers
+========================= */
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+// ✅ Firestore docId safe for putting inside HTML attributes
+function encId(id){ return encodeURIComponent(String(id ?? "")); }
+function decId(id){ return decodeURIComponent(String(id ?? "")); }
+
+// ✅ MemberCode: FirstName-LastName (remove junk, replace spaces with -, no /)
+function makeMemberCodeFromName(fullName){
+  const raw = String(fullName || "").trim();
+  if (!raw) return "";
+
+  // split by spaces
+  const parts = raw.split(/\s+/).filter(Boolean);
+  const first = parts[0] || "";
+  const last  = parts.length > 1 ? parts[parts.length - 1] : "";
+
+  const codeRaw = (last ? `${first}-${last}` : first);
+
+  // sanitize: remove slashes, collapse dashes, trim dashes
+  return codeRaw
+    .replaceAll("/", "-")
+    .replace(/[^\p{L}\p{N}\-_.]/gu, "-")   // keep letters/numbers/-/_/.
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function genderSelectHTML(value){
+  const v = (value || "").trim();
+  return `
+    <select class="in" data-k="gender">
+      <option value="" ${v==="" ? "selected":""}>-</option>
+      <option value="Male" ${v==="Male" ? "selected":""}>Male</option>
+      <option value="Female" ${v==="Female" ? "selected":""}>Female</option>
+      <option value="Other" ${v==="Other" ? "selected":""}>Other</option>
+    </select>
+  `;
 }
 
 /* =========================
@@ -110,10 +163,12 @@ importBtn?.addEventListener("click", async () => {
       const batch = writeBatch(db);
 
       chunk.forEach((r) => {
-        const memberCode = String(r.memberCode || "").trim();
+        // ✅ memberCode missing থাকলে name থেকে বানাবে
+        const name = String(r.name || "").trim();
+        let memberCode = String(r.memberCode || "").trim();
+        if (!memberCode) memberCode = makeMemberCodeFromName(name);
         if (!memberCode) return;
 
-        const name = String(r.name || "").trim();
         const phone = String(r.phone || "").trim();
         const joinMonth = String(r.joinMonth || "").trim();
         const monthlyDue = Number(r.monthlyDue || 0);
@@ -206,8 +261,15 @@ $("#saveMemberBtn")?.addEventListener("click", async () => {
         mJoin = $("#mJoin"),
         mMonthly = $("#mMonthly");
 
-  const memberCode = (mCode?.value || "").trim();
   const name = (mName?.value || "").trim();
+  let memberCode = (mCode?.value || "").trim();
+
+  // ✅ mCode empty হলে name থেকে First-Last বানাবে
+  if (!memberCode) {
+    memberCode = makeMemberCodeFromName(name);
+    if (mCode) mCode.value = memberCode; // UI তে দেখাবে
+  }
+
   const phone = (mPhone?.value || "").trim();
   const gender = (mGender?.value || "").trim();
   const joinMonth = (mJoin?.value || "").trim();
@@ -307,85 +369,73 @@ $("#addPayBtn")?.addEventListener("click", async () => {
 ========================= */
 const tbody = $("#membersTbody");
 
-function escapeHtml(s){
-  return String(s ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;");
-}
-
-function genderSelectHTML(value){
-  const v = (value || "").trim();
-  return `
-    <select class="in" data-k="gender">
-      <option value="" ${v==="" ? "selected":""}>-</option>
-      <option value="Male" ${v==="Male" ? "selected":""}>Male</option>
-      <option value="Female" ${v==="Female" ? "selected":""}>Female</option>
-      <option value="Other" ${v==="Other" ? "selected":""}>Other</option>
-    </select>
-  `;
-}
-
 async function deleteMemberTransferToIncome(memberCode){
-  const ok = confirm(`Delete member ${memberCode}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`);
+  const ok = confirm(
+    `Delete member ${memberCode}?\n\n✅ Payments delete হবে না\n✅ Payments archive হয়ে Income এ transfer হবে`
+  );
   if (!ok) return;
 
-  const memRef = doc(db, "members", memberCode);
-  const memSnap = await getDoc(memRef);
-  if (!memSnap.exists()) {
-    alert("Member not found.");
-    return;
-  }
-  const mem = memSnap.data() || {};
-  const name = mem.name || "Unknown";
+  try {
+    const memRef = doc(db, "members", memberCode);
+    const memSnap = await getDoc(memRef);
+    if (!memSnap.exists()) {
+      alert("Member not found.");
+      return;
+    }
+    const mem = memSnap.data() || {};
+    const name = mem.name || "Unknown";
 
-  const qPay = query(collection(db, "payments"), where("memberCode", "==", memberCode));
-  const paySnap = await getDocs(qPay);
+    const qPay = query(collection(db, "payments"), where("memberCode", "==", memberCode));
+    const paySnap = await getDocs(qPay);
 
-  let total = 0;
-  const payDocs = [];
-  paySnap.forEach(d => {
-    const p = d.data() || {};
-    if (p.archived) return;
-    total += Number(p.amount || 0);
-    payDocs.push(d.id);
-  });
-
-  const chunkSize = 400;
-  for (let i = 0; i < payDocs.length; i += chunkSize) {
-    const batch = writeBatch(db);
-    payDocs.slice(i, i + chunkSize).forEach((id) => {
-      batch.set(doc(db, "payments", id), {
-        archived: true,
-        archivedAt: serverTimestamp(),
-        archivedReason: "member_deleted",
-        archivedByMemberDelete: memberCode
-      }, { merge: true });
+    let total = 0;
+    const payDocs = [];
+    paySnap.forEach(d => {
+      const p = d.data() || {};
+      if (p.archived) return;
+      total += Number(p.amount || 0);
+      payDocs.push(d.id);
     });
-    await batch.commit();
+
+    const chunkSize = 400;
+    for (let i = 0; i < payDocs.length; i += chunkSize) {
+      const batch = writeBatch(db);
+      payDocs.slice(i, i + chunkSize).forEach((id) => {
+        batch.set(doc(db, "payments", id), {
+          archived: true,
+          archivedAt: serverTimestamp(),
+          archivedReason: "member_deleted",
+          archivedByMemberDelete: memberCode
+        }, { merge: true });
+      });
+      await batch.commit();
+    }
+
+    if (total > 0) {
+      await addDoc(collection(db, "transactions"), {
+        type: "income",
+        title: `Member deleted: ${name} (${memberCode})`,
+        amount: total,
+        note: "Auto: member payments transferred to income on delete (payments archived)",
+        createdAt: serverTimestamp()
+      });
+    }
+
+    // ✅ actual deletes
+    await deleteDoc(doc(db, "members", memberCode));
+    await deleteDoc(doc(db, "members_private", memberCode)); // exist না থাকলেও error হবে না
+
+    await updateGlobalStats();
+    await recalcFund();
+    await loadTxTable();
+    await loadPaymentsTable();
+    await loadMembersTable();
+
+    alert(`Deleted ✅\nTransferred to Income: ${total}`);
+  } catch (err) {
+    console.error("❌ Delete member failed:", err);
+    alert("Delete failed: " + (err?.message || String(err)));
   }
-
-  if (total > 0) {
-    await addDoc(collection(db, "transactions"), {
-      type: "income",
-      title: `Member deleted: ${name} (${memberCode})`,
-      amount: total,
-      note: "Auto: member payments transferred to income on delete (payments archived)",
-      createdAt: serverTimestamp()
-    });
-  }
-
-  await deleteDoc(doc(db, "members", memberCode));
-  await deleteDoc(doc(db, "members_private", memberCode));
-
-  await updateGlobalStats();
-  await recalcFund();
-  await loadTxTable();
-  await loadPaymentsTable();
-  await loadMembersTable();
-
-  alert(`Deleted ✅\nTransferred to Income: ${total}`);
 }
 
 async function loadMembersTable() {
@@ -405,10 +455,11 @@ async function loadMembersTable() {
   tbody.innerHTML = rows.map(m => {
     const due = Number(m.due || 0);
     const adv = Number(m.advance || 0);
+    const mcode = String(m.memberCode || "");
 
     return `
-      <tr data-code="${escapeHtml(m.memberCode)}">
-        <td>${escapeHtml(m.memberCode||"")}</td>
+      <tr data-code-enc="${escapeHtml(encId(mcode))}">
+        <td>${escapeHtml(mcode)}</td>
         <td><input class="in" data-k="name" value="${escapeHtml(m.name||"")}" /></td>
         <td>${genderSelectHTML(m.gender || "")}</td>
         <td><input class="in" data-k="joinMonth" value="${escapeHtml(m.joinMonth||"")}" /></td>
@@ -427,16 +478,16 @@ tbody?.addEventListener("click", async (e) => {
   const saveBtn = e.target.closest("[data-act='saveRow']");
   const delBtn  = e.target.closest("[data-act='delMember']");
   const tr = e.target.closest("tr");
-  const code = tr?.getAttribute("data-code");
-  if (!code) return;
+  const codeEnc = tr?.getAttribute("data-code-enc");
+  if (!codeEnc) return;
+
+  const code = decId(codeEnc); // ✅ real memberCode (no HTML escape issue)
 
   if (delBtn) {
     delBtn.disabled = true;
     delBtn.textContent = "Deleting...";
     try {
       await deleteMemberTransferToIncome(code);
-    } catch (err) {
-      alert(err?.message || String(err));
     } finally {
       delBtn.disabled = false;
       delBtn.textContent = "Delete";
@@ -560,7 +611,7 @@ async function recalcFund() {
 }
 
 /* =========================
-   Payments Manager (UPDATED with Delete)
+   Payments Manager (same as your code)
 ========================= */
 const paymentsTbody = $("#paymentsTbody");
 const reloadPaymentsBtn = $("#reloadPaymentsBtn");
@@ -584,7 +635,6 @@ async function deletePayment(payId, memberCode) {
 
   await deleteDoc(doc(db, "payments", payId));
 
-  // recalc member + stats + fund
   if (memberCode) await recalcMember(memberCode);
   await updateGlobalStats();
   await recalcFund();
@@ -652,7 +702,6 @@ paymentsTbody?.addEventListener("click", async (e) => {
   const oldCode = tr?.getAttribute("data-oldcode") || "";
   if (!payId) return;
 
-  // ✅ DELETE PAYMENT
   if (delBtn) {
     try {
       delBtn.disabled = true;
@@ -669,7 +718,6 @@ paymentsTbody?.addEventListener("click", async (e) => {
     return;
   }
 
-  // ✅ SAVE PAYMENT
   if (!saveBtn) return;
 
   const inputs = [...tr.querySelectorAll("input.in")];
@@ -702,7 +750,6 @@ paymentsTbody?.addEventListener("click", async (e) => {
       archived: false
     }, { merge: true });
 
-    // update row's "oldCode" so future delete works correctly
     tr.setAttribute("data-oldcode", newCode);
 
     if (oldCode) await recalcMember(oldCode);
@@ -729,7 +776,7 @@ paySearch?.addEventListener("input", () => {
 payLimit?.addEventListener("change", loadPaymentsTable);
 
 /* =========================
-   Transactions table
+   Transactions table (same as your code)
 ========================= */
 const txTbody = $("#txTbody");
 const reloadTxBtn = $("#reloadTxBtn");
