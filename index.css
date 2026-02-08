@@ -875,6 +875,40 @@ body{
   0%{ transform:translateX(0); }
   100%{ transform:translateX(-50%); }
 }
+.ritual-modal{ position:fixed; inset:0; display:none; z-index:9999; }
+.ritual-modal.show{ display:block; }
+.ritual-backdrop{ position:absolute; inset:0; background:rgba(2,6,23,.55); backdrop-filter: blur(6px); }
+
+.ritual-card{
+  position:relative;
+  width:min(560px, calc(100% - 28px));
+  margin: 10vh auto 0;
+  background:#fff;
+  border:1px solid rgba(15,23,42,.12);
+  border-radius:18px;
+  box-shadow:0 30px 60px rgba(2,6,23,.25);
+  padding:16px;
+}
+
+.ritual-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.ritual-badge{
+  padding:6px 10px; border-radius:999px;
+  background:rgba(37,99,235,.10);
+  border:1px solid rgba(37,99,235,.18);
+  font-weight:900; font-size:12px; color:#1d4ed8;
+}
+.ritual-close{
+  width:40px; height:40px; border-radius:12px;
+  border:1px solid rgba(15,23,42,.10);
+  background:#fff; cursor:pointer; font-size:16px;
+}
+.ritual-title{ margin:10px 0 8px; font-size:18px; font-weight:900; }
+.ritual-list{ display:flex; flex-direction:column; gap:10px; }
+.ritual-item{ border:1px solid rgba(15,23,42,.10); border-radius:14px; padding:10px 12px; background:rgba(2,6,23,.02); }
+.ritual-item h4{ margin:0 0 4px; font-size:14px; font-weight:900; }
+.ritual-item p{ margin:0; color:#667085; font-size:13.5px; line-height:1.55; }
+.ritual-actions{ margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+
 
 
 
