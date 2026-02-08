@@ -266,7 +266,7 @@ body{
   white-space:nowrap;
   padding:8px 14px;
   will-change:transform;
-  animation:noticeScroll 20s linear infinite;
+  animation:noticeScroll 30s linear infinite;
 }
 .notice-marquee:hover .notice-track{
   animation-play-state:paused;
@@ -875,6 +875,7 @@ body{
   0%{ transform:translateX(0); }
   100%{ transform:translateX(-50%); }
 }
+
 
 
 
