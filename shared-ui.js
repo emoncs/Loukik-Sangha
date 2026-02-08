@@ -5,50 +5,99 @@ export function isAdminUser(user) {
   return !!user && (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
 }
 
+/* ✅ Single source of truth for mobile nav (delegated + capture + idempotent) */
+export function initMobileNav() {
+  // prevent double-binding across pages/modules
+  if (window.__ls_mobile_nav_bound) return;
+  window.__ls_mobile_nav_bound = true;
+
+  const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
+
+  const getBtn = () => document.getElementById("navToggle");
+  const getMenu = () => document.getElementById("navMenu");
+
+  const setExpanded = (v) => {
+    const btn = getBtn();
+    if (btn) btn.setAttribute("aria-expanded", v ? "true" : "false");
+  };
+
+  const setOpen = (open) => {
+    const menu = getMenu();
+    if (!menu) return;
+    menu.classList.toggle("open", !!open);
+    setExpanded(!!open);
+  };
+
+  const toggle = () => {
+    const menu = getMenu();
+    if (!menu) return;
+    setOpen(!menu.classList.contains("open"));
+  };
+
+  const close = () => setOpen(false);
+
+  // ✅ One capture listener to control everything (prevents open->instant close)
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btnClick = e.target.closest("#navToggle");
+      const menuClick = e.target.closest("#navMenu");
+
+      // toggle button
+      if (btnClick) {
+        if (isMobile()) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggle();
+        }
+        return;
+      }
+
+      const menu = getMenu();
+      if (!menu || !menu.classList.contains("open")) return;
+
+      // inside menu: close only if a link clicked
+      if (menuClick) {
+        if (e.target.closest("#navMenu a")) close();
+        return;
+      }
+
+      // outside click closes
+      close();
+    },
+    true
+  );
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+
+  window.addEventListener("resize", () => {
+    if (!isMobile()) close();
+  });
+}
+
 export function initNavbarAuthUI() {
   const yearEl = document.querySelector("#year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   // active nav highlight
   const current = (location.pathname.split("/").pop() || "index.html").toLowerCase();
-  document.querySelectorAll("[data-page]").forEach(a => {
+  document.querySelectorAll("[data-page]").forEach((a) => {
     const page = (a.getAttribute("data-page") || "").toLowerCase();
     if (page === current) a.classList.add("active");
   });
 
-  // mobile nav
-  const navToggle = document.querySelector("#navToggle");
-  const navMenu = document.querySelector("#navMenu");
-  if (navToggle && navMenu) {
-    const close = () => {
-      navMenu.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
-    };
-    navToggle.addEventListener("click", () => {
-      const open = !navMenu.classList.contains("open");
-      navMenu.classList.toggle("open", open);
-      navToggle.setAttribute("aria-expanded", String(open));
-    });
-    document.addEventListener("click", (e) => {
-      if (!navMenu.classList.contains("open")) return;
-      if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
-      close();
-    });
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 860) close();
-    });
-  }
+  // ✅ mobile nav init ONLY here (no duplicate listeners)
+  initMobileNav();
 
   // auth buttons
   const loginLink = document.querySelector("#adminLoginLink");
   const logoutBtn = document.querySelector("#logoutBtn");
   const roleBadge = document.querySelector("#roleBadge");
 
-  // ✅ Make sure UI updates are stable across page navigation
   onAuthStateChanged(auth, (user) => {
     const admin = isAdminUser(user);
-window.__authUser = user;
-console.log("AUTH STATE:", user?.email || null);
 
     if (roleBadge) {
       roleBadge.textContent = user ? (admin ? "Admin" : "User") : "";
@@ -74,7 +123,6 @@ export function requireAdminGuard() {
   return new Promise((resolve) => {
     let redirected = false;
 
-    // ✅ If already available, don't wait (prevents flicker/false redirect)
     const u0 = auth.currentUser;
     if (u0 && isAdminUser(u0)) {
       resolve(u0);
@@ -82,7 +130,6 @@ export function requireAdminGuard() {
     }
 
     const unsub = onAuthStateChanged(auth, (user) => {
-      // ✅ run once then stop listening to avoid duplicate triggers
       unsub();
 
       if (!user) {
@@ -103,52 +150,5 @@ export function requireAdminGuard() {
 
       resolve(user);
     });
-  });
-}
-// shared-ui.js
-export function initMobileNav() {
-  const navToggle = document.querySelector("#navToggle");
-  const navMenu = document.querySelector("#navMenu");
-  if (!navToggle || !navMenu) return;
-
-  const setExpanded = (v) => navToggle.setAttribute("aria-expanded", v ? "true" : "false");
-
-  const open = () => {
-    navMenu.classList.add("open");
-    setExpanded(true);
-  };
-
-  const close = () => {
-    navMenu.classList.remove("open");
-    setExpanded(false);
-  };
-
-  const toggle = () => {
-    navMenu.classList.contains("open") ? close() : open();
-  };
-
-  // IMPORTANT: click handler
-  navToggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggle();
-  });
-
-  // close on outside click
-  document.addEventListener("click", (e) => {
-    if (!navMenu.classList.contains("open")) return;
-    if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
-    close();
-  });
-
-  // close on link click (mobile UX)
-  navMenu.addEventListener("click", (e) => {
-    const a = e.target.closest("a");
-    if (a) close();
-  });
-
-  // close on resize to desktop
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 860) close();
   });
 }
