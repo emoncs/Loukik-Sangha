@@ -15,69 +15,6 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   Mobile Nav (FINAL FIX)
-========================= */
-(() => {
-  const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
-
-  const getBtn  = () => document.getElementById("navToggle");
-  const getMenu = () => document.getElementById("navMenu");
-
-  const setOpen = (open) => {
-    const btn = getBtn();
-    const menu = getMenu();
-    if (!btn || !menu) return;
-    menu.classList.toggle("open", !!open);
-    btn.setAttribute("aria-expanded", open ? "true" : "false");
-  };
-
-  // ✅ remove duplicate listeners if file hot-reloads / double import
-  if (window.__LS_NAV_BOUND__) return;
-  window.__LS_NAV_BOUND__ = true;
-
-  // ✅ Capture phase so it wins even if other scripts stopPropagation later
-  document.addEventListener("click", (e) => {
-    if (!isMobile()) return;
-
-    const btn = e.target.closest("#navToggle");
-    const menu = getMenu();
-
-    // toggle click
-    if (btn) {
-      e.preventDefault();
-      const isOpen = menu?.classList.contains("open");
-      setOpen(!isOpen);
-      return;
-    }
-
-    // outside click close
-    if (menu?.classList.contains("open")) {
-      const insideMenu = e.target.closest("#navMenu");
-      const insideBtn  = e.target.closest("#navToggle");
-      if (!insideMenu && !insideBtn) setOpen(false);
-    }
-  }, true);
-
-  // close on link click
-  document.addEventListener("click", (e) => {
-    if (!isMobile()) return;
-    const menu = getMenu();
-    if (!menu?.classList.contains("open")) return;
-
-    if (e.target.closest("#navMenu a")) setOpen(false);
-  }, true);
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") setOpen(false);
-  });
-
-  window.addEventListener("resize", () => {
-    if (!isMobile()) setOpen(false);
-  });
-})();
-
-
-/* =========================
    Firestore Stats
 ========================= */
 (() => {
@@ -278,4 +215,5 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
 
