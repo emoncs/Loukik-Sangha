@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://loukiksangha.vercel.app/sitemap.xml
