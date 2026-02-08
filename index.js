@@ -103,7 +103,7 @@ function initNoticeTicker() {
 
   const notices = [
     { text: "আগামী শুক্রবার সেবা কার্যক্রম", icon: "fa-hands-praying", linkText: "Details", link: "vision.html" },
-    { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-user-plus", linkText: "Register", link: "contact.html" },
+    { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-user-plus", linkText: "Register", link: "member-search.html" },
     { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" }
   ];
 
@@ -175,3 +175,4 @@ window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
   initImpactSlider();
 });
+
