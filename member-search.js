@@ -79,9 +79,127 @@ initNavbarAuthUI();
     if (tbody) tbody.innerHTML = "";
   }
 
-  // For All Members table (unchanged)
+  // ===================== NEW: Join Month Normalizer =====================
+  const MONTHS = {
+    jan: 1, january: 1,
+    feb: 2, february: 2,
+    mar: 3, march: 3,
+    apr: 4, april: 4,
+    may: 5,
+    jun: 6, june: 6,
+    jul: 7, july: 7,
+    aug: 8, august: 8,
+    sep: 9, sept: 9, september: 9,
+    oct: 10, october: 10,
+    nov: 11, november: 11,
+    dec: 12, december: 12
+  };
+
+  function pad2(n) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return "";
+    return String(x).padStart(2, "0");
+  }
+
+  function monthLabelFromYM(ym) {
+    // ym: "YYYY-MM"
+    const [y, m] = String(ym || "").split("-");
+    const mm = Number(m);
+    const yy = Number(y);
+    if (!yy || !mm) return ym || "-";
+    const dt = new Date(Date.UTC(yy, mm - 1, 1));
+    // "Oct 2025"
+    return dt.toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+  }
+
+  function parseFlexibleJoinMonth(raw) {
+    // returns: { ym: "YYYY-MM", label: "Oct 2025" }
+    const s0 = String(raw || "").trim();
+    if (!s0) return { ym: "", label: "" };
+
+    const s = s0.toLowerCase().replace(/\s+/g, " ").trim();
+
+    // 1) already YYYY-MM (or YYYY-M)
+    let m = s.match(/^(\d{4})[-\/.](\d{1,2})$/);
+    if (m) {
+      const year = Number(m[1]);
+      const month = Number(m[2]);
+      if (month >= 1 && month <= 12) {
+        const ym = `${year}-${pad2(month)}`;
+        return { ym, label: monthLabelFromYM(ym) };
+      }
+    }
+
+    // 2) YYYY-MMM / YYYY-monthname  (2025-oct, 2025-october)
+    m = s.match(/^(\d{4})[-\/.\s]([a-z]{3,9})$/);
+    if (m) {
+      const year = Number(m[1]);
+      const key = m[2];
+      const month = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
+      if (month) {
+        const ym = `${year}-${pad2(month)}`;
+        return { ym, label: monthLabelFromYM(ym) };
+      }
+    }
+
+    // 3) MMM-YYYY / monthname YYYY  (oct-2025, october 2025)
+    m = s.match(/^([a-z]{3,9})[-\/.\s](\d{4})$/);
+    if (m) {
+      const key = m[1];
+      const year = Number(m[2]);
+      const month = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
+      if (month) {
+        const ym = `${year}-${pad2(month)}`;
+        return { ym, label: monthLabelFromYM(ym) };
+      }
+    }
+
+    // 4) MM-YYYY / M/YYYY  (10-2025, 10/2025)
+    m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
+    if (m) {
+      const month = Number(m[1]);
+      const year = Number(m[2]);
+      if (month >= 1 && month <= 12) {
+        const ym = `${year}-${pad2(month)}`;
+        return { ym, label: monthLabelFromYM(ym) };
+      }
+    }
+
+    // 5) day-month-year (12-oct-2025, 12/10/2025, 12 oct 2025)
+    // We'll just pick month+year from it.
+    m = s.match(/^(\d{1,2})[-\/.\s]([a-z]{3,9}|\d{1,2})[-\/.\s](\d{4})$/);
+    if (m) {
+      const mid = m[2];
+      const year = Number(m[3]);
+      let month = 0;
+
+      if (/^\d{1,2}$/.test(mid)) month = Number(mid);
+      else month = MONTHS[mid] ?? MONTHS[mid.slice(0, 3)] ?? 0;
+
+      if (month >= 1 && month <= 12 && year) {
+        const ym = `${year}-${pad2(month)}`;
+        return { ym, label: monthLabelFromYM(ym) };
+      }
+    }
+
+    // 6) Try native Date parse (last resort)
+    // Accepts many formats like "Oct 12 2025", "2025 Oct 12"
+    const d = new Date(s0);
+    if (!Number.isNaN(d.getTime())) {
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+      const ym = `${year}-${pad2(month)}`;
+      return { ym, label: monthLabelFromYM(ym) };
+    }
+
+    // can't parse
+    return { ym: "", label: "" };
+  }
+
+  // For All Members table (unchanged) — only join display made user-friendly
   function rowHTML(m, idx) {
-    const join = esc(m.joinMonth || "-");
+    const joinRaw = (m.joinMonthLabel || m.joinMonth || "-");
+    const join = esc(joinRaw);
     const name = esc(m.name || "-");
 
     const monthly = Number(m.monthlyDue || 0);
@@ -117,7 +235,7 @@ initNavbarAuthUI();
     allTbody.innerHTML = rows.map((m, idx) => rowHTML(m, idx)).join("");
   }
 
-  // ===== Cards rendering (NEW) =====
+  // ===== Cards rendering (same) =====
   const defaultAvatar = (gender) => {
     const g = String(gender || "").toLowerCase();
     return (g === "female") ? "Images/female.png" : "Images/male.png";
@@ -126,7 +244,7 @@ initNavbarAuthUI();
   function cardHTML(m) {
     const name = esc(m.name || "Unknown");
     const phone = esc(m.phone || "-");
-    const join = esc(m.joinMonth || "-");
+    const join = esc(m.joinMonthLabel || m.joinMonth || "-");
     const code = esc(m.memberCode || "-");
     const gender = String(m.gender || "male").toLowerCase();
 
@@ -201,8 +319,15 @@ initNavbarAuthUI();
       const name = String(m.name || "").toLowerCase();
       const code = String(m.memberCode || "").toLowerCase();
       const join = String(m.joinMonth || "").toLowerCase();
+      const joinLabel = String(m.joinMonthLabel || "").toLowerCase();
       const phone = String(m.phone || "").toLowerCase();
-      return name.includes(qLower) || code.includes(qLower) || join.includes(qLower) || phone.includes(qLower);
+      return (
+        name.includes(qLower) ||
+        code.includes(qLower) ||
+        join.includes(qLower) ||
+        joinLabel.includes(qLower) ||
+        phone.includes(qLower)
+      );
     });
   }
 
@@ -287,13 +412,25 @@ initNavbarAuthUI();
       const name = $("#jName")?.value?.trim();
       const phone = $("#jPhone")?.value?.trim();
       const gender = $("#jGender")?.value?.trim().toLowerCase();
-      const joinMonth = $("#jJoinMonth")?.value?.trim(); // YYYY-MM
+
+      // ✅ user can type anything now (2025-oct / Oct 2025 / 12-oct-2025 / 10/2025)
+      const joinMonthRaw = $("#jJoinMonth")?.value?.trim();
+
       const monthlyDue = Number($("#jMonthly")?.value || 0);
       const address = $("#jAddress")?.value?.trim();
       const remarks = $("#jRemarks")?.value?.trim();
 
+      const parsed = parseFlexibleJoinMonth(joinMonthRaw);
+      const joinMonth = parsed.ym;            // ALWAYS YYYY-MM (e.g. 2025-10)
+      const joinMonthLabel = parsed.label;    // e.g. Oct 2025 (user-friendly)
+
       if (!name || !phone || !gender || !joinMonth || !address) {
-        throw new Error("Please fill all required fields.");
+        // joinMonth empty means parse failed
+        throw new Error(
+          !joinMonth
+            ? "Join Date বুঝতে পারিনি. উদাহরণ: 2025-10 / 2025-oct / Oct 2025 / 12-oct-2025"
+            : "Please fill all required fields."
+        );
       }
 
       const file = $("#jPhoto")?.files?.[0];
@@ -310,7 +447,11 @@ initNavbarAuthUI();
         name,
         phone,
         gender,
-        joinMonth,
+
+        // ✅ store canonical + label
+        joinMonth,        // "YYYY-MM" -> calculation safe
+        joinMonthLabel,   // "Oct 2025" -> display/search friendly
+
         monthlyDue,
         address,
         remarks: remarks || "",
