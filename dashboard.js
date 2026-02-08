@@ -52,6 +52,9 @@ function scheduleReloadAll() {
   }, 50);
 }
 
+/* =========================
+   Excel Import
+========================= */
 const excelFile = $("#excelFile");
 const parseBtn = $("#parseBtn");
 const importBtn = $("#importBtn");
@@ -185,6 +188,9 @@ importBtn?.addEventListener("click", async () => {
   }
 });
 
+/* =========================
+   Member add/update
+========================= */
 const memberMsg = $("#memberMsg");
 const setMemberMsg = (t, ok=false) => {
   if (!memberMsg) return;
@@ -246,6 +252,9 @@ $("#saveMemberBtn")?.addEventListener("click", async () => {
   }
 });
 
+/* =========================
+   Payment add
+========================= */
 const payMsg = $("#payMsg");
 const setPayMsg = (t, ok=false) => {
   if (!payMsg) return;
@@ -293,6 +302,9 @@ $("#addPayBtn")?.addEventListener("click", async () => {
   }
 });
 
+/* =========================
+   Members table
+========================= */
 const tbody = $("#membersTbody");
 
 function escapeHtml(s){
@@ -462,6 +474,9 @@ tbody?.addEventListener("click", async (e) => {
 
 $("#refreshBtn")?.addEventListener("click", scheduleReloadAll);
 
+/* =========================
+   Transactions + Fund
+========================= */
 const txType   = $("#txType");
 const txTitle  = $("#txTitle");
 const txAmount = $("#txAmount");
@@ -544,6 +559,9 @@ async function recalcFund() {
   }, { merge: true });
 }
 
+/* =========================
+   Payments Manager (UPDATED with Delete)
+========================= */
 const paymentsTbody = $("#paymentsTbody");
 const reloadPaymentsBtn = $("#reloadPaymentsBtn");
 const paySearch = $("#paySearch");
@@ -560,10 +578,25 @@ function fmtMonthFromPaidAt(p) {
   return "-";
 }
 
+async function deletePayment(payId, memberCode) {
+  const ok = confirm(`Delete this payment?\n\nPayment ID:\n${payId}`);
+  if (!ok) return;
+
+  await deleteDoc(doc(db, "payments", payId));
+
+  // recalc member + stats + fund
+  if (memberCode) await recalcMember(memberCode);
+  await updateGlobalStats();
+  await recalcFund();
+
+  await loadPaymentsTable();
+  await loadMembersTable();
+}
+
 async function loadPaymentsTable() {
   if (!paymentsTbody) return;
 
-  paymentsTbody.innerHTML = `<tr><td colspan="6">Loading...</td></tr>`;
+  paymentsTbody.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
 
   const limit = Number(payLimit?.value || 50);
   const search = (paySearch?.value || "").trim().toLowerCase();
@@ -586,14 +619,15 @@ async function loadPaymentsTable() {
       const m = (p.memberCode || "").toLowerCase();
       const method = (p.method || "").toLowerCase();
       const month = fmtMonthFromPaidAt(p).toLowerCase();
-      return m.includes(search) || method.includes(search) || month.includes(search);
+      const pid = (p.id || "").toLowerCase();
+      return m.includes(search) || method.includes(search) || month.includes(search) || pid.includes(search);
     });
   }
 
   filtered = filtered.slice(0, limit);
 
   if (!filtered.length) {
-    paymentsTbody.innerHTML = `<tr><td colspan="6">No payments found</td></tr>`;
+    paymentsTbody.innerHTML = `<tr><td colspan="7">No payments found</td></tr>`;
     return;
   }
 
@@ -605,18 +639,38 @@ async function loadPaymentsTable() {
       <td><input class="in" data-k="amount" value="${Number(p.amount || 0)}" /></td>
       <td><input class="in" data-k="method" value="${escapeHtml(p.method || "")}" /></td>
       <td><button class="btn btn-primary btn-sm" data-act="savePay" type="button">Save</button></td>
+      <td><button class="btn btn-danger btn-sm" data-act="delPay" type="button">Delete</button></td>
     </tr>
   `).join("");
 }
 
 paymentsTbody?.addEventListener("click", async (e) => {
-  const btn = e.target.closest("[data-act='savePay']");
-  if (!btn) return;
-
-  const tr = btn.closest("tr");
+  const saveBtn = e.target.closest("[data-act='savePay']");
+  const delBtn  = e.target.closest("[data-act='delPay']");
+  const tr = e.target.closest("tr");
   const payId = tr?.getAttribute("data-id");
   const oldCode = tr?.getAttribute("data-oldcode") || "";
   if (!payId) return;
+
+  // ✅ DELETE PAYMENT
+  if (delBtn) {
+    try {
+      delBtn.disabled = true;
+      delBtn.textContent = "Deleting...";
+      await deletePayment(payId, oldCode);
+      alert("Payment deleted ✅");
+      scheduleReloadAll();
+    } catch (err) {
+      alert("Delete failed: " + (err?.message || err));
+    } finally {
+      delBtn.disabled = false;
+      delBtn.textContent = "Delete";
+    }
+    return;
+  }
+
+  // ✅ SAVE PAYMENT
+  if (!saveBtn) return;
 
   const inputs = [...tr.querySelectorAll("input.in")];
   const data = {};
@@ -633,8 +687,8 @@ paymentsTbody?.addEventListener("click", async (e) => {
   }
 
   try {
-    btn.disabled = true;
-    btn.textContent = "Saving...";
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
 
     const paidAtDate = monthStartTimestampFromYYYYMM(newMonth);
 
@@ -648,6 +702,9 @@ paymentsTbody?.addEventListener("click", async (e) => {
       archived: false
     }, { merge: true });
 
+    // update row's "oldCode" so future delete works correctly
+    tr.setAttribute("data-oldcode", newCode);
+
     if (oldCode) await recalcMember(oldCode);
     if (newCode && newCode !== oldCode) await recalcMember(newCode);
 
@@ -659,8 +716,8 @@ paymentsTbody?.addEventListener("click", async (e) => {
   } catch (err) {
     alert("Update failed: " + (err?.message || err));
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Save";
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save";
   }
 });
 
@@ -671,6 +728,9 @@ paySearch?.addEventListener("input", () => {
 });
 payLimit?.addEventListener("change", loadPaymentsTable);
 
+/* =========================
+   Transactions table
+========================= */
 const txTbody = $("#txTbody");
 const reloadTxBtn = $("#reloadTxBtn");
 const txSearch = $("#txSearch");
@@ -808,6 +868,9 @@ txSearch?.addEventListener("input", () => {
 });
 txLimit?.addEventListener("change", loadTxTable);
 
+/* =========================
+   Init loads
+========================= */
 await Promise.allSettled([
   loadMembersTable(),
   loadPaymentsTable(),
