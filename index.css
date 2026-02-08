@@ -216,12 +216,17 @@ body{
   border-bottom:1px solid rgba(255,255,255,.20);
   box-shadow:0 10px 18px rgba(2,6,23,.10);
 }
+/* notice bar is non-closable now */
 .notice-inner{
   display:flex;
   align-items:center;
   gap:14px;
   padding:10px 0;
 }
+
+/* remove/ignore close button styles (if any existed) */
+/* .notice-close { display:none; } */
+
 .notice-left{
   display:flex;
   align-items:center;
@@ -293,17 +298,6 @@ body{
   text-decoration:underline;
   text-underline-offset:3px;
 }
-/* notice bar is non-closable now */
-.notice-inner{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:10px 0;
-}
-
-/* remove/ignore close button styles (if any existed) */
-/* .notice-close { display:none; } */
-
 
 /* HERO */
 .main{ padding-bottom:20px; }
@@ -870,4 +864,5 @@ body{
   .f-brand{ align-items:center; }
   .f-logo{ width:46px; height:46px; }
 }
+
 
