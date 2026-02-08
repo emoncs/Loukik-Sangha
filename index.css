@@ -207,26 +207,21 @@ body{
   filter:saturate(1.1);
 }
 
-/* ✅ NEW: Notice / Announcement Ticker */
+/* Notice */
 .noticebar{
   position:sticky;
-  top:72px; /* stays under the topbar */
+  top:72px;
   z-index:49;
   background:linear-gradient(90deg, #0b1220 0%, #1d4ed8 55%, #06b6d4 100%);
   border-bottom:1px solid rgba(255,255,255,.20);
   box-shadow:0 10px 18px rgba(2,6,23,.10);
 }
-/* notice bar is non-closable now */
 .notice-inner{
   display:flex;
   align-items:center;
   gap:14px;
   padding:10px 0;
 }
-
-/* remove/ignore close button styles (if any existed) */
-/* .notice-close { display:none; } */
-
 .notice-left{
   display:flex;
   align-items:center;
@@ -250,7 +245,6 @@ body{
   font-size:12px;
   opacity:.95;
 }
-
 .notice-marquee{
   position:relative;
   overflow:hidden;
@@ -312,18 +306,8 @@ body{
   letter-spacing:-.02em;
   font-weight:900;
 }
-/* Premium animated rainbow */
 .g1, .g2{
-  background:linear-gradient(
-    90deg,
-    #ff0000,
-    #ff7a00,
-    #ffd000,
-    #00c853,
-    #00b0ff,
-    #6a00ff,
-    #ff0080
-  );
+  background:linear-gradient(90deg,#ff0000,#ff7a00,#ffd000,#00c853,#00b0ff,#6a00ff,#ff0080);
   background-size:400% 400%;
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
@@ -418,7 +402,6 @@ body{
   box-shadow:var(--shadow);
 }
 
-/* Section Title (unchanged behavior) */
 .section-title{
   margin:0 0 14px;
   font-size:20px;
@@ -427,9 +410,8 @@ body{
   text-align:left;
 }
 
-/* ✅ NEW: Committee / Team Cards */
+/* Team */
 .team-panel{ padding:22px; }
-
 .team-head{
   display:flex;
   align-items:flex-start;
@@ -456,14 +438,12 @@ body{
   gap:10px;
   flex-wrap:wrap;
 }
-
 .team-grid{
   display:grid;
   grid-template-columns:repeat(4, 1fr);
   gap:16px;
   margin-top:14px;
 }
-
 .team-card{
   background:#fff;
   border:1px solid var(--border);
@@ -492,9 +472,7 @@ body{
   box-shadow:0 10px 18px rgba(2,6,23,.18);
   background:#fff;
 }
-.team-body{
-  padding:14px 14px 16px;
-}
+.team-body{ padding:14px 14px 16px; }
 .team-name{
   margin:0;
   font-size:15px;
@@ -525,10 +503,7 @@ body{
   font-weight:900;
   color:#0b1220;
 }
-.team-cta{
-  display:flex;
-  gap:10px;
-}
+.team-cta{ display:flex; gap:10px; }
 .iconbtn{
   width:38px;
   height:38px;
@@ -546,7 +521,6 @@ body{
   transform:translateY(-1px);
   box-shadow:0 14px 20px rgba(2,6,23,.10);
 }
-
 .verify-box{
   margin-top:16px;
   border-radius:16px;
@@ -590,10 +564,8 @@ body{
 }
 .verify-right{ display:flex; gap:10px; }
 
-/* NEW: Story slider */
-.impact{
-  padding:18px 0 44px;
-}
+/* Slider */
+.impact{ padding:18px 0 44px; }
 .impact-sub{
   margin:-6px auto 18px;
   max-width:860px;
@@ -602,7 +574,6 @@ body{
   font-size:14.5px;
   text-align:center;
 }
-
 .slider{
   position:relative;
   border-radius:18px;
@@ -611,12 +582,7 @@ body{
   border:1px solid var(--border);
   box-shadow:0 18px 28px rgba(2,6,23,.08);
 }
-
-.slides{
-  position:relative;
-  height:380px;
-}
-
+.slides{ position:relative; height:380px; }
 .slide{
   position:absolute;
   inset:0;
@@ -630,7 +596,6 @@ body{
   transform:scale(1);
   pointer-events:auto;
 }
-
 .slide img{
   width:100%;
   height:100%;
@@ -638,14 +603,11 @@ body{
   display:block;
   transform:scale(1.05);
 }
-.slide.is-active img{
-  animation:slideZoom 5.2s ease-in-out forwards;
-}
+.slide.is-active img{ animation:slideZoom 5.2s ease-in-out forwards; }
 @keyframes slideZoom{
   0%{ transform:scale(1.05); }
   100%{ transform:scale(1.12); }
 }
-
 .slide-caption{
   position:absolute;
   left:0;
@@ -668,7 +630,6 @@ body{
   line-height:1.5;
   max-width:900px;
 }
-
 .slider-dots{
   position:absolute;
   left:0;
@@ -698,10 +659,8 @@ body{
   opacity:1;
 }
 
-/* NEW: Our Activities grid */
-.activities{
-  padding:18px 0 44px;
-}
+/* Activities */
+.activities{ padding:18px 0 44px; }
 .activity-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
@@ -729,9 +688,7 @@ body{
   object-fit:cover;
   display:block;
 }
-.activity-body{
-  padding:16px 16px 18px;
-}
+.activity-body{ padding:16px 16px 18px; }
 .activity-body h3{
   margin:0 0 6px;
   font-size:16px;
@@ -745,7 +702,7 @@ body{
   font-size:13.5px;
 }
 
-/* FOOTER */
+/* Footer */
 .footer{
   margin-top:10px;
   background:linear-gradient(90deg, #0b1220 0%, #1d4ed8 55%, #06b6d4 100%);
@@ -802,8 +759,9 @@ body{
 
 @media (max-width: 860px){
   .nav-toggle{ display:inline-flex; align-items:center; gap:8px; }
+
   .menu{
-    position:absolute;
+    position:fixed;
     top:72px;
     right:20px;
     left:20px;
@@ -816,6 +774,7 @@ body{
     flex-direction:column;
     align-items:stretch;
     gap:12px;
+    z-index:9999;
   }
   .menu.open{ display:flex; }
   .btn{ justify-content:center; }
@@ -864,9 +823,8 @@ body{
   .f-brand{ align-items:center; }
   .f-logo{ width:46px; height:46px; }
 }
-/* ✅ FIX: ensure notice ALWAYS visible + smooth infinite scroll */
-#noticeBar{ display:block !important; }
 
+#noticeBar{ display:block !important; }
 .notice-track{
   width:max-content;
   min-width:200%;
@@ -875,6 +833,7 @@ body{
   0%{ transform:translateX(0); }
   100%{ transform:translateX(-50%); }
 }
+
 .ritual-modal{ position:fixed; inset:0; display:none; z-index:9999; }
 .ritual-modal.show{ display:block; }
 .ritual-backdrop{ position:absolute; inset:0; background:rgba(2,6,23,.55); backdrop-filter: blur(6px); }
@@ -908,8 +867,3 @@ body{
 .ritual-item h4{ margin:0 0 4px; font-size:14px; font-weight:900; }
 .ritual-item p{ margin:0; color:#667085; font-size:13.5px; line-height:1.55; }
 .ritual-actions{ margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
-
-
-
-
-
