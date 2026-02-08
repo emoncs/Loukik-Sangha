@@ -48,13 +48,6 @@ function initNoticeTicker(){
   track.innerHTML = html + html;
 }
 
-
-  closeBtn?.addEventListener("click", () => {
-    bar.style.display = "none";
-    try{ localStorage.setItem("ls_notice_closed","1"); } catch {}
-  });
-}
-
 /* =========================
    Existing DOM helpers + nav (kept)
 ========================= */
@@ -132,4 +125,5 @@ function initNoticeTicker(){
 window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
 });
+
 
