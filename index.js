@@ -15,42 +15,62 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   Mobile Nav (FIXED: wait for DOM)
+   Mobile Nav (FIX: works even if navbar is re-rendered)
 ========================= */
-window.addEventListener("DOMContentLoaded", () => {
-  const navToggle = $("#navToggle");
-  const navMenu = $("#navMenu");
-  if (!navToggle || !navMenu) {
-    console.warn("❌ navToggle/navMenu not found:", { navToggle, navMenu });
-    return;
-  }
+(() => {
+  const setExpanded = (btn, v) => btn?.setAttribute("aria-expanded", v ? "true" : "false");
 
-  const setExpanded = (v) => navToggle.setAttribute("aria-expanded", v ? "true" : "false");
-  const closeMenu = () => { navMenu.classList.remove("open"); setExpanded(false); };
+  const closeMenu = () => {
+    const btn = document.getElementById("navToggle");
+    const menu = document.getElementById("navMenu");
+    if (!btn || !menu) return;
+    menu.classList.remove("open");
+    setExpanded(btn, false);
+  };
 
-  navToggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const open = !navMenu.classList.contains("open");
-    navMenu.classList.toggle("open", open);
-    setExpanded(open);
+  // ✅ Delegated click: survives DOM replacement
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#navToggle");
+    const menu = document.getElementById("navMenu");
+
+    // Toggle pressed
+    if (btn) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!menu) return;
+
+      const open = !menu.classList.contains("open");
+      menu.classList.toggle("open", open);
+      setExpanded(btn, open);
+      return;
+    }
+
+    // Outside click closes (only if open)
+    if (menu?.classList.contains("open")) {
+      const clickedInsideMenu = e.target.closest("#navMenu");
+      if (!clickedInsideMenu) closeMenu();
+    }
   }, { passive: false });
 
+  // Click menu link closes
   document.addEventListener("click", (e) => {
-    if (!navMenu.classList.contains("open")) return;
-    if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
-    closeMenu();
+    const menu = document.getElementById("navMenu");
+    if (!menu?.classList.contains("open")) return;
+
+    const link = e.target.closest("#navMenu a");
+    if (link) closeMenu();
   });
 
-  navMenu.addEventListener("click", (e) => {
-    const a = e.target.closest?.("a");
-    if (a) closeMenu();
+  // Esc closes
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
   });
 
+  // Resize closes
   window.addEventListener("resize", () => {
     if (window.innerWidth > 860) closeMenu();
   });
-});
+})();
 
 
 /* =========================
@@ -255,6 +275,7 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
 
 
 
