@@ -1,37 +1,20 @@
 import { initNavbarAuthUI } from "./shared-ui.js";
 import { db } from "./firebase.js";
 
-import {
-  doc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 initNavbarAuthUI();
 
 /* =========================
-   Notice / Announcement Ticker (NEW)
+   Notice / Announcement Ticker (NON-CLOSABLE)
 ========================= */
-function initNoticeTicker(){
-  const track = document.getElementById("noticeTrack");
-  const closeBtn = document.getElementById("noticeClose");
-  const bar = document.getElementById("noticeBar");
-  if (!track || !bar) return;
-
-  // If user closed earlier
-  try{
-    if (localStorage.getItem("ls_notice_closed") === "1") {
-      bar.style.display = "none";
-      return;
-    }
-  } catch {}
-
 function initNoticeTicker(){
   const track = document.getElementById("noticeTrack");
   if (!track) return;
 
   const notices = [
     { text: "আগামী শুক্রবার সেবা কার্যক্রম", icon: "fa-hands-praying", linkText: "Details", link: "vision.html" },
-    { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-snowflake", linkText: "Register", link: "contact.html" },
+    { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-user-plus", linkText: "Register", link: "contact.html" },
     { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" }
   ];
 
@@ -49,7 +32,7 @@ function initNoticeTicker(){
 }
 
 /* =========================
-   Existing DOM helpers + nav (kept)
+   Existing DOM helpers + nav + stats
 ========================= */
 (() => {
   const $ = (s, p = document) => p.querySelector(s);
@@ -101,7 +84,6 @@ function initNoticeTicker(){
     if (statCollected) statCollected.textContent = s.totalCollectedYTD ?? 0;
     if (statDues) statDues.textContent = s.totalDues ?? 0;
     if (statFund) statFund.textContent = s.availableFund ?? 0;
-
     if (statOtherIncome) statOtherIncome.textContent = s.totalOtherIncome ?? 0;
     if (statExpense) statExpense.textContent = s.totalExpense ?? 0;
   });
@@ -111,9 +93,7 @@ function initNoticeTicker(){
 
   const goSearch = () => {
     const q = (heroSearch?.value || "").trim();
-    location.href = q
-      ? `member-search.html?q=${encodeURIComponent(q)}`
-      : "member-search.html";
+    location.href = q ? `member-search.html?q=${encodeURIComponent(q)}` : "member-search.html";
   };
 
   heroSearchBtn?.addEventListener("click", goSearch);
@@ -125,5 +105,3 @@ function initNoticeTicker(){
 window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
 });
-
-
