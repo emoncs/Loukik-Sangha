@@ -1,0 +1,70 @@
+{
+  "timezone": "Asia/Dhaka",
+  "years": {
+    "2026": [
+      {
+        "date": "2026-03-03",
+        "type": "grahan",
+        "title_bn": "চন্দ্রগ্রহণ (Total Lunar Eclipse)",
+        "title_en": "Total Lunar Eclipse",
+        "priority": 10,
+        "cta": { "label": "Details", "href": "vision.html" }
+      }
+    ],
+    "2027": [
+      {
+        "date": "2027-02-20",
+        "type": "grahan",
+        "title_bn": "চন্দ্রগ্রহণ (Penumbral Lunar Eclipse)",
+        "title_en": "Penumbral Lunar Eclipse",
+        "priority": 8,
+        "cta": { "label": "Details", "href": "vision.html" }
+      },
+      {
+        "date": "2027-08-02",
+        "type": "grahan",
+        "title_bn": "সূর্যগ্রহণ (Partial Solar Eclipse)",
+        "title_en": "Partial Solar Eclipse",
+        "priority": 10,
+        "cta": { "label": "Details", "href": "vision.html" }
+      }
+    ],
+    "2028": [
+      {
+        "date": "2028-07-06",
+        "type": "grahan",
+        "title_bn": "চন্দ্রগ্রহণ (Partial Lunar Eclipse)",
+        "title_en": "Partial Lunar Eclipse",
+        "priority": 8,
+        "cta": { "label": "Details", "href": "vision.html" }
+      },
+      {
+        "date": "2028-12-31",
+        "type": "grahan",
+        "title_bn": "চন্দ্রগ্রহণ (Total Lunar Eclipse)",
+        "title_en": "Total Lunar Eclipse",
+        "priority": 10,
+        "cta": { "label": "Details", "href": "vision.html" }
+      }
+    ]
+  },
+
+  "examples_to_fill": [
+    {
+      "date": "2026-XX-XX",
+      "type": "ekadashi",
+      "title_bn": "একাদশী (BD Panjika অনুযায়ী বসাবেন)",
+      "title_en": "Ekadashi",
+      "priority": 6,
+      "cta": { "label": "Rules", "href": "rules.html" }
+    },
+    {
+      "date": "2026-XX-XX",
+      "type": "puja",
+      "title_bn": "দুর্গাপূজা / লক্ষ্মীপূজা / কালীপূজা (BD Panjika অনুযায়ী বসাবেন)",
+      "title_en": "Puja",
+      "priority": 9,
+      "cta": { "label": "Details", "href": "vision.html" }
+    }
+  ]
+}
