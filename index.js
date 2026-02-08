@@ -175,4 +175,81 @@ window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
   initImpactSlider();
 });
+function todayBD() {
+  const now = new Date();
+  const bd = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+  const y = bd.getFullYear();
+  const m = String(bd.getMonth() + 1).padStart(2, "0");
+  const d = String(bd.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function showRitualPopup(dateStr, items){
+  const modal = document.getElementById("ritualModal");
+  const list  = document.getElementById("ritualList");
+  const title = document.getElementById("ritualTitle");
+  const close = document.getElementById("ritualClose");
+  const ok    = document.getElementById("ritualOk");
+  const back  = document.getElementById("ritualBackdrop");
+  const link  = document.getElementById("ritualLink");
+
+  if (!modal || !list || !title) return;
+
+  // show once per day
+  const seenKey = `ls_ritual_seen_${dateStr}`;
+  try { if (localStorage.getItem(seenKey) === "1") return; } catch {}
+
+  title.textContent = `আজকের ধর্মীয় অনুষ্ঠান (${dateStr})`;
+
+  list.innerHTML = items.map(e => `
+    <div class="ritual-item">
+      <h4>${e.title || "আজকের তথ্য"}</h4>
+      <p>${e.details || ""}</p>
+    </div>
+  `).join("");
+
+  const firstLink = items.find(x => x.link)?.link;
+  if (firstLink && link) { link.href = firstLink; link.style.display = "inline-flex"; }
+  else if (link) { link.style.display = "none"; }
+
+  const doClose = () => {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+  };
+
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+
+  close?.addEventListener("click", doClose, { once:true });
+  ok?.addEventListener("click", doClose, { once:true });
+  back?.addEventListener("click", doClose, { once:true });
+  document.addEventListener("keydown", (ev)=>{ if(ev.key==="Escape") doClose(); }, { once:true });
+
+  try { localStorage.setItem(seenKey, "1"); } catch {}
+}
+
+async function initRitualPopupFromJSON(){
+  const dateStr = todayBD();
+
+  try{
+    const res = await fetch(`rituals.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("rituals.json not found");
+    const data = await res.json();
+    const events = Array.isArray(data.events) ? data.events : [];
+
+    const todays = events
+      .filter(e => e?.date === dateStr)
+      .sort((a,b)=> (a.priority ?? 9) - (b.priority ?? 9));
+
+    if (todays.length) showRitualPopup(dateStr, todays);
+  } catch(err){
+    console.error("Ritual JSON load failed:", err);
+  }
+}
+
+// আপনার existing DOMContentLoaded-এ এটা call করুন:
+window.addEventListener("DOMContentLoaded", () => {
+  initRitualPopupFromJSON();
+});
+
 
