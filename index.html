@@ -350,6 +350,25 @@ We work for community support, donations, transparency, and social welfare activ
       </div>
     </section>
   </main>
+<!-- ✅ Ritual Popup -->
+<div class="ritual-modal" id="ritualModal" aria-hidden="true">
+  <div class="ritual-backdrop" id="ritualBackdrop"></div>
+
+  <div class="ritual-card" role="dialog" aria-modal="true" aria-labelledby="ritualTitle">
+    <div class="ritual-top">
+      <div class="ritual-badge" id="ritualBadge">আজকের সনাতনী তথ্য</div>
+      <button class="ritual-close" id="ritualClose" aria-label="Close">✕</button>
+    </div>
+
+    <h3 class="ritual-title" id="ritualTitle">Today</h3>
+    <div class="ritual-list" id="ritualList"></div>
+
+    <div class="ritual-actions">
+      <a class="btn btn-primary" id="ritualLink" href="#" style="display:none;">Details</a>
+      <button class="btn btn-soft" id="ritualOk" type="button">OK</button>
+    </div>
+  </div>
+</div>
 
   <footer class="footer">
     <div class="wrap footer-grid">
@@ -395,6 +414,7 @@ We work for community support, donations, transparency, and social welfare activ
 
 </body>
 </html>
+
 
 
 
