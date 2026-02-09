@@ -19,7 +19,6 @@ initNavbarAuthUI();
   const emptyState = $("#emptyState");
   const cardsEl = $("#cards");
 
-  // keep (not used for search results now)
   const tableWrap = $("#tableWrap");
   const tbody = $("#resultsTbody");
 
@@ -29,11 +28,16 @@ initNavbarAuthUI();
 
   const msg = $("#searchMsg");
 
-  // Join form
   const joinForm = $("#joinForm");
   const joinMsg = $("#joinMsg");
   const joinReset = $("#joinReset");
   const joinSubmit = $("#joinSubmit");
+
+  // NEW: pagination controls
+  const pageSizeEl = $("#pageSize");
+  const prevPageBtn = $("#prevPage");
+  const nextPageBtn = $("#nextPage");
+  const pageInfoEl = $("#pageInfo");
 
   if (!allTbody || !allTableWrap || !cardsEl) {
     console.error("Missing DOM ids");
@@ -74,12 +78,19 @@ initNavbarAuthUI();
     cardsEl.style.display = "none";
     cardsEl.innerHTML = "";
 
-    // keep table hidden
     if (tableWrap) tableWrap.style.display = "none";
     if (tbody) tbody.innerHTML = "";
   }
 
-  // ===================== NEW: Join Month Normalizer =====================
+  // WhatsApp click-to-send helper
+  function waLink(phone, msgText) {
+    const digits = String(phone || "").replace(/\D/g, "");
+    if (!digits) return "#";
+    const bd = digits.startsWith("0") ? "88" + digits : digits; // 017.. => 88017..
+    return `https://wa.me/${bd}?text=${encodeURIComponent(msgText || "")}`;
+  }
+
+  // ===================== Join Month Normalizer =====================
   const MONTHS = {
     jan: 1, january: 1,
     feb: 2, february: 2,
@@ -102,24 +113,20 @@ initNavbarAuthUI();
   }
 
   function monthLabelFromYM(ym) {
-    // ym: "YYYY-MM"
     const [y, m] = String(ym || "").split("-");
     const mm = Number(m);
     const yy = Number(y);
     if (!yy || !mm) return ym || "-";
     const dt = new Date(Date.UTC(yy, mm - 1, 1));
-    // "Oct 2025"
     return dt.toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
   }
 
   function parseFlexibleJoinMonth(raw) {
-    // returns: { ym: "YYYY-MM", label: "Oct 2025" }
     const s0 = String(raw || "").trim();
     if (!s0) return { ym: "", label: "" };
 
     const s = s0.toLowerCase().replace(/\s+/g, " ").trim();
 
-    // 1) already YYYY-MM (or YYYY-M)
     let m = s.match(/^(\d{4})[-\/.](\d{1,2})$/);
     if (m) {
       const year = Number(m[1]);
@@ -130,7 +137,6 @@ initNavbarAuthUI();
       }
     }
 
-    // 2) YYYY-MMM / YYYY-monthname  (2025-oct, 2025-october)
     m = s.match(/^(\d{4})[-\/.\s]([a-z]{3,9})$/);
     if (m) {
       const year = Number(m[1]);
@@ -142,7 +148,6 @@ initNavbarAuthUI();
       }
     }
 
-    // 3) MMM-YYYY / monthname YYYY  (oct-2025, october 2025)
     m = s.match(/^([a-z]{3,9})[-\/.\s](\d{4})$/);
     if (m) {
       const key = m[1];
@@ -154,7 +159,6 @@ initNavbarAuthUI();
       }
     }
 
-    // 4) MM-YYYY / M/YYYY  (10-2025, 10/2025)
     m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
     if (m) {
       const month = Number(m[1]);
@@ -165,8 +169,6 @@ initNavbarAuthUI();
       }
     }
 
-    // 5) day-month-year (12-oct-2025, 12/10/2025, 12 oct 2025)
-    // We'll just pick month+year from it.
     m = s.match(/^(\d{1,2})[-\/.\s]([a-z]{3,9}|\d{1,2})[-\/.\s](\d{4})$/);
     if (m) {
       const mid = m[2];
@@ -182,8 +184,6 @@ initNavbarAuthUI();
       }
     }
 
-    // 6) Try native Date parse (last resort)
-    // Accepts many formats like "Oct 12 2025", "2025 Oct 12"
     const d = new Date(s0);
     if (!Number.isNaN(d.getTime())) {
       const year = d.getFullYear();
@@ -192,11 +192,9 @@ initNavbarAuthUI();
       return { ym, label: monthLabelFromYM(ym) };
     }
 
-    // can't parse
     return { ym: "", label: "" };
   }
 
-  // For All Members table (unchanged) — only join display made user-friendly
   function rowHTML(m, idx) {
     const joinRaw = (m.joinMonthLabel || m.joinMonth || "-");
     const join = esc(joinRaw);
@@ -229,13 +227,41 @@ initNavbarAuthUI();
     `;
   }
 
-  function renderAll(rows) {
-    if (allCountEl) allCountEl.textContent = String(rows.length);
-    allTableWrap.style.display = rows.length ? "block" : "none";
-    allTbody.innerHTML = rows.map((m, idx) => rowHTML(m, idx)).join("");
+  // ===== Pagination state for All Members table =====
+  let ALL_MEMBERS = [];
+  let LOADED = false;
+  let allPage = 1;
+  let pageSize = Number(pageSizeEl?.value || 20);
+
+  function totalPages(total, size) {
+    const s = Math.max(1, Number(size || 20));
+    return Math.max(1, Math.ceil(total / s));
   }
 
-  // ===== Cards rendering (same) =====
+  function updatePagerUI() {
+    if (!pageInfoEl) return;
+    const tp = totalPages(ALL_MEMBERS.length, pageSize);
+    if (allPage > tp) allPage = tp;
+    pageInfoEl.textContent = `Page ${allPage} / ${tp}`;
+    if (prevPageBtn) prevPageBtn.disabled = allPage <= 1;
+    if (nextPageBtn) nextPageBtn.disabled = allPage >= tp;
+  }
+
+  function renderAll(rows) {
+    ALL_MEMBERS = Array.isArray(rows) ? rows : [];
+    if (allCountEl) allCountEl.textContent = String(ALL_MEMBERS.length);
+
+    allTableWrap.style.display = ALL_MEMBERS.length ? "block" : "none";
+
+    const start = (allPage - 1) * pageSize;
+    const end = start + pageSize;
+    const slice = ALL_MEMBERS.slice(start, end);
+
+    allTbody.innerHTML = slice.map((m, i) => rowHTML(m, start + i)).join("");
+    updatePagerUI();
+  }
+
+  // ===== Cards rendering (Results) + WhatsApp =====
   const defaultAvatar = (gender) => {
     const g = String(gender || "").toLowerCase();
     return (g === "female") ? "Images/female.png" : "Images/male.png";
@@ -243,7 +269,8 @@ initNavbarAuthUI();
 
   function cardHTML(m) {
     const name = esc(m.name || "Unknown");
-    const phone = esc(m.phone || "-");
+    const phoneRaw = (m.phone || "");
+    const phone = esc(phoneRaw || "-");
     const join = esc(m.joinMonthLabel || m.joinMonth || "-");
     const code = esc(m.memberCode || "-");
     const gender = String(m.gender || "male").toLowerCase();
@@ -256,16 +283,32 @@ initNavbarAuthUI();
     const img = esc(m.photoDataUrl || defaultAvatar(gender));
     const remarks = esc(m.remarks || "");
 
+    const hasPhone = String(phoneRaw || "").trim().length > 0;
+    const waMsg = due > 0
+      ? `Hi ${m.name || "Member"}, আপনার Loukik Sangha এ ৳${due} dues আছে। অনুগ্রহ করে এই মাসের payment complete করুন। ধন্যবাদ।`
+      : `Hi ${m.name || "Member"}, Loukik Sangha এর সাথে থাকার জন্য ধন্যবাদ।`;
+
+    const waHref = hasPhone ? waLink(phoneRaw, waMsg) : "#";
+    const waDisabled = hasPhone ? "" : "is-disabled";
+
     return `
       <article class="mcard">
         <div class="mcard-top">
           <img class="mimg" src="${img}" alt="Member photo" loading="lazy" />
           <div class="mmeta">
             <h3 class="mname">${name}</h3>
+
             <div class="msub">
               <span class="mtag"><i class="fa-solid fa-phone"></i> ${phone}</span>
               <span class="mtag"><i class="fa-solid fa-id-badge"></i> ${code}</span>
               <span class="mtag"><i class="fa-solid fa-calendar-check"></i> ${join}</span>
+            </div>
+
+            <div class="mcta">
+              <a class="iconbtn wa ${waDisabled}" href="${waHref}" target="_blank" rel="noopener" aria-label="WhatsApp reminder">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+              <span class="ctatxt">${due > 0 ? "Send due reminder" : "Send message"}</span>
             </div>
           </div>
         </div>
@@ -293,14 +336,10 @@ initNavbarAuthUI();
     cardsEl.style.display = "grid";
     cardsEl.innerHTML = rows.map(cardHTML).join("");
 
-    // keep table hidden (no change)
     if (tableWrap) tableWrap.style.display = "none";
   }
 
   // ===== Firestore load/search =====
-  let ALL_MEMBERS = [];
-  let LOADED = false;
-
   async function loadMembersOnce() {
     if (LOADED) return ALL_MEMBERS;
 
@@ -413,7 +452,6 @@ initNavbarAuthUI();
       const phone = $("#jPhone")?.value?.trim();
       const gender = $("#jGender")?.value?.trim().toLowerCase();
 
-      // ✅ user can type anything now (2025-oct / Oct 2025 / 12-oct-2025 / 10/2025)
       const joinMonthRaw = $("#jJoinMonth")?.value?.trim();
 
       const monthlyDue = Number($("#jMonthly")?.value || 0);
@@ -421,11 +459,10 @@ initNavbarAuthUI();
       const remarks = $("#jRemarks")?.value?.trim();
 
       const parsed = parseFlexibleJoinMonth(joinMonthRaw);
-      const joinMonth = parsed.ym;            // ALWAYS YYYY-MM (e.g. 2025-10)
-      const joinMonthLabel = parsed.label;    // e.g. Oct 2025 (user-friendly)
+      const joinMonth = parsed.ym;
+      const joinMonthLabel = parsed.label;
 
       if (!name || !phone || !gender || !joinMonth || !address) {
-        // joinMonth empty means parse failed
         throw new Error(
           !joinMonth
             ? "Join Date বুঝতে পারিনি. উদাহরণ: 2025-10 / 2025-oct / Oct 2025 / 12-oct-2025"
@@ -439,7 +476,6 @@ initNavbarAuthUI();
         photoDataUrl = await fileToDataUrlCompressed(file, 480, 0.82);
       }
 
-      // Generate a simple memberCode (client-side)
       const code = "LS-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Date.now().toString().slice(-5);
 
       const docData = {
@@ -447,11 +483,8 @@ initNavbarAuthUI();
         name,
         phone,
         gender,
-
-        // ✅ store canonical + label
-        joinMonth,        // "YYYY-MM" -> calculation safe
-        joinMonthLabel,   // "Oct 2025" -> display/search friendly
-
+        joinMonth,
+        joinMonthLabel,
         monthlyDue,
         address,
         remarks: remarks || "",
@@ -464,16 +497,15 @@ initNavbarAuthUI();
 
       await addDoc(collection(db, "members"), docData);
 
-      // update local cache
       LOADED = false;
       ALL_MEMBERS = [];
       const all = await loadMembersOnce();
+      allPage = 1;
       renderAll(all);
 
       setJoinMsg("Submitted! Your membership request has been added.", true);
       joinForm.reset();
 
-      // show in results cards quickly (optional)
       if (input) input.value = name;
       doSearch();
 
@@ -485,6 +517,24 @@ initNavbarAuthUI();
     }
   });
 
+  // ===== Pagination events =====
+  pageSizeEl?.addEventListener("change", async () => {
+    pageSize = Number(pageSizeEl.value || 20);
+    allPage = 1;
+    renderAll(ALL_MEMBERS);
+  });
+
+  prevPageBtn?.addEventListener("click", () => {
+    allPage = Math.max(1, allPage - 1);
+    renderAll(ALL_MEMBERS);
+  });
+
+  nextPageBtn?.addEventListener("click", () => {
+    const tp = totalPages(ALL_MEMBERS.length, pageSize);
+    allPage = Math.min(tp, allPage + 1);
+    renderAll(ALL_MEMBERS);
+  });
+
   // initial load
   (async () => {
     setMsg("Loading members...", true);
@@ -492,6 +542,7 @@ initNavbarAuthUI();
 
     try {
       const all = await loadMembersOnce();
+      allPage = 1;
       renderAll(all);
       setMsg("Members loaded. Now search to filter results.", true);
     } catch (e) {
