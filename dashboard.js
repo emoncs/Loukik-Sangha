@@ -72,7 +72,6 @@ function escapeHtml(s){
 function encId(id){ return encodeURIComponent(String(id ?? "")); }
 function decId(id){ return decodeURIComponent(String(id ?? "")); }
 
-// ✅ normalize memberCode: remove spaces/newlines for matching
 function normCode(v){
   return String(v ?? "").replace(/\s+/g, "").trim();
 }
@@ -366,7 +365,8 @@ $("#addPayBtn")?.addEventListener("click", async () => {
 });
 
 /* =========================
-   Members table (DELETE BUG FIXED)
+   Member delete => payments transfer to income + delete member from firestore
+   Income delete => delete tx doc from firestore
 ========================= */
 const tbody = $("#membersTbody");
 
@@ -374,12 +374,10 @@ async function findMemberDocIdByMemberCode(memberCodeLabel){
   const code = normCode(memberCodeLabel);
   if (!code) return null;
 
-  // try strict field match
   const q1 = query(collection(db, "members"), where("memberCode", "==", code));
   const s1 = await getDocs(q1);
   if (!s1.empty) return s1.docs[0].id;
 
-  // fallback: docId == code (old style)
   const snap = await getDoc(doc(db, "members", code));
   if (snap.exists()) return code;
 
@@ -394,12 +392,10 @@ async function deleteMemberTransferToIncome(docId, memberCodeLabel){
   if (!ok) return;
 
   try {
-    // 1) read by docId
     let memDocId = docId;
     let memRef = doc(db, "members", memDocId);
     let memSnap = await getDoc(memRef);
 
-    // 2) fallback: find by memberCode
     if (!memSnap.exists()) {
       const foundId = await findMemberDocIdByMemberCode(memberCodeLabel);
       if (!foundId) {
@@ -419,7 +415,6 @@ async function deleteMemberTransferToIncome(docId, memberCodeLabel){
     const name = mem.name || "Unknown";
     const realMemberCode = normCode(mem.memberCode || memberCodeLabel || memDocId);
 
-    // archive payments by memberCode field
     const qPay = query(collection(db, "payments"), where("memberCode", "==", realMemberCode));
     const paySnap = await getDocs(qPay);
 
@@ -452,14 +447,14 @@ async function deleteMemberTransferToIncome(docId, memberCodeLabel){
         title: `Member deleted: ${name} (${realMemberCode})`,
         amount: total,
         note: "Auto: member payments transferred to income on delete (payments archived)",
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        autoFromMemberDelete: true,
+        autoFromMemberCode: realMemberCode
       });
     }
 
-    // delete member doc
     await deleteDoc(doc(db, "members", memDocId));
 
-    // delete private doc (two patterns)
     await Promise.allSettled([
       deleteDoc(doc(db, "members_private", realMemberCode)),
       deleteDoc(doc(db, "members_private", memDocId))
@@ -473,7 +468,7 @@ async function deleteMemberTransferToIncome(docId, memberCodeLabel){
 
     alert(`Deleted ✅\nTransferred to Income: ${total}`);
   } catch (err) {
-    console.error("❌ Delete member failed:", err);
+    console.error("Delete member failed:", err);
     alert("Delete failed: " + (err?.message || String(err)));
   }
 }
@@ -558,7 +553,6 @@ tbody?.addEventListener("click", async (e) => {
       updatedAt: serverTimestamp()
     }, { merge: true });
 
-    // recalc should use normalized code
     const recalcKey = normCode(memberCodeLabel || docId);
     await recalcMember(recalcKey);
 
@@ -915,6 +909,7 @@ txTbody?.addEventListener("click", async (e) => {
       await deleteDoc(doc(db, "transactions", id));
       await recalcFund();
       await loadTxTable();
+      alert("Deleted ✅");
     } catch (err) {
       alert(err?.message || String(err));
     } finally {
