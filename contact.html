@@ -34,7 +34,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="contact.css" />
+  <link rel="stylesheet" href="contact.css?v=20260209b" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
@@ -70,7 +70,7 @@
 <main class="main">
   <section class="hero hero-contact">
     <div class="wrap hero-inner">
-      <div class="hero-left">
+      <div class="hero-left" data-reveal>
         <span class="hero-pill">
           <i class="fa-solid fa-headset"></i>
           <span>Support &amp; Inquiries</span>
@@ -88,8 +88,7 @@
           <span class="chip"><i class="fa-solid fa-circle-check"></i> Transparent</span>
         </div>
 
-        <!-- Send message moved here (fills the empty red area) -->
-        <section class="card card-form" aria-label="Send message form">
+        <section class="card card-form" aria-label="Send message form" data-reveal>
           <div class="card-head">
             <div>
               <h2 class="card-title">Send a Message</h2>
@@ -138,33 +137,144 @@
         </section>
       </div>
 
-      <div class="hero-right">
-        <div class="hero-card hero-card-feed" aria-label="Facebook page updates">
+      <div class="hero-right" data-reveal>
+        <div class="hero-card hero-card-quick" aria-label="Quick contact actions">
           <div class="hc-top">
-            <span class="hc-ic"><i class="fa-brands fa-facebook-f"></i></span>
+            <span class="hc-ic"><i class="fa-solid fa-bolt"></i></span>
             <div class="hc-meta">
-              <h3 class="hc-title">Daily Updates</h3>
-              <p class="hc-text">Latest posts from our Facebook page.</p>
+              <h3 class="hc-title">Quick Actions</h3>
+              <p class="hc-text">Fast ways to reach us and verify information.</p>
             </div>
           </div>
 
-          <div class="fb-wrap">
-            <iframe
-              title="Loukik Sangha Facebook timeline"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              referrerpolicy="no-referrer-when-downgrade"
-              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Floukiksongha&tabs=timeline&width=500&height=560&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false"
-              style="border:none;overflow:hidden"
-              scrolling="no"
-              frameborder="0">
-            </iframe>
+          <div class="quick-grid">
+            <a class="quick-item" href="mailto:info@loukiksangha.org" aria-label="Email">
+              <span class="qi-ic"><i class="fa-solid fa-envelope"></i></span>
+              <span class="qi-txt">
+                <span class="qi-top">Email</span>
+                <span class="qi-btm">info@loukiksangha.org</span>
+              </span>
+              <span class="qi-go"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            </a>
+
+            <a class="quick-item" href="tel:+8801XXXXXXXXX" aria-label="Phone">
+              <span class="qi-ic"><i class="fa-solid fa-phone"></i></span>
+              <span class="qi-txt">
+                <span class="qi-top">Phone</span>
+                <span class="qi-btm">+880 1XXX-XXXXXX</span>
+              </span>
+              <span class="qi-go"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            </a>
+
+            <a class="quick-item" href="donate.html" aria-label="Donate page">
+              <span class="qi-ic"><i class="fa-solid fa-hand-holding-heart"></i></span>
+              <span class="qi-txt">
+                <span class="qi-top">Donation</span>
+                <span class="qi-btm">Go to Donate page</span>
+              </span>
+              <span class="qi-go"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            </a>
+
+            <a class="quick-item" href="rules.html" aria-label="Rules">
+              <span class="qi-ic"><i class="fa-solid fa-book"></i></span>
+              <span class="qi-txt">
+                <span class="qi-top">Rules</span>
+                <span class="qi-btm">Read guidelines</span>
+              </span>
+              <span class="qi-go"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            </a>
           </div>
 
-          <a class="fb-open" href="https://www.facebook.com/loukiksongha" target="_blank" rel="noopener">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            <span>Open Facebook Page</span>
-          </a>
+          <div class="hc-divider"></div>
+
+          <div class="loc-block" aria-label="Sangha location" data-sangha-map="https://maps.app.goo.gl/FDKn38FqBa7oHdXX6">
+            <div class="loc-head">
+              <span class="loc-ic"><i class="fa-solid fa-map-location-dot"></i></span>
+              <div>
+                <h4 class="loc-title">Live Direction</h4>
+                <p class="loc-sub" id="locSub">From your location → Loukik Sangha</p>
+              </div>
+              <a class="loc-open" href="https://maps.app.goo.gl/FDKn38FqBa7oHdXX6" target="_blank" rel="noopener">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </div>
+
+            <div class="loc-diagram is-loading" id="locDiagram" aria-label="Direction diagram">
+              <div class="pin pin-a">
+                <span class="pin-dot"></span>
+                <span class="pin-txt" id="originLabel">Your Location</span>
+              </div>
+
+              <div class="path">
+                <span class="path-line"></span>
+                <span class="path-pulse" id="pathPulse"></span>
+              </div>
+
+              <div class="pin pin-b">
+                <span class="pin-dot"></span>
+                <span class="pin-txt">Loukik Sangha</span>
+              </div>
+
+              <div class="loc-metrics" id="locMetrics" aria-live="polite"></div>
+            </div>
+
+            <div class="loc-actions">
+              <button class="btn btn-soft" id="useMyLocation" type="button">
+                <i class="fa-solid fa-location-crosshairs"></i> Use My Location
+              </button>
+              <a class="btn btn-primary" id="openDirections" href="https://maps.app.goo.gl/FDKn38FqBa7oHdXX6" target="_blank" rel="noopener">
+                <i class="fa-solid fa-route"></i> Open Directions
+              </a>
+            </div>
+          </div>
+
+          <div class="hc-divider"></div>
+
+          <div class="temple-block">
+            <div class="temple-head">
+              <span class="temple-ic"><i class="fa-solid fa-gopuram"></i></span>
+              <div>
+                <h4 class="temple-title">ॐ সেনেরখীল সার্বজনীন শ্রী শ্রী রক্ষা কালী বাড়ি</h4>
+                <p class="temple-sub">We operate based on this temple.</p>
+              </div>
+            </div>
+
+            <div class="temple-actions">
+              <a class="btn btn-soft" href="https://maps.app.goo.gl/1CMjDAcvQkNCxVAk8" target="_blank" rel="noopener">
+                <i class="fa-solid fa-map"></i> Temple Map
+              </a>
+              <a class="btn btn-primary" href="https://www.facebook.com/rokshakali" target="_blank" rel="noopener">
+                <i class="fa-brands fa-facebook-f"></i> Facebook
+              </a>
+            </div>
+
+            <div class="temple-fill">
+              <div class="tf-row">
+                <div class="tf-item">
+                  <span class="tf-ic"><i class="fa-solid fa-shield-heart"></i></span>
+                  <div class="tf-txt">
+                    <span class="tf-top">Community Base</span>
+                    <span class="tf-btm">Trusted local foundation</span>
+                  </div>
+                </div>
+
+                <div class="tf-item">
+                  <span class="tf-ic"><i class="fa-solid fa-people-group"></i></span>
+                  <div class="tf-txt">
+                    <span class="tf-top">Seva Network</span>
+                    <span class="tf-btm">Volunteers &amp; members support</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tf-note">
+                <i class="fa-solid fa-circle-info"></i>
+                <p>For temple-based programs, use Temple Facebook for updates &amp; announcements.</p>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </div>
@@ -173,7 +283,7 @@
   <section class="content">
     <div class="wrap">
       <div class="grid">
-        <aside class="card" aria-label="Contact information">
+        <aside class="card" aria-label="Contact information" data-reveal>
           <div class="card-head">
             <div>
               <h2 class="card-title">Contact Information</h2>
@@ -201,14 +311,23 @@
               <span class="ci-go"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
             </a>
 
-            <div class="contact-item" role="group" aria-label="Address">
+            <a class="contact-item" href="https://maps.app.goo.gl/FDKn38FqBa7oHdXX6" target="_blank" rel="noopener" aria-label="Open Sangha map">
               <span class="ci-ic"><i class="fa-solid fa-location-dot"></i></span>
               <span class="ci-txt">
-                <span class="ci-top">Address</span>
-                <span class="ci-btm">Dhaka, Bangladesh</span>
+                <span class="ci-top">Sangha Map</span>
+                <span class="ci-btm">Open directions</span>
               </span>
               <span class="ci-go"><i class="fa-solid fa-map"></i></span>
-            </div>
+            </a>
+
+            <a class="contact-item" href="https://maps.app.goo.gl/1CMjDAcvQkNCxVAk8" target="_blank" rel="noopener" aria-label="Open Temple map">
+              <span class="ci-ic"><i class="fa-solid fa-gopuram"></i></span>
+              <span class="ci-txt">
+                <span class="ci-top">Temple (Base)</span>
+                <span class="ci-btm">Open temple location</span>
+              </span>
+              <span class="ci-go"><i class="fa-solid fa-map"></i></span>
+            </a>
           </div>
 
           <div class="mini-panel">
@@ -218,93 +337,89 @@
 
           <div class="social-row" aria-label="Social links">
             <a class="social-btn" href="https://www.facebook.com/loukiksongha" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a class="social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            <a class="social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a class="social-btn" href="https://www.facebook.com/rokshakali" target="_blank" rel="noopener" aria-label="Temple Facebook" title="Temple Facebook"><i class="fa-solid fa-gopuram"></i></a>
             <a class="social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
           </div>
         </aside>
 
-<!-- Help Center (Premium) -->
-<section class="card help-center" aria-label="Help Center">
-  <div class="card-head help-head">
-    <div>
-      <h2 class="card-title">Help Center</h2>
-      <p class="card-sub">Quick answers to common questions.</p>
-    </div>
-    <div class="card-badge help-badge" aria-hidden="true">
-      <i class="fa-solid fa-circle-question"></i>
-    </div>
-  </div>
-
-  <div class="help-grid">
-    <!-- Left: meta -->
-    <div class="help-meta">
-      <div class="meta-item">
-        <span class="meta-ic"><i class="fa-solid fa-clock"></i></span>
-        <div class="meta-txt">
-          <span class="meta-top">Response Time</span>
-          <span class="meta-btm">Within 24–48 hours</span>
-        </div>
-      </div>
-
-      <div class="meta-item">
-        <span class="meta-ic"><i class="fa-solid fa-envelope"></i></span>
-        <div class="meta-txt">
-          <span class="meta-top">Preferred</span>
-          <span class="meta-btm">Email message</span>
-        </div>
-      </div>
-
-      <div class="help-note">
-        <i class="fa-solid fa-shield-heart"></i>
-        <p>We never share your phone publicly. Admins only can access private details when needed.</p>
-      </div>
-    </div>
-
-    <!-- Right: FAQ chips + actions -->
-    <div class="help-faq">
-      <div class="faq-title">
-        <span class="faq-dot"></span>
-        <h3>Popular Questions</h3>
-      </div>
-
-      <div class="faq-grid">
-        <details class="faq">
-          <summary><i class="fa-solid fa-hand-holding-heart"></i> How can I donate?</summary>
-          <div class="faq-body">
-            Go to <b>Donate</b> page, choose bKash/Nagad/Bank, and submit proof if required.
+        <section class="card help-center" aria-label="Help Center" data-reveal>
+          <div class="card-head help-head">
+            <div>
+              <h2 class="card-title">Help Center</h2>
+              <p class="card-sub">Quick answers to common questions.</p>
+            </div>
+            <div class="card-badge help-badge" aria-hidden="true">
+              <i class="fa-solid fa-circle-question"></i>
+            </div>
           </div>
-        </details>
 
-        <details class="faq">
-          <summary><i class="fa-solid fa-id-card"></i> I want to become a member—what info is needed?</summary>
-          <div class="faq-body">
-            Name, phone, join month, and monthly due amount. Admin will verify and add your member code.
+          <div class="help-grid">
+            <div class="help-meta">
+              <div class="meta-item">
+                <span class="meta-ic"><i class="fa-solid fa-clock"></i></span>
+                <div class="meta-txt">
+                  <span class="meta-top">Response Time</span>
+                  <span class="meta-btm">Within 24–48 hours</span>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-ic"><i class="fa-solid fa-envelope"></i></span>
+                <div class="meta-txt">
+                  <span class="meta-top">Preferred</span>
+                  <span class="meta-btm">Email message</span>
+                </div>
+              </div>
+
+              <div class="help-note">
+                <i class="fa-solid fa-shield-heart"></i>
+                <p>We never share your phone publicly. Admins only can access private details when needed.</p>
+              </div>
+            </div>
+
+            <div class="help-faq">
+              <div class="faq-title">
+                <span class="faq-dot"></span>
+                <h3>Popular Questions</h3>
+              </div>
+
+              <div class="faq-grid">
+                <details class="faq">
+                  <summary><i class="fa-solid fa-hand-holding-heart"></i> How can I donate?</summary>
+                  <div class="faq-body">
+                    Go to <b>Donate</b> page, choose bKash/Nagad/Bank, and submit proof if required.
+                  </div>
+                </details>
+
+                <details class="faq">
+                  <summary><i class="fa-solid fa-id-card"></i> I want to become a member—what info is needed?</summary>
+                  <div class="faq-body">
+                    Name, phone, join month, and monthly due amount. Admin will verify and add your member code.
+                  </div>
+                </details>
+
+                <details class="faq">
+                  <summary><i class="fa-solid fa-receipt"></i> How do I confirm my payment is recorded?</summary>
+                  <div class="faq-body">
+                    Mention your <b>memberCode</b> + paid month (YYYY-MM) in the message. Admin will confirm from dashboard.
+                  </div>
+                </details>
+
+                <details class="faq">
+                  <summary><i class="fa-solid fa-user-shield"></i> Is my phone number public?</summary>
+                  <div class="faq-body">
+                    No. Phone stays in <b>members_private</b> and is visible to admins only.
+                  </div>
+                </details>
+              </div>
+
+              <div class="help-actions">
+                <a class="btn btn-soft" href="rules.html"><i class="fa-solid fa-book"></i> Read Rules</a>
+                <a class="btn btn-primary" href="donate.html"><i class="fa-solid fa-hand-holding-dollar"></i> Go to Donate</a>
+              </div>
+            </div>
           </div>
-        </details>
-
-        <details class="faq">
-          <summary><i class="fa-solid fa-receipt"></i> How do I confirm my payment is recorded?</summary>
-          <div class="faq-body">
-            Mention your <b>memberCode</b> + paid month (YYYY-MM) in the message. Admin will confirm from dashboard.
-          </div>
-        </details>
-
-        <details class="faq">
-          <summary><i class="fa-solid fa-user-shield"></i> Is my phone number public?</summary>
-          <div class="faq-body">
-            No. Phone stays in <b>members_private</b> and is visible to admins only.
-          </div>
-        </details>
-      </div>
-
-      <div class="help-actions">
-        <a class="btn btn-soft" href="rules.html"><i class="fa-solid fa-book"></i> Read Rules</a>
-        <a class="btn btn-primary" href="donate.html"><i class="fa-solid fa-hand-holding-dollar"></i> Go to Donate</a>
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
 
       </div>
     </div>
@@ -327,8 +442,7 @@
 
       <div class="f-social" aria-label="Social links">
         <a class="f-social-btn" href="https://www.facebook.com/loukiksongha" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-        <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a class="f-social-btn" href="https://www.facebook.com/rokshakali" target="_blank" rel="noopener" aria-label="Temple Facebook" title="Temple Facebook"><i class="fa-solid fa-gopuram"></i></a>
         <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
       </div>
     </div>
@@ -357,6 +471,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="contact.js"></script>
+<script src="contact.js?v=20260209b"></script>
 </body>
 </html>
