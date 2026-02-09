@@ -41,18 +41,22 @@
     });
   }
 
-  // FAQ accordion
-  document.querySelectorAll(".faq-item").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const expanded = btn.getAttribute("aria-expanded") === "true";
-      const ans = btn.nextElementSibling;
-      btn.setAttribute("aria-expanded", String(!expanded));
-      if (ans) ans.hidden = expanded;
-      const ic = btn.querySelector(".faq-ic i");
-      if (ic) ic.style.transform = expanded ? "rotate(0deg)" : "rotate(180deg)";
-    });
-  });
+  const revealEls = Array.from(document.querySelectorAll("[data-reveal]"));
+  if ("IntersectionObserver" in window && revealEls.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("reveal-in");
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.12 });
 
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add("reveal-in"));
+  }
+
+  // EmailJS
   const EMAILJS_PUBLIC_KEY = "qKiQPRBM2rIz3G6MU";
   const EMAILJS_SERVICE_ID = "service_ej46fev";
   const EMAILJS_TEMPLATE_ID = "template_1uzt9a7";
@@ -127,5 +131,108 @@
         sendBtn.style.opacity = "1";
       }
     }
+  });
+
+  // Live Direction UI (visual + distance)
+  const locDiagram = $("#locDiagram");
+  const originLabel = $("#originLabel");
+  const locMetrics = $("#locMetrics");
+  const locSub = $("#locSub");
+  const useMyLocationBtn = $("#useMyLocation");
+  const openDirections = $("#openDirections");
+  const locBlock = document.querySelector(".loc-block");
+
+  const SANGHA_MAP_LINK = locBlock?.getAttribute("data-sangha-map") || "https://maps.app.goo.gl/FDKn38FqBa7oHdXX6";
+
+  const DHAKA_CENTER = { lat: 23.8103, lng: 90.4125 };
+
+  const toRad = (d) => d * Math.PI / 180;
+
+  const haversineKm = (a, b) => {
+    const R = 6371;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const lat1 = toRad(a.lat);
+    const lat2 = toRad(b.lat);
+    const s =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+    return R * c;
+  };
+
+  const renderMetrics = (items) => {
+    if (!locMetrics) return;
+    locMetrics.innerHTML = items.map(x => `
+      <span class="metric-pill"><i class="${x.icon}"></i>${x.text}</span>
+    `).join("");
+  };
+
+  const setDirectionState = (state) => {
+    if (!locDiagram) return;
+    if (state === "loading") locDiagram.classList.add("is-loading");
+    else locDiagram.classList.remove("is-loading");
+  };
+
+  const setOriginName = (coords) => {
+    if (!originLabel) return "Your Location";
+    const dToDhaka = haversineKm({ lat: coords.lat, lng: coords.lng }, DHAKA_CENTER);
+    const name = dToDhaka <= 30 ? "Dhaka" : "Your Location";
+    originLabel.textContent = name;
+    return name;
+  };
+
+  const useMyLocation = async () => {
+    if (!navigator.geolocation) {
+      renderMetrics([{ icon: "fa-solid fa-circle-xmark", text: "Geolocation not supported" }]);
+      return;
+    }
+
+    setDirectionState("loading");
+    renderMetrics([{ icon: "fa-solid fa-spinner", text: "Detecting your location..." }]);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+        const originName = setOriginName(coords);
+
+        setDirectionState("ready");
+
+        if (locSub) locSub.textContent = `${originName} → Loukik Sangha (Live)`;
+
+        const dDhaka = haversineKm(coords, DHAKA_CENTER);
+        const approxKm = Math.round(dDhaka);
+
+        renderMetrics([
+          { icon: "fa-solid fa-location-dot", text: `Origin: ${originName}` },
+          { icon: "fa-solid fa-road", text: `Approx distance: ${approxKm} km` },
+          { icon: "fa-solid fa-bolt", text: "Animated route" }
+        ]);
+
+        if (openDirections) {
+          openDirections.href = SANGHA_MAP_LINK;
+        }
+      },
+      () => {
+        setDirectionState("ready");
+        renderMetrics([
+          { icon: "fa-solid fa-circle-exclamation", text: "Location permission denied" },
+          { icon: "fa-solid fa-map", text: "Open map to navigate" }
+        ]);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+    );
+  };
+
+  useMyLocationBtn?.addEventListener("click", useMyLocation);
+
+  // Auto try once (soft)
+  window.addEventListener("DOMContentLoaded", () => {
+    if (openDirections) openDirections.href = SANGHA_MAP_LINK;
+    setDirectionState("loading");
+    renderMetrics([{ icon: "fa-solid fa-location-crosshairs", text: "Click “Use My Location” for live direction" }]);
+    setDirectionState("ready");
   });
 })();
