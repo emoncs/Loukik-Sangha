@@ -201,6 +201,86 @@ initNavbarAuthUI();
     return { ym: "", label: "" };
   }
 
+  function parseFlexibleAnyMonth(raw) {
+    const r = String(raw || "").trim();
+    if (!r) return "";
+
+    const s = r.toLowerCase().replace(/\s+/g, " ").trim();
+
+    let m = s.match(/^(\d{4})[-\/.](\d{1,2})$/);
+    if (m) {
+      const y = Number(m[1]);
+      const mo = Number(m[2]);
+      if (y && mo >= 1 && mo <= 12) return `${y}-${pad2(mo)}`;
+    }
+
+    m = s.match(/^(\d{4})[-\/.\s]([a-z]{3,9})$/);
+    if (m) {
+      const y = Number(m[1]);
+      const key = m[2];
+      const mo = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
+      if (y && mo) return `${y}-${pad2(mo)}`;
+    }
+
+    m = s.match(/^([a-z]{3,9})[-\/.\s](\d{4})$/);
+    if (m) {
+      const key = m[1];
+      const y = Number(m[2]);
+      const mo = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
+      if (y && mo) return `${y}-${pad2(mo)}`;
+    }
+
+    m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
+    if (m) {
+      const mo = Number(m[1]);
+      const y = Number(m[2]);
+      if (y && mo >= 1 && mo <= 12) return `${y}-${pad2(mo)}`;
+    }
+
+    const d = new Date(r);
+    if (!Number.isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const mo = d.getMonth() + 1;
+      return `${y}-${pad2(mo)}`;
+    }
+
+    return "";
+  }
+
+  function getYMFromCreatedAt(createdAt) {
+    if (!createdAt) return "";
+    let d = null;
+
+    if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
+    else if (createdAt instanceof Date) d = createdAt;
+    else if (typeof createdAt === "number") d = new Date(createdAt);
+    else if (typeof createdAt === "string") {
+      const dd = new Date(createdAt);
+      if (!Number.isNaN(dd.getTime())) d = dd;
+    }
+
+    if (!d) return "";
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    return `${y}-${pad2(m)}`;
+  }
+
+  function getCurrentYM() {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+  }
+
+  function getRecentMonthsFromNow(count) {
+    const out = [];
+    const d = new Date();
+    d.setDate(1);
+    for (let i = 0; i < count; i++) {
+      out.push(`${d.getFullYear()}-${pad2(d.getMonth() + 1)}`);
+      d.setMonth(d.getMonth() - 1);
+    }
+    return out;
+  }
+
   const defaultAvatar = (gender) => {
     const g = String(gender || "").toLowerCase();
     return (g === "female") ? "Images/female.png" : "Images/male.png";
@@ -445,19 +525,6 @@ initNavbarAuthUI();
     if (e.key === "Enter") doSearch();
   });
 
-  function getRecentMonths(count) {
-    const out = [];
-    const d = new Date();
-    d.setDate(1);
-    for (let i = 0; i < count; i++) {
-      const y = d.getFullYear();
-      const m = d.getMonth() + 1;
-      out.push(`${y}-${String(m).padStart(2, "0")}`);
-      d.setMonth(d.getMonth() - 1);
-    }
-    return out;
-  }
-
   function setSnapshotUI({ ymLabel, collected, payers, target }) {
     if (snapMonth) snapMonth.textContent = ymLabel || "—";
     if (snapCollected) snapCollected.textContent = `৳${fmtMoney(collected)}`;
@@ -496,9 +563,17 @@ initNavbarAuthUI();
     }).join("");
   }
 
+  function normalizePaymentMonth(p) {
+    const fromField = parseFlexibleAnyMonth(p?.month);
+    if (fromField) return fromField;
+    const fromCreated = getYMFromCreatedAt(p?.createdAt);
+    if (fromCreated) return fromCreated;
+    return "";
+  }
+
   async function loadMonthlyInsights() {
-    const months = getRecentMonths(4);
-    const ymNow = months[0];
+    const months = getRecentMonthsFromNow(4);
+    const ymNow = getCurrentYM();
     const ymLabelNow = monthLabelFromYM(ymNow);
 
     const target = ALL_MEMBERS.reduce((sum, m) => sum + Number(m.monthlyDue || 0), 0);
@@ -507,8 +582,7 @@ initNavbarAuthUI();
     renderPayersList([]);
 
     try {
-      const qpay = query(collection(db, "payments"), where("month", "in", months));
-      const ps = await getDocs(qpay);
+      const ps = await getDocs(collection(db, "payments"));
 
       const byMonthTotal = new Map();
       const byMonthPayers = new Map();
@@ -522,19 +596,21 @@ initNavbarAuthUI();
 
       ps.forEach(doc => {
         const p = doc.data() || {};
-        const ym = String(p.month || "");
-        if (!byMonthTotal.has(ym)) return;
+        const ym = normalizePaymentMonth(p);
+        if (!ym || !byMonthTotal.has(ym)) return;
 
-        const code = String(p.memberCode || "");
+        const code = String(p.memberCode || "").trim();
         const amt = Number(p.amount || 0);
+
+        if (!code || !Number.isFinite(amt) || amt <= 0) return;
 
         byMonthTotal.set(ym, (byMonthTotal.get(ym) || 0) + amt);
 
         const s = byMonthPayers.get(ym);
-        s && code && s.add(code);
+        s && s.add(code);
 
         const mm = byMonthByPayer.get(ym);
-        if (mm && code) mm.set(code, (mm.get(code) || 0) + amt);
+        if (mm) mm.set(code, (mm.get(code) || 0) + amt);
       });
 
       const collectedNow = byMonthTotal.get(ymNow) || 0;
@@ -543,6 +619,7 @@ initNavbarAuthUI();
       setSnapshotUI({ ymLabel: ymLabelNow, collected: collectedNow, payers: payersNow, target });
 
       const last3 = months.slice(0, 3);
+
       const sets = last3.map(ym => byMonthPayers.get(ym) || new Set());
       const common = [...sets[0]].filter(code => sets[1].has(code) && sets[2].has(code));
 
