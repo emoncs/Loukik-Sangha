@@ -3,9 +3,7 @@ import {
   collection,
   getDocs,
   addDoc,
-  serverTimestamp,
-  query,
-  where
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 
@@ -48,6 +46,7 @@ initNavbarAuthUI();
   const sortSel = $("#sortMembers");
   const segBtns = Array.from(document.querySelectorAll("[data-list-filter]"));
 
+  // Monthly Snapshot UI (must exist in HTML)
   const snapMonth = $("#snapMonth");
   const snapCollected = $("#snapCollected");
   const snapPayers = $("#snapPayers");
@@ -201,6 +200,7 @@ initNavbarAuthUI();
     return { ym: "", label: "" };
   }
 
+  // month parser for payments.month (any format) -> "YYYY-MM"
   function parseFlexibleAnyMonth(raw) {
     const r = String(raw || "").trim();
     if (!r) return "";
@@ -247,24 +247,6 @@ initNavbarAuthUI();
     return "";
   }
 
-  function getYMFromCreatedAt(createdAt) {
-    if (!createdAt) return "";
-    let d = null;
-
-    if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
-    else if (createdAt instanceof Date) d = createdAt;
-    else if (typeof createdAt === "number") d = new Date(createdAt);
-    else if (typeof createdAt === "string") {
-      const dd = new Date(createdAt);
-      if (!Number.isNaN(dd.getTime())) d = dd;
-    }
-
-    if (!d) return "";
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    return `${y}-${pad2(m)}`;
-  }
-
   function getCurrentYM() {
     const d = new Date();
     return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
@@ -279,6 +261,10 @@ initNavbarAuthUI();
       d.setMonth(d.getMonth() - 1);
     }
     return out;
+  }
+
+  function normalizeCode(code) {
+    return String(code || "").trim().toUpperCase();
   }
 
   const defaultAvatar = (gender) => {
@@ -536,8 +522,8 @@ initNavbarAuthUI();
 
     if (snapHint) {
       snapHint.textContent = collected > 0
-        ? "Snapshot is calculated from payments collection."
-        : "No payments found for this month (payments collection).";
+        ? "Snapshot is calculated from payments.month (running month only)."
+        : "No running-month payments found.";
     }
   }
 
@@ -563,18 +549,18 @@ initNavbarAuthUI();
     }).join("");
   }
 
-  function normalizePaymentMonth(p) {
-    const fromField = parseFlexibleAnyMonth(p?.month);
-    if (fromField) return fromField;
-    const fromCreated = getYMFromCreatedAt(p?.createdAt);
-    if (fromCreated) return fromCreated;
-    return "";
+  // ✅ running month payer only: payment.month must match current YM (no createdAt fallback)
+  function paymentYMForRunningMonth(p) {
+    return parseFlexibleAnyMonth(p?.month);
   }
 
   async function loadMonthlyInsights() {
     const months = getRecentMonthsFromNow(4);
     const ymNow = getCurrentYM();
     const ymLabelNow = monthLabelFromYM(ymNow);
+
+    const memberCodeSet = new Set(ALL_MEMBERS.map(m => normalizeCode(m.memberCode)));
+    const nameByCode = new Map(ALL_MEMBERS.map(m => [normalizeCode(m.memberCode), String(m.name || "")]));
 
     const target = ALL_MEMBERS.reduce((sum, m) => sum + Number(m.monthlyDue || 0), 0);
 
@@ -596,13 +582,18 @@ initNavbarAuthUI();
 
       ps.forEach(doc => {
         const p = doc.data() || {};
-        const ym = normalizePaymentMonth(p);
+
+        const ym = paymentYMForRunningMonth(p);   // ✅ only payment.month
         if (!ym || !byMonthTotal.has(ym)) return;
 
-        const code = String(p.memberCode || "").trim();
-        const amt = Number(p.amount || 0);
+        const code = normalizeCode(p.memberCode);
+        if (!code) return;
 
-        if (!code || !Number.isFinite(amt) || amt <= 0) return;
+        // ✅ payer cannot exceed total members: only accept codes that exist in members
+        if (!memberCodeSet.has(code)) return;
+
+        const amt = Number(p.amount || 0);
+        if (!Number.isFinite(amt) || amt <= 0) return;
 
         byMonthTotal.set(ym, (byMonthTotal.get(ym) || 0) + amt);
 
@@ -618,12 +609,15 @@ initNavbarAuthUI();
 
       setSnapshotUI({ ymLabel: ymLabelNow, collected: collectedNow, payers: payersNow, target });
 
+      // ✅ consistent payers: paid in last 3 months separately (by month field)
       const last3 = months.slice(0, 3);
-
       const sets = last3.map(ym => byMonthPayers.get(ym) || new Set());
-      const common = [...sets[0]].filter(code => sets[1].has(code) && sets[2].has(code));
+      if (!sets[0].size) {
+        renderPayersList([]);
+        return;
+      }
 
-      const nameByCode = new Map(ALL_MEMBERS.map(m => [String(m.memberCode || ""), String(m.name || "")]));
+      const common = [...sets[0]].filter(code => sets[1].has(code) && sets[2].has(code));
 
       const totals = common.map(code => {
         let t = 0;
