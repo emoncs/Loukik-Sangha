@@ -5,28 +5,49 @@
   <meta name="description" content="Loukik Sangha is a Hindu community welfare and charity organization in Bangladesh focused on seva, donations, transparency, and community support.">
   <meta name="robots" content="index,follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
 
-  <link rel="stylesheet" href="index.css?v=20260208" />
+  <!-- ✅ SEO / Social -->
+  <link rel="canonical" href="https://loukiksangha.vercel.app/">
+  <meta property="og:title" content="Loukik Sangha | Hindu Community Welfare & Charity Organization">
+  <meta property="og:description" content="A Hindu community welfare and charity organization in Bangladesh. Seva, donations, transparency, and community support.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loukiksangha.vercel.app/">
+  <meta property="og:image" content="https://loukiksangha.vercel.app/Images/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Loukik Sangha">
+  <meta name="twitter:description" content="Seva • Donations • Transparency • Community Support">
+  <meta name="twitter:image" content="https://loukiksangha.vercel.app/Images/logo.png">
+
+  <link rel="stylesheet" href="index.css?v=20260209" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="Images/logo.png">
   <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.png">
   <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.png">
 
-  <script type="module" src="index.js?v=20260208"></script>
+  <script type="module" src="index.js?v=20260209"></script>
 </head>
 <body>
 
+  <!-- Skip link -->
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
   <header class="topbar">
     <div class="wrap nav-inner">
-      <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
+      <a class="brand” href="index.html" aria-label="Loukik Sangha Home">
         <span class="brand-logo">
           <img src="Images/logo.png" alt="Loukik Sangha Logo">
         </span>
         <span class="brand-text">
           <strong>Loukik Sangha</strong>
-          <small>Seva is Our Dharma. 🕉️</small>
+          <small>
+            Seva is Our Dharma. 🕉️
+            <span class="since">• Since 2018</span>
+          </small>
         </span>
       </a>
 
@@ -60,7 +81,7 @@
     </div>
   </div>
 
-  <main class="main">
+  <main class="main" id="mainContent">
     <section class="hero">
       <div class="wrap hero-inner">
 
@@ -73,6 +94,13 @@
           We work for community support, donations, transparency, and social welfare activities.
         </p>
 
+        <!-- ✅ NEW: Trust badges -->
+        <div class="hero-badges" aria-label="Trust badges">
+          <span class="badge"><i class="fa-solid fa-calendar-check"></i> Since 2018</span>
+          <span class="badge"><i class="fa-solid fa-file-shield"></i> Transparent Records</span>
+          <span class="badge"><i class="fa-solid fa-circle-check"></i> Verified Committee</span>
+        </div>
+
         <div class="searchbar" role="search" aria-label="Member Search">
           <input id="heroSearch" type="text" placeholder="Search by member name or phone..." autocomplete="off" />
           <button id="heroSearchBtn" class="btn btn-primary btn-search" type="button">
@@ -83,6 +111,32 @@
         <div class="hero-actions">
           <a class="btn btn-primary" href="donate.html"><i class="fa-regular fa-heart"></i> Donate Now</a>
           <a class="btn btn-soft" href="rules.html"><i class="fa-regular fa-file-lines"></i> View Rules</a>
+          <a class="btn btn-soft" href="member-search.html"><i class="fa-solid fa-user-plus"></i> Become a Member</a>
+        </div>
+
+        <!-- ✅ NEW: Quick actions row -->
+        <div class="quick-actions" aria-label="Quick actions">
+          <a class="qaction" href="contact.html">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <b>Verify Donation</b>
+              <span>Call / WhatsApp / Email</span>
+            </div>
+          </a>
+          <a class="qaction" href="donate.html">
+            <i class="fa-solid fa-hand-holding-heart"></i>
+            <div>
+              <b>Donation Methods</b>
+              <span>bKash / Nagad / Bank</span>
+            </div>
+          </a>
+          <a class="qaction" href="vision.html">
+            <i class="fa-solid fa-route"></i>
+            <div>
+              <b>Our Future Plan</b>
+              <span>Programs & initiatives</span>
+            </div>
+          </a>
         </div>
 
       </div>
@@ -145,6 +199,75 @@
           <div class="stat-foot">Current Expense</div>
         </article>
 
+      </div>
+    </section>
+
+    <!-- ✅ NEW: About / Promise -->
+    <section class="stats">
+      <div class="wrap">
+        <h2 class="section-title">About Loukik Sangha</h2>
+
+        <div class="panel about-panel">
+          <div class="about-head">
+            <div>
+              <h3 class="about-title">Our Promise</h3>
+              <p class="about-sub">
+                Loukik Sangha works for a stronger, compassionate community through transparent donations,
+                member support, emergency help, and welfare programs across Bangladesh.
+              </p>
+            </div>
+            <div class="about-cta">
+              <a class="btn btn-primary" href="donate.html"><i class="fa-regular fa-heart"></i> Support Now</a>
+              <a class="btn btn-soft" href="contact.html"><i class="fa-solid fa-phone"></i> Contact</a>
+            </div>
+          </div>
+
+          <div class="promise-grid">
+            <article class="promise-card">
+              <i class="fa-solid fa-file-invoice"></i>
+              <h4>Clear Records</h4>
+              <p>Every fund entry and expense is tracked for transparency.</p>
+            </article>
+            <article class="promise-card">
+              <i class="fa-solid fa-handshake-angle"></i>
+              <h4>Emergency Support</h4>
+              <p>We stand by our members during urgent needs & crisis.</p>
+            </article>
+            <article class="promise-card">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <h4>Future Programs</h4>
+              <p>Education, relief, and long-term welfare initiatives.</p>
+            </article>
+          </div>
+
+          <!-- ✅ NEW: Funds use (static demo; later dynamic possible) -->
+          <div class="funds-box" aria-label="How funds are used">
+            <div class="funds-title">
+              <i class="fa-solid fa-chart-pie"></i>
+              <b>How Funds Are Used</b>
+              <span class="muted">(overview)</span>
+            </div>
+
+            <div class="fund-row">
+              <span>Relief & Emergency</span>
+              <div class="bar"><span style="width:48%"></span></div>
+              <b>48%</b>
+            </div>
+
+            <div class="fund-row">
+              <span>Community Programs</span>
+              <div class="bar"><span style="width:32%"></span></div>
+              <b>32%</b>
+            </div>
+
+            <div class="fund-row">
+              <span>Operations</span>
+              <div class="bar"><span style="width:20%"></span></div>
+              <b>20%</b>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
@@ -228,7 +351,6 @@
                 <p class="team-role">Social Media Manager</p>
                 <div class="team-meta">
                   <span class="chip"><i class="fa-solid fa-bullhorn"></i>Media</span>
-
                   <span class="chip"><i class="fa-solid fa-circle-check"></i></span>
                 </div>
                 <div class="team-cta">
@@ -326,6 +448,35 @@
         </div>
       </div>
     </section>
+
+    <!-- ✅ NEW: FAQ -->
+    <section class="stats">
+      <div class="wrap">
+        <h2 class="section-title">FAQ</h2>
+        <div class="panel faq-panel">
+          <details class="faq-item">
+            <summary>Donation কিভাবে verify হবে?</summary>
+            <p>Contact page থেকে call/WhatsApp/Email করুন। Payment proof (screenshot) দিলে দ্রুত verify করা হবে।</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Member হতে কী লাগবে?</summary>
+            <p>Members page থেকে search/registration info দেখুন, অথবা Contact page থেকে committee এর সাথে যোগাযোগ করুন।</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Monthly collection কীভাবে হিসাব হয়?</summary>
+            <p>এই মাসের active member payment অনুযায়ী Monthly Collections auto update হয়।</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>কোনো জরুরি সাহায্য দরকার হলে?</summary>
+            <p>Notice bar/Contact page এ দেওয়া নম্বরে দ্রুত যোগাযোগ করুন।</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <div class="ritual-modal" id="ritualModal" aria-hidden="true">
@@ -346,6 +497,11 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ NEW: Back to top -->
+  <button class="to-top" id="toTop" type="button" aria-label="Back to top">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
   <footer class="footer">
     <div class="wrap footer-grid">
@@ -383,29 +539,23 @@
       </div>
     </div>
 
-<div class="wrap f-bottom">
-  <div class="f-line"></div>
+    <div class="wrap f-bottom">
+      <div class="f-line"></div>
 
-  <div class="f-bottom-row">
-    <div class="f-copy">
-      © <span id="year"></span> Loukik Sangha. All rights reserved.
+      <div class="f-bottom-row">
+        <div class="f-copy">
+          © <span id="year"></span> Loukik Sangha. All rights reserved.
+        </div>
+
+        <div class="f-dev">
+          Developed by
+          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
+            Emon Shil
+          </a>
+        </div>
+      </div>
     </div>
-
-    <div class="f-dev">
-      Developed by
-      <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
-        Emon Shil
-      </a>
-    </div>
-  </div>
-</div>
-
   </footer>
 
 </body>
 </html>
-
-
-
-
-
