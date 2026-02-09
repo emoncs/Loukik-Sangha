@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Member Directory | Loukik Sangha</title>
+  <title>Member Directory | Loukik Sangha</title>
 
   <link rel="stylesheet" href="member-search.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
- <header class="topbar">
+  <header class="topbar">
     <div class="wrap nav-inner">
       <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
         <span class="brand-logo">
@@ -56,6 +56,7 @@
     <section class="content">
       <div class="wrap">
         <div class="panel">
+
           <div class="panel-head">
             <h2>Results</h2>
             <span class="badge" id="count">0</span>
@@ -63,7 +64,6 @@
 
           <p class="hint" id="searchMsg"></p>
 
-          <!-- Cards Results -->
           <div id="results" class="results">
             <div class="empty" id="emptyState">
               <i class="fa-regular fa-folder-open"></i>
@@ -73,7 +73,6 @@
             <div class="cards" id="cards" style="display:none;"></div>
           </div>
 
-          <!-- Keep table (same as before) but we will not use for search results -->
           <div class="tableWrap" id="tableWrap" style="display:none;">
             <table class="tbl">
               <thead>
@@ -93,7 +92,6 @@
             </table>
           </div>
 
-          <!-- Become a Member (NEW) -->
           <div class="divider"></div>
 
           <div class="panel-head">
@@ -168,6 +166,29 @@
             <span class="badge" id="allCount">0</span>
           </div>
 
+          <!-- NEW: page size + pagination controls (nothing removed) -->
+          <div class="all-controls">
+            <div class="perpage">
+              <span class="pp-label"><i class="fa-solid fa-layer-group"></i> Show</span>
+              <select id="pageSize" class="pp-select">
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="200">200</option>
+              </select>
+              <span class="pp-label">members</span>
+            </div>
+
+            <div class="pager">
+              <button class="pg-btn" id="prevPage" type="button" aria-label="Previous page">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span class="pg-info" id="pageInfo">Page 1</span>
+              <button class="pg-btn" id="nextPage" type="button" aria-label="Next page">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="tableWrap" id="allTableWrap" style="display:none;">
             <table class="tbl">
               <thead>
@@ -207,18 +228,10 @@
         </div>
 
         <div class="f-social" aria-label="Social links">
-          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook">
-            <i class="fa-brands fa-facebook-f"></i>
-          </a>
-          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube">
-            <i class="fa-brands fa-youtube"></i>
-          </a>
-          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp">
-            <i class="fa-brands fa-whatsapp"></i>
-          </a>
-          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email">
-            <i class="fa-solid fa-envelope"></i>
-          </a>
+          <a class="f-social-btn" href="#" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a class="f-social-btn" href="#" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a class="f-social-btn" href="#" aria-label="WhatsApp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a class="f-social-btn" href="mailto:info@loukiksangha.org" aria-label="Email" title="Email"><i class="fa-solid fa-envelope"></i></a>
         </div>
       </div>
 
@@ -241,9 +254,7 @@
 
     <div class="wrap f-bottom">
       <div class="f-line"></div>
-      <div class="f-copy">
-        © <span id="year"></span> Loukik Sangha. All rights reserved.
-      </div>
+      <div class="f-copy">© <span id="year"></span> Loukik Sangha. All rights reserved.</div>
     </div>
   </footer>
 
@@ -251,4 +262,3 @@
   <script type="module" src="member-search.js"></script>
 </body>
 </html>
-
