@@ -10,17 +10,11 @@ initNavbarAuthUI();
 
 const $ = (s, p = document) => p.querySelector(s);
 
-/* =========================
-   Year
-========================= */
 (() => {
   const year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
 })();
 
-/* =========================
-   Animated Counters
-========================= */
 const prefersReducedMotion = (() => {
   try {
     return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -72,9 +66,6 @@ function animateTextNumber(el, target, opts = {}) {
   state.raf = requestAnimationFrame(tick);
 }
 
-/* =========================
-   Time + Parsing (BD)
-========================= */
 function bdNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
 }
@@ -169,9 +160,6 @@ function normalizeCode(code) {
   return String(code || "").trim().toUpperCase();
 }
 
-/* =========================
-   Active checks
-========================= */
 function isActiveMember(m) {
   const x = m || {};
   if (x.isDeleted === true) return false;
@@ -197,34 +185,119 @@ function isActivePayment(p) {
   return true;
 }
 
+function digitsOnly(s) {
+  return String(s || "").replace(/\D/g, "");
+}
+
+function normalizeBDPhone(raw) {
+  const d = digitsOnly(raw);
+  if (!d) return "";
+
+  if (d.startsWith("880") && d.length >= 13) {
+    const rest = d.slice(3);
+    if (rest.length >= 10) return "0" + rest.slice(-10);
+  }
+
+  if (d.length === 11 && d.startsWith("0")) return d;
+  if (d.length === 10 && d.startsWith("1")) return "0" + d;
+  if (d.length > 11) return d.slice(-11);
+  return d;
+}
+
 /* =========================
-   Firestore Stats (global + running month collection)
+   Fund Modal + Stats (robust)
 ========================= */
 (() => {
   const statMembers     = $("#statMembers");
-  const statCollected   = $("#statCollected");   // ✅ RUNNING MONTH collection (active members only)
+  const statCollected   = $("#statCollected");
   const statDues        = $("#statDues");
-  const statFund        = $("#statFund");        // cumulative (kept)
+  const statFund        = $("#statFund");
   const statOtherIncome = $("#statOtherIncome");
   const statExpense     = $("#statExpense");
 
-  // global stats doc (unchanged)
-  try {
-    onSnapshot(doc(db, "stats", "global"), (snap) => {
-      const s = snap.data() || {};
-      if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
-      if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
-      if (statFund)        animateTextNumber(statFund, s.availableFund ?? 0, { duration: 900 });
-      if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
-      if (statExpense)     animateTextNumber(statExpense, s.totalExpense ?? 0, { duration: 900 });
-    });
-  } catch (err) {
-    console.error("❌ Stats onSnapshot failed:", err);
-  }
-
-  // running month collection: payments of active members only
+  const FUND_KEY = "ls_fund_verified_phone";
   let ACTIVE_MEMBER_CODES = new Set();
   let PAYMENTS_CACHE = [];
+
+  let ACTIVE_PHONES = new Set();
+  let fundVerified = false;
+  let fundValueCache = 0;
+
+  function setFundMasked() {
+    if (!statFund) return;
+    statFund.textContent = "••••";
+  }
+
+  function openFundModal() {
+    const fundModal = $("#fundModal");
+    const fundPhone = $("#fundPhone");
+    const fundMsg = $("#fundMsg");
+    if (!fundModal) return;
+    if (fundMsg) {
+      fundMsg.textContent = "";
+      fundMsg.classList.remove("ok", "bad");
+    }
+    fundModal.classList.add("show");
+    fundModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => fundPhone?.focus(), 50);
+  }
+
+  function closeFundModal() {
+    const fundModal = $("#fundModal");
+    if (!fundModal) return;
+    fundModal.classList.remove("show");
+    fundModal.setAttribute("aria-hidden", "true");
+  }
+
+  function unlockFund(phoneNorm) {
+    fundVerified = true;
+    try { localStorage.setItem(FUND_KEY, phoneNorm); } catch {}
+    if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 900 });
+    closeFundModal();
+  }
+
+  function tryVerifyFromStored() {
+    let saved = "";
+    try { saved = localStorage.getItem(FUND_KEY) || ""; } catch {}
+    const s = normalizeBDPhone(saved);
+    if (s && ACTIVE_PHONES.has(s)) {
+      fundVerified = true;
+      if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 700 });
+      return true;
+    }
+    return false;
+  }
+
+  function doVerifyInput() {
+    const fundPhone = $("#fundPhone");
+    const fundMsg = $("#fundMsg");
+
+    const input = normalizeBDPhone(fundPhone?.value || "");
+    if (!input) {
+      if (fundMsg) {
+        fundMsg.textContent = "ফোন নম্বর দিন";
+        fundMsg.classList.remove("ok");
+        fundMsg.classList.add("bad");
+      }
+      return;
+    }
+
+    if (ACTIVE_PHONES.has(input)) {
+      if (fundMsg) {
+        fundMsg.textContent = "Verified ✅ এখন Available Fund দেখা যাবে";
+        fundMsg.classList.remove("bad");
+        fundMsg.classList.add("ok");
+      }
+      unlockFund(input);
+      return;
+    }
+
+    if (fundMsg) {
+      fundMsg.textContent = "Match হয়নি ❌ (Active member phone দরকার)";
+      fundMsg.classList.remove("ok");
+      fundMsg.classList.add("bad");
+    }
+  }
 
   function recomputeRunningMonth() {
     const curYM = ymBD();
@@ -246,24 +319,82 @@ function isActivePayment(p) {
     if (statCollected) animateTextNumber(statCollected, sum, { duration: 900 });
   }
 
-  // watch members to build ACTIVE set
+  function collectPhonesFromMember(m, set) {
+    const candidates = [
+      m.phone, m.phoneNumber, m.mobile, m.mobileNumber,
+      m.contact, m.contactNumber, m.whatsapp, m.whatsApp
+    ];
+    for (const c of candidates) {
+      const n = normalizeBDPhone(c);
+      if (n) set.add(n);
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    setFundMasked();
+
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#fundUnlockBtn")) openFundModal();
+      if (e.target.closest("#fundBackdrop")) closeFundModal();
+      if (e.target.closest("#fundClose")) closeFundModal();
+      if (e.target.closest("#fundVerifyBtn")) doVerifyInput();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeFundModal();
+      if (e.key === "Enter" && document.activeElement?.id === "fundPhone") doVerifyInput();
+    });
+  });
+
+  try {
+    onSnapshot(doc(db, "stats", "global"), (snap) => {
+      const s = snap.data() || {};
+      if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
+      if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
+
+      fundValueCache = toNumber(s.availableFund ?? 0);
+
+      if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
+      if (statExpense)     animateTextNumber(statExpense, s.totalExpense ?? 0, { duration: 900 });
+
+      if (fundVerified) {
+        if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 900 });
+      } else {
+        setFundMasked();
+      }
+    });
+  } catch (err) {
+    console.error("❌ Stats onSnapshot failed:", err);
+  }
+
   try {
     onSnapshot(collection(db, "members"), (snap) => {
-      const set = new Set();
+      const codeSet = new Set();
+      const phoneSet = new Set();
+
       snap.forEach((d) => {
         const m = d.data() || {};
         if (!isActiveMember(m)) return;
+
         const code = normalizeCode(m.memberCode);
-        if (code) set.add(code);
+        if (code) codeSet.add(code);
+
+        collectPhonesFromMember(m, phoneSet);
       });
-      ACTIVE_MEMBER_CODES = set;
+
+      ACTIVE_MEMBER_CODES = codeSet;
+      ACTIVE_PHONES = phoneSet;
+
       recomputeRunningMonth();
+
+      if (!fundVerified) {
+        if (!tryVerifyFromStored()) setFundMasked();
+      }
     });
   } catch (err) {
     console.error("❌ Members onSnapshot failed:", err);
   }
 
-  // watch payments (cache) then recompute
   try {
     onSnapshot(collection(db, "payments"), (snap) => {
       const arr = [];
@@ -378,80 +509,4 @@ window.addEventListener("DOMContentLoaded", () => {
   initImpactSlider();
 });
 
-/* =========================
-   Ritual Popup
-========================= */
-function todayBD() {
-  const now = new Date();
-  const bd = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-  const y = bd.getFullYear();
-  const m = String(bd.getMonth() + 1).padStart(2, "0");
-  const d = String(bd.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
-function showRitualPopup(dateStr, items){
-  const modal = document.getElementById("ritualModal");
-  const list  = document.getElementById("ritualList");
-  const title = document.getElementById("ritualTitle");
-  const close = document.getElementById("ritualClose");
-  const ok    = document.getElementById("ritualOk");
-  const back  = document.getElementById("ritualBackdrop");
-  const link  = document.getElementById("ritualLink");
-
-  if (!modal || !list || !title) return;
-
-  const seenKey = `ls_ritual_seen_${dateStr}`;
-  try { if (localStorage.getItem(seenKey) === "1") return; } catch {}
-
-  title.textContent = `আজকের ধর্মীয় অনুষ্ঠান (${dateStr})`;
-
-  list.innerHTML = items.map(e => `
-    <div class="ritual-item">
-      <h4>${e.title || "আজকের তথ্য"}</h4>
-      <p>${e.details || ""}</p>
-    </div>
-  `).join("");
-
-  const firstLink = items.find(x => x.link)?.link;
-  if (firstLink && link) { link.href = firstLink; link.style.display = "inline-flex"; }
-  else if (link) { link.style.display = "none"; }
-
-  const doClose = () => {
-    modal.classList.remove("show");
-    modal.setAttribute("aria-hidden","true");
-  };
-
-  modal.classList.add("show");
-  modal.setAttribute("aria-hidden","false");
-
-  close?.addEventListener("click", doClose, { once:true });
-  ok?.addEventListener("click", doClose, { once:true });
-  back?.addEventListener("click", doClose, { once:true });
-  document.addEventListener("keydown", (ev)=>{ if(ev.key==="Escape") doClose(); }, { once:true });
-
-  try { localStorage.setItem(seenKey, "1"); } catch {}
-}
-
-async function initRitualPopupFromJSON(){
-  const dateStr = todayBD();
-
-  try{
-    const res = await fetch(`rituals.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("rituals.json not found");
-    const data = await res.json();
-    const events = Array.isArray(data.events) ? data.events : [];
-
-    const todays = events
-      .filter(e => e?.date === dateStr)
-      .sort((a,b)=> (a.priority ?? 9) - (b.priority ?? 9));
-
-    if (todays.length) showRitualPopup(dateStr, todays);
-  } catch(err){
-    console.error("Ritual JSON load failed:", err);
-  }
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  initRitualPopupFromJSON();
-});
