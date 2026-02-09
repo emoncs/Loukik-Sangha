@@ -3,7 +3,9 @@ import {
   collection,
   getDocs,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 
@@ -12,12 +14,15 @@ initNavbarAuthUI();
 (() => {
   const $ = (s, p = document) => p.querySelector(s);
 
+  const yearEl = $("#year");
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
   const input = $("#q");
   const btn = $("#searchBtn");
-
   const countEl = $("#count");
   const emptyState = $("#emptyState");
   const cardsEl = $("#cards");
+  const msg = $("#searchMsg");
 
   const tableWrap = $("#tableWrap");
   const tbody = $("#resultsTbody");
@@ -26,21 +31,32 @@ initNavbarAuthUI();
   const allTableWrap = $("#allTableWrap");
   const allTbody = $("#allTbody");
 
-  const msg = $("#searchMsg");
-
   const joinForm = $("#joinForm");
   const joinMsg = $("#joinMsg");
   const joinReset = $("#joinReset");
   const joinSubmit = $("#joinSubmit");
 
-  // NEW: pagination controls
-  const pageSizeEl = $("#pageSize");
-  const prevPageBtn = $("#prevPage");
-  const nextPageBtn = $("#nextPage");
-  const pageInfoEl = $("#pageInfo");
+  const statTotal = $("#statTotal");
+  const statDue = $("#statDue");
+  const statAdv = $("#statAdv");
+  const statPaid = $("#statPaid");
+
+  const segAll = $("#segAll");
+  const segDue = $("#segDue");
+  const segPaid = $("#segPaid");
+  const segAdv = $("#segAdv");
+  const sortSel = $("#sortMembers");
+  const segBtns = Array.from(document.querySelectorAll("[data-list-filter]"));
+
+  const snapMonth = $("#snapMonth");
+  const snapCollected = $("#snapCollected");
+  const snapPayers = $("#snapPayers");
+  const snapTarget = $("#snapTarget");
+  const snapCoverage = $("#snapCoverage");
+  const snapHint = $("#snapHint");
+  const payerList = $("#payerList");
 
   if (!allTbody || !allTableWrap || !cardsEl) {
-    console.error("Missing DOM ids");
     if (msg) {
       msg.textContent = "UI error: elements not found. Check #cards #allTableWrap #allTbody";
       msg.style.color = "#ef4444";
@@ -77,20 +93,10 @@ initNavbarAuthUI();
     }
     cardsEl.style.display = "none";
     cardsEl.innerHTML = "";
-
     if (tableWrap) tableWrap.style.display = "none";
     if (tbody) tbody.innerHTML = "";
   }
 
-  // WhatsApp click-to-send helper
-  function waLink(phone, msgText) {
-    const digits = String(phone || "").replace(/\D/g, "");
-    if (!digits) return "#";
-    const bd = digits.startsWith("0") ? "88" + digits : digits; // 017.. => 88017..
-    return `https://wa.me/${bd}?text=${encodeURIComponent(msgText || "")}`;
-  }
-
-  // ===================== Join Month Normalizer =====================
   const MONTHS = {
     jan: 1, january: 1,
     feb: 2, february: 2,
@@ -195,6 +201,70 @@ initNavbarAuthUI();
     return { ym: "", label: "" };
   }
 
+  const defaultAvatar = (gender) => {
+    const g = String(gender || "").toLowerCase();
+    return (g === "female") ? "Images/female.png" : "Images/male.png";
+  };
+
+  function cardHTML(m) {
+    const name = esc(m.name || "Unknown");
+    const phone = esc(m.phone || "-");
+    const join = esc(m.joinMonthLabel || m.joinMonth || "-");
+    const code = esc(m.memberCode || "-");
+    const gender = String(m.gender || "male").toLowerCase();
+
+    const monthly = Number(m.monthlyDue || 0);
+    const paid = Number(m.totalPaid || 0);
+    const due = Number(m.due || 0);
+    const adv = Number(m.advance || 0);
+
+    const img = esc(m.photoDataUrl || defaultAvatar(gender));
+    const remarks = esc(m.remarks || "");
+
+    let pill = `<span class="pill ok"><i class="fa-solid fa-circle-check"></i> OK</span>`;
+    if (adv > 0) pill = `<span class="pill adv"><i class="fa-solid fa-forward"></i> Advance</span>`;
+    else if (due > 0) pill = `<span class="pill due"><i class="fa-solid fa-triangle-exclamation"></i> Due</span>`;
+
+    return `
+      <article class="mcard">
+        <div class="mcard-top">
+          <img class="mimg" src="${img}" alt="Member photo" loading="lazy" />
+          <div class="mmeta">
+            <div class="mhead">
+              <h3 class="mname">${name}</h3>
+              ${pill}
+            </div>
+            <div class="msub">
+              <span class="mtag"><i class="fa-solid fa-phone"></i> ${phone}</span>
+              <span class="mtag"><i class="fa-solid fa-id-badge"></i> ${code}</span>
+              <span class="mtag"><i class="fa-solid fa-calendar-check"></i> ${join}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mgrid">
+          <div class="mstat"><small>Monthly</small><b>৳${fmtMoney(monthly)}</b></div>
+          <div class="mstat"><small>Paid</small><b>৳${fmtMoney(paid)}</b></div>
+          <div class="mstat ${due > 0 ? "is-due" : ""}"><small>Due</small><b>৳${fmtMoney(due)}</b></div>
+          <div class="mstat ${adv > 0 ? "is-adv" : ""}"><small>Advance</small><b>৳${fmtMoney(adv)}</b></div>
+        </div>
+
+        <div class="mremark">
+          <b>Remark:</b> ${remarks ? remarks : "—"}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderResults(rows) {
+    if (!rows.length) return showEmpty("No matching members found.");
+    if (countEl) countEl.textContent = String(rows.length);
+    if (emptyState) emptyState.style.display = "none";
+    cardsEl.style.display = "grid";
+    cardsEl.innerHTML = rows.map(cardHTML).join("");
+    if (tableWrap) tableWrap.style.display = "none";
+  }
+
   function rowHTML(m, idx) {
     const joinRaw = (m.joinMonthLabel || m.joinMonth || "-");
     const join = esc(joinRaw);
@@ -204,7 +274,6 @@ initNavbarAuthUI();
     const paid = Number(m.totalPaid || 0);
     const due = Number(m.due || 0);
     const adv = Number(m.advance || 0);
-
     const total = paid + due;
 
     let remarkText = "OK";
@@ -227,152 +296,131 @@ initNavbarAuthUI();
     `;
   }
 
-  // ===== Pagination state for All Members table =====
+  let LIST_FILTER = "all";
+  let LIST_SORT = "code";
   let ALL_MEMBERS = [];
   let LOADED = false;
-  let allPage = 1;
-  let pageSize = Number(pageSizeEl?.value || 20);
 
-  function totalPages(total, size) {
-    const s = Math.max(1, Number(size || 20));
-    return Math.max(1, Math.ceil(total / s));
+  function isDue(m){ return Number(m.due || 0) > 0; }
+  function isAdv(m){ return Number(m.advance || 0) > 0; }
+  function isPaidOK(m){ return !isDue(m) && !isAdv(m); }
+
+  function updateCounts(base) {
+    const all = base.length;
+    const due = base.filter(isDue).length;
+    const adv = base.filter(isAdv).length;
+    const paid = base.filter(isPaidOK).length;
+
+    if (allCountEl) allCountEl.textContent = String(all);
+
+    if (segAll) segAll.textContent = String(all);
+    if (segDue) segDue.textContent = String(due);
+    if (segAdv) segAdv.textContent = String(adv);
+    if (segPaid) segPaid.textContent = String(paid);
+
+    if (statTotal) statTotal.textContent = String(all);
+    if (statDue) statDue.textContent = String(due);
+    if (statAdv) statAdv.textContent = String(adv);
+    if (statPaid) statPaid.textContent = String(paid);
   }
 
-  function updatePagerUI() {
-    if (!pageInfoEl) return;
-    const tp = totalPages(ALL_MEMBERS.length, pageSize);
-    if (allPage > tp) allPage = tp;
-    pageInfoEl.textContent = `Page ${allPage} / ${tp}`;
-    if (prevPageBtn) prevPageBtn.disabled = allPage <= 1;
-    if (nextPageBtn) nextPageBtn.disabled = allPage >= tp;
+  function applyListFilter(rows) {
+    if (LIST_FILTER === "due") return rows.filter(isDue);
+    if (LIST_FILTER === "advance") return rows.filter(isAdv);
+    if (LIST_FILTER === "paid") return rows.filter(isPaidOK);
+    return rows;
   }
 
-  function renderAll(rows) {
-    ALL_MEMBERS = Array.isArray(rows) ? rows : [];
-    if (allCountEl) allCountEl.textContent = String(ALL_MEMBERS.length);
-
-    allTableWrap.style.display = ALL_MEMBERS.length ? "block" : "none";
-
-    const start = (allPage - 1) * pageSize;
-    const end = start + pageSize;
-    const slice = ALL_MEMBERS.slice(start, end);
-
-    allTbody.innerHTML = slice.map((m, i) => rowHTML(m, start + i)).join("");
-    updatePagerUI();
+  function ymToNum(ym) {
+    const [y, m] = String(ym || "").split("-");
+    const yy = Number(y || 0);
+    const mm = Number(m || 0);
+    if (!yy || !mm) return 0;
+    return yy * 12 + mm;
   }
 
-  // ===== Cards rendering (Results) + WhatsApp =====
-  const defaultAvatar = (gender) => {
-    const g = String(gender || "").toLowerCase();
-    return (g === "female") ? "Images/female.png" : "Images/male.png";
-  };
+  function applyListSort(rows) {
+    const r = [...rows];
 
-  function cardHTML(m) {
-    const name = esc(m.name || "Unknown");
-    const phoneRaw = (m.phone || "");
-    const phone = esc(phoneRaw || "-");
-    const join = esc(m.joinMonthLabel || m.joinMonth || "-");
-    const code = esc(m.memberCode || "-");
-    const gender = String(m.gender || "male").toLowerCase();
+    const byCode = (a, b) => String(a.memberCode || "").localeCompare(String(b.memberCode || ""));
+    const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""));
+    const byDueDesc = (a, b) => Number(b.due || 0) - Number(a.due || 0);
+    const byPaidDesc = (a, b) => Number(b.totalPaid || 0) - Number(a.totalPaid || 0);
+    const byJoinAsc = (a, b) => ymToNum(a.joinMonth) - ymToNum(b.joinMonth);
+    const byJoinDesc = (a, b) => ymToNum(b.joinMonth) - ymToNum(a.joinMonth);
 
-    const monthly = Number(m.monthlyDue || 0);
-    const paid = Number(m.totalPaid || 0);
-    const due = Number(m.due || 0);
-    const adv = Number(m.advance || 0);
+    if (LIST_SORT === "name") r.sort(byName);
+    else if (LIST_SORT === "dueDesc") r.sort(byDueDesc);
+    else if (LIST_SORT === "paidDesc") r.sort(byPaidDesc);
+    else if (LIST_SORT === "joinAsc") r.sort(byJoinAsc);
+    else if (LIST_SORT === "joinDesc") r.sort(byJoinDesc);
+    else r.sort(byCode);
 
-    const img = esc(m.photoDataUrl || defaultAvatar(gender));
-    const remarks = esc(m.remarks || "");
-
-    const hasPhone = String(phoneRaw || "").trim().length > 0;
-    const waMsg = due > 0
-      ? `Hi ${m.name || "Member"}, আপনার Loukik Sangha এ ৳${due} dues আছে। অনুগ্রহ করে এই মাসের payment complete করুন। ধন্যবাদ।`
-      : `Hi ${m.name || "Member"}, Loukik Sangha এর সাথে থাকার জন্য ধন্যবাদ।`;
-
-    const waHref = hasPhone ? waLink(phoneRaw, waMsg) : "#";
-    const waDisabled = hasPhone ? "" : "is-disabled";
-
-    return `
-      <article class="mcard">
-        <div class="mcard-top">
-          <img class="mimg" src="${img}" alt="Member photo" loading="lazy" />
-          <div class="mmeta">
-            <h3 class="mname">${name}</h3>
-
-            <div class="msub">
-              <span class="mtag"><i class="fa-solid fa-phone"></i> ${phone}</span>
-              <span class="mtag"><i class="fa-solid fa-id-badge"></i> ${code}</span>
-              <span class="mtag"><i class="fa-solid fa-calendar-check"></i> ${join}</span>
-            </div>
-
-            <div class="mcta">
-              <a class="iconbtn wa ${waDisabled}" href="${waHref}" target="_blank" rel="noopener" aria-label="WhatsApp reminder">
-                <i class="fa-brands fa-whatsapp"></i>
-              </a>
-              <span class="ctatxt">${due > 0 ? "Send due reminder" : "Send message"}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mgrid">
-          <div class="mstat"><small>Monthly</small><b>৳${fmtMoney(monthly)}</b></div>
-          <div class="mstat"><small>Paid</small><b>৳${fmtMoney(paid)}</b></div>
-          <div class="mstat"><small>Due</small><b>৳${fmtMoney(due)}</b></div>
-          <div class="mstat"><small>Advanced</small><b>৳${fmtMoney(adv)}</b></div>
-        </div>
-
-        <div class="mremark">
-          <b>Remark:</b> ${remarks ? remarks : "—"}
-        </div>
-      </article>
-    `;
+    return r;
   }
 
-  function renderResults(rows) {
-    if (!rows.length) return showEmpty("No matching members found.");
-
-    if (countEl) countEl.textContent = String(rows.length);
-    if (emptyState) emptyState.style.display = "none";
-
-    cardsEl.style.display = "grid";
-    cardsEl.innerHTML = rows.map(cardHTML).join("");
-
-    if (tableWrap) tableWrap.style.display = "none";
+  function renderAllList(baseRows) {
+    updateCounts(baseRows);
+    const filtered = applyListFilter(baseRows);
+    const sorted = applyListSort(filtered);
+    allTableWrap.style.display = sorted.length ? "block" : "none";
+    allTbody.innerHTML = sorted.map((m, idx) => rowHTML(m, idx)).join("");
   }
 
-  // ===== Firestore load/search =====
+  segBtns.forEach(b => {
+    b.addEventListener("click", () => {
+      segBtns.forEach(x => x.classList.remove("is-active"));
+      b.classList.add("is-active");
+      LIST_FILTER = b.getAttribute("data-list-filter") || "all";
+      renderAllList(ALL_MEMBERS);
+    });
+  });
+
+  sortSel?.addEventListener("change", () => {
+    LIST_SORT = sortSel.value || "code";
+    renderAllList(ALL_MEMBERS);
+  });
+
   async function loadMembersOnce() {
     if (LOADED) return ALL_MEMBERS;
-
     const snap = await getDocs(collection(db, "members"));
     const rows = [];
     snap.forEach(d => rows.push(d.data()));
-
     rows.sort((a, b) => (a.memberCode || "").localeCompare(b.memberCode || ""));
     ALL_MEMBERS = rows;
     LOADED = true;
     return ALL_MEMBERS;
   }
 
-  function filterMembers(all, qLower) {
+  function normalizeForPrefix(s) {
+    return String(s || "").toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  function normalizeNoSpace(s) {
+    return String(s || "").toLowerCase().replace(/\s+/g, "");
+  }
+
+  function filterMembersPrefix(all, qRaw) {
+    const q = normalizeForPrefix(qRaw);
+    const qNS = normalizeNoSpace(qRaw);
+    const looksLikePhone = /^[+0-9]/.test(qRaw);
+    const looksLikeCode = q.includes("ls") || qRaw.includes("-");
+
     return all.filter(m => {
-      const name = String(m.name || "").toLowerCase();
-      const code = String(m.memberCode || "").toLowerCase();
-      const join = String(m.joinMonth || "").toLowerCase();
-      const joinLabel = String(m.joinMonthLabel || "").toLowerCase();
-      const phone = String(m.phone || "").toLowerCase();
-      return (
-        name.includes(qLower) ||
-        code.includes(qLower) ||
-        join.includes(qLower) ||
-        joinLabel.includes(qLower) ||
-        phone.includes(qLower)
-      );
+      const name = normalizeForPrefix(m.name);
+      const nameNS = normalizeNoSpace(m.name);
+      const phone = normalizeForPrefix(m.phone);
+      const code = normalizeForPrefix(m.memberCode);
+
+      if (looksLikePhone) return phone.startsWith(q);
+      if (looksLikeCode) return code.startsWith(q);
+
+      return name.startsWith(q) || nameNS.startsWith(qNS);
     });
   }
 
   async function doSearch() {
-    const q = (input?.value || "").trim().toLowerCase();
-
+    const q = (input?.value || "").trim();
     if (!q) {
       setMsg("");
       showEmpty("Type member name / phone / code and press Search.");
@@ -383,12 +431,10 @@ initNavbarAuthUI();
 
     try {
       const all = await loadMembersOnce();
-      const filtered = filterMembers(all, q);
-
+      const filtered = filterMembersPrefix(all, q);
       setMsg(filtered.length ? `Found ${filtered.length} member(s).` : "No matches found.", !!filtered.length);
       renderResults(filtered);
     } catch (e) {
-      console.error("Firestore read failed:", e);
       setMsg("Cannot load members. Check Firestore connection or console error.", false);
       showEmpty("Search unavailable right now.");
     }
@@ -399,7 +445,127 @@ initNavbarAuthUI();
     if (e.key === "Enter") doSearch();
   });
 
-  // ===== Optional photo: compress to dataURL (no storage needed) =====
+  function getRecentMonths(count) {
+    const out = [];
+    const d = new Date();
+    d.setDate(1);
+    for (let i = 0; i < count; i++) {
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      out.push(`${y}-${String(m).padStart(2, "0")}`);
+      d.setMonth(d.getMonth() - 1);
+    }
+    return out;
+  }
+
+  function setSnapshotUI({ ymLabel, collected, payers, target }) {
+    if (snapMonth) snapMonth.textContent = ymLabel || "—";
+    if (snapCollected) snapCollected.textContent = `৳${fmtMoney(collected)}`;
+    if (snapPayers) snapPayers.textContent = String(payers || 0);
+    if (snapTarget) snapTarget.textContent = `৳${fmtMoney(target)}`;
+
+    const cov = target > 0 ? Math.round((collected / target) * 100) : 0;
+    if (snapCoverage) snapCoverage.textContent = `${cov}%`;
+
+    if (snapHint) {
+      snapHint.textContent = collected > 0
+        ? "Snapshot is calculated from payments collection."
+        : "No payments found for this month (payments collection).";
+    }
+  }
+
+  function renderPayersList(items) {
+    if (!payerList) return;
+    if (!items.length) {
+      payerList.innerHTML = `<li class="payer-empty">No payer data yet.</li>`;
+      return;
+    }
+
+    payerList.innerHTML = items.map(x => {
+      const name = esc(x.name || "Unknown");
+      const code = esc(x.memberCode || "-");
+      return `
+        <li class="payer-item">
+          <div class="payer-left">
+            <span class="payer-name">${name}</span>
+            <span class="payer-code">${code}</span>
+          </div>
+          <div class="payer-right">৳${fmtMoney(x.total)}</div>
+        </li>
+      `;
+    }).join("");
+  }
+
+  async function loadMonthlyInsights() {
+    const months = getRecentMonths(4);
+    const ymNow = months[0];
+    const ymLabelNow = monthLabelFromYM(ymNow);
+
+    const target = ALL_MEMBERS.reduce((sum, m) => sum + Number(m.monthlyDue || 0), 0);
+
+    setSnapshotUI({ ymLabel: ymLabelNow, collected: 0, payers: 0, target });
+    renderPayersList([]);
+
+    try {
+      const qpay = query(collection(db, "payments"), where("month", "in", months));
+      const ps = await getDocs(qpay);
+
+      const byMonthTotal = new Map();
+      const byMonthPayers = new Map();
+      const byMonthByPayer = new Map();
+
+      months.forEach(ym => {
+        byMonthTotal.set(ym, 0);
+        byMonthPayers.set(ym, new Set());
+        byMonthByPayer.set(ym, new Map());
+      });
+
+      ps.forEach(doc => {
+        const p = doc.data() || {};
+        const ym = String(p.month || "");
+        if (!byMonthTotal.has(ym)) return;
+
+        const code = String(p.memberCode || "");
+        const amt = Number(p.amount || 0);
+
+        byMonthTotal.set(ym, (byMonthTotal.get(ym) || 0) + amt);
+
+        const s = byMonthPayers.get(ym);
+        s && code && s.add(code);
+
+        const mm = byMonthByPayer.get(ym);
+        if (mm && code) mm.set(code, (mm.get(code) || 0) + amt);
+      });
+
+      const collectedNow = byMonthTotal.get(ymNow) || 0;
+      const payersNow = (byMonthPayers.get(ymNow) || new Set()).size;
+
+      setSnapshotUI({ ymLabel: ymLabelNow, collected: collectedNow, payers: payersNow, target });
+
+      const last3 = months.slice(0, 3);
+      const sets = last3.map(ym => byMonthPayers.get(ym) || new Set());
+      const common = [...sets[0]].filter(code => sets[1].has(code) && sets[2].has(code));
+
+      const nameByCode = new Map(ALL_MEMBERS.map(m => [String(m.memberCode || ""), String(m.name || "")]));
+
+      const totals = common.map(code => {
+        let t = 0;
+        last3.forEach(ym => {
+          const mm = byMonthByPayer.get(ym);
+          if (mm) t += Number(mm.get(code) || 0);
+        });
+        return { memberCode: code, name: nameByCode.get(code) || "Unknown", total: t };
+      });
+
+      totals.sort((a, b) => b.total - a.total);
+      renderPayersList(totals.slice(0, 3));
+
+    } catch (e) {
+      if (snapHint) snapHint.textContent = "Payments data unavailable (check Firestore rules or payments collection).";
+      renderPayersList([]);
+    }
+  }
+
   async function fileToDataUrlCompressed(file, maxSize = 480, quality = 0.8) {
     if (!file) return "";
 
@@ -436,7 +602,6 @@ initNavbarAuthUI();
     return canvas.toDataURL("image/jpeg", quality);
   }
 
-  // ===== Join form submit =====
   joinReset?.addEventListener("click", () => {
     joinForm?.reset();
     setJoinMsg("Fill the form to request membership. Photo is optional.", true);
@@ -453,7 +618,6 @@ initNavbarAuthUI();
       const gender = $("#jGender")?.value?.trim().toLowerCase();
 
       const joinMonthRaw = $("#jJoinMonth")?.value?.trim();
-
       const monthlyDue = Number($("#jMonthly")?.value || 0);
       const address = $("#jAddress")?.value?.trim();
       const remarks = $("#jRemarks")?.value?.trim();
@@ -500,8 +664,9 @@ initNavbarAuthUI();
       LOADED = false;
       ALL_MEMBERS = [];
       const all = await loadMembersOnce();
-      allPage = 1;
-      renderAll(all);
+
+      renderAllList(all);
+      await loadMonthlyInsights();
 
       setJoinMsg("Submitted! Your membership request has been added.", true);
       joinForm.reset();
@@ -510,45 +675,24 @@ initNavbarAuthUI();
       doSearch();
 
     } catch (err) {
-      console.error(err);
       setJoinMsg(err?.message || "Submit failed. Try again.", false);
     } finally {
       joinSubmit && (joinSubmit.disabled = false);
     }
   });
 
-  // ===== Pagination events =====
-  pageSizeEl?.addEventListener("change", async () => {
-    pageSize = Number(pageSizeEl.value || 20);
-    allPage = 1;
-    renderAll(ALL_MEMBERS);
-  });
-
-  prevPageBtn?.addEventListener("click", () => {
-    allPage = Math.max(1, allPage - 1);
-    renderAll(ALL_MEMBERS);
-  });
-
-  nextPageBtn?.addEventListener("click", () => {
-    const tp = totalPages(ALL_MEMBERS.length, pageSize);
-    allPage = Math.min(tp, allPage + 1);
-    renderAll(ALL_MEMBERS);
-  });
-
-  // initial load
   (async () => {
     setMsg("Loading members...", true);
     showEmpty();
 
     try {
       const all = await loadMembersOnce();
-      allPage = 1;
-      renderAll(all);
+      renderAllList(all);
+      await loadMonthlyInsights();
       setMsg("Members loaded. Now search to filter results.", true);
     } catch (e) {
-      console.error(e);
       setMsg("Cannot load members list. Check Firestore rules/connection.", false);
-      renderAll([]);
+      renderAllList([]);
     }
 
     const params = new URLSearchParams(location.search);
