@@ -124,7 +124,8 @@ function initNoticeTicker() {
   const notices = [
     { text: "আগামী শুক্রবার সেবা কার্যক্রম", icon: "fa-hands-praying", linkText: "Details", link: "vision.html" },
     { text: "সদস্য সংগ্রহ শুরু — রেজিস্ট্রেশন চলছে", icon: "fa-user-plus", linkText: "Register", link: "member-search.html" },
-    { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" }
+    { text: "জরুরি সাহায্য ফান্ড চালু", icon: "fa-hand-holding-heart", linkText: "Donate", link: "donate.html" },
+    { text: "যেকোনো প্রয়োজনে কল করুন +8801713086375", icon: "fa-phone", linkText: "Call", link: "tel:+8801713086375" }
   ];
 
   const html = notices.map((n) => {
@@ -270,3 +271,4 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
