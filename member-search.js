@@ -46,7 +46,6 @@ initNavbarAuthUI();
   const sortSel = $("#sortMembers");
   const segBtns = Array.from(document.querySelectorAll("[data-list-filter]"));
 
-  // Monthly Snapshot UI (must exist in HTML)
   const snapMonth = $("#snapMonth");
   const snapCollected = $("#snapCollected");
   const snapPayers = $("#snapPayers");
@@ -200,7 +199,6 @@ initNavbarAuthUI();
     return { ym: "", label: "" };
   }
 
-  // month parser for payments.month (any format) -> "YYYY-MM"
   function parseFlexibleAnyMonth(raw) {
     const r = String(raw || "").trim();
     if (!r) return "";
@@ -245,6 +243,22 @@ initNavbarAuthUI();
     }
 
     return "";
+  }
+
+  function getYMFromCreatedAt(createdAt) {
+    if (!createdAt) return "";
+    let d = null;
+
+    if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
+    else if (createdAt instanceof Date) d = createdAt;
+    else if (typeof createdAt === "number") d = new Date(createdAt);
+    else if (typeof createdAt === "string") {
+      const dd = new Date(createdAt);
+      if (!Number.isNaN(dd.getTime())) d = dd;
+    }
+
+    if (!d) return "";
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
   }
 
   function getCurrentYM() {
@@ -511,7 +525,7 @@ initNavbarAuthUI();
     if (e.key === "Enter") doSearch();
   });
 
-  function setSnapshotUI({ ymLabel, collected, payers, target }) {
+  function setSnapshotUI({ ymLabel, collected, payers, target, usedFallback }) {
     if (snapMonth) snapMonth.textContent = ymLabel || "—";
     if (snapCollected) snapCollected.textContent = `৳${fmtMoney(collected)}`;
     if (snapPayers) snapPayers.textContent = String(payers || 0);
@@ -521,9 +535,9 @@ initNavbarAuthUI();
     if (snapCoverage) snapCoverage.textContent = `${cov}%`;
 
     if (snapHint) {
-      snapHint.textContent = collected > 0
-        ? "Snapshot is calculated from payments.month (running month only)."
-        : "No running-month payments found.";
+      snapHint.textContent = usedFallback
+        ? "Some payments had no month, so month was derived from createdAt."
+        : "Snapshot is calculated from payments.month.";
     }
   }
 
@@ -549,9 +563,14 @@ initNavbarAuthUI();
     }).join("");
   }
 
-  // ✅ running month payer only: payment.month must match current YM (no createdAt fallback)
-  function paymentYMForRunningMonth(p) {
-    return parseFlexibleAnyMonth(p?.month);
+  function paymentInstallmentYM(p) {
+    const ymFromMonth = parseFlexibleAnyMonth(p?.month);
+    if (ymFromMonth) return { ym: ymFromMonth, fallback: false };
+
+    const ymFromCreated = getYMFromCreatedAt(p?.createdAt);
+    if (ymFromCreated) return { ym: ymFromCreated, fallback: true };
+
+    return { ym: "", fallback: false };
   }
 
   async function loadMonthlyInsights() {
@@ -564,7 +583,7 @@ initNavbarAuthUI();
 
     const target = ALL_MEMBERS.reduce((sum, m) => sum + Number(m.monthlyDue || 0), 0);
 
-    setSnapshotUI({ ymLabel: ymLabelNow, collected: 0, payers: 0, target });
+    setSnapshotUI({ ymLabel: ymLabelNow, collected: 0, payers: 0, target, usedFallback: false });
     renderPayersList([]);
 
     try {
@@ -580,16 +599,17 @@ initNavbarAuthUI();
         byMonthByPayer.set(ym, new Map());
       });
 
+      let usedFallback = false;
+
       ps.forEach(doc => {
         const p = doc.data() || {};
-
-        const ym = paymentYMForRunningMonth(p);   // ✅ only payment.month
+        const { ym, fallback } = paymentInstallmentYM(p);
         if (!ym || !byMonthTotal.has(ym)) return;
+
+        if (fallback) usedFallback = true;
 
         const code = normalizeCode(p.memberCode);
         if (!code) return;
-
-        // ✅ payer cannot exceed total members: only accept codes that exist in members
         if (!memberCodeSet.has(code)) return;
 
         const amt = Number(p.amount || 0);
@@ -607,9 +627,8 @@ initNavbarAuthUI();
       const collectedNow = byMonthTotal.get(ymNow) || 0;
       const payersNow = (byMonthPayers.get(ymNow) || new Set()).size;
 
-      setSnapshotUI({ ymLabel: ymLabelNow, collected: collectedNow, payers: payersNow, target });
+      setSnapshotUI({ ymLabel: ymLabelNow, collected: collectedNow, payers: payersNow, target, usedFallback });
 
-      // ✅ consistent payers: paid in last 3 months separately (by month field)
       const last3 = months.slice(0, 3);
       const sets = last3.map(ym => byMonthPayers.get(ym) || new Set());
       if (!sets[0].size) {
