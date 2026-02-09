@@ -148,7 +148,7 @@
     locBlock?.getAttribute("data-sangha-map") ||
     "https://maps.app.goo.gl/FDKn38FqBa7oHdXX6";
 
-  const LOUKIK_SANGHA = { lat: 22.895207, lng: 91.370986 };
+  const LOUKIK_SANGHA = { lat: 22.895186, lng: 91.370865 };
   const DHAKA_CENTER = { lat: 23.8103, lng: 90.4125 };
 
   const toRad = (d) => d * Math.PI / 180;
@@ -249,3 +249,4 @@
     setDirectionState("ready");
   });
 })();
+
