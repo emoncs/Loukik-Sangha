@@ -133,7 +133,9 @@
     }
   });
 
-  // Live Direction UI (visual + distance)
+  /* =========================
+     Live Direction UI (visual + distance)
+  ========================= */
   const locDiagram = $("#locDiagram");
   const originLabel = $("#originLabel");
   const locMetrics = $("#locMetrics");
@@ -142,8 +144,11 @@
   const openDirections = $("#openDirections");
   const locBlock = document.querySelector(".loc-block");
 
-  const SANGHA_MAP_LINK = locBlock?.getAttribute("data-sangha-map") || "https://maps.app.goo.gl/FDKn38FqBa7oHdXX6";
+  const SANGHA_MAP_LINK =
+    locBlock?.getAttribute("data-sangha-map") ||
+    "https://maps.app.goo.gl/FDKn38FqBa7oHdXX6";
 
+  const LOUKIK_SANGHA = { lat: 22.895207, lng: 91.370986 };
   const DHAKA_CENTER = { lat: 23.8103, lng: 90.4125 };
 
   const toRad = (d) => d * Math.PI / 180;
@@ -154,12 +159,12 @@
     const dLng = toRad(b.lng - a.lng);
     const lat1 = toRad(a.lat);
     const lat2 = toRad(b.lat);
-    const s =
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1) * Math.cos(lat2) *
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-    return R * c;
+
+    const x =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+    return R * (2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
   };
 
   const renderMetrics = (items) => {
@@ -183,7 +188,16 @@
     return name;
   };
 
-  const useMyLocation = async () => {
+  const buildGoogleDirLink = (origin, destination) => {
+    return (
+      `https://www.google.com/maps/dir/?api=1` +
+      `&origin=${encodeURIComponent(origin.lat + "," + origin.lng)}` +
+      `&destination=${encodeURIComponent(destination.lat + "," + destination.lng)}` +
+      `&travelmode=driving`
+    );
+  };
+
+  const useMyLocation = () => {
     if (!navigator.geolocation) {
       renderMetrics([{ icon: "fa-solid fa-circle-xmark", text: "Geolocation not supported" }]);
       return;
@@ -194,25 +208,24 @@
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const user = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-        const originName = setOriginName(coords);
+        const originName = setOriginName(user);
 
         setDirectionState("ready");
-
         if (locSub) locSub.textContent = `${originName} → Loukik Sangha (Live)`;
 
-        const dDhaka = haversineKm(coords, DHAKA_CENTER);
-        const approxKm = Math.round(dDhaka);
+        const km = haversineKm(user, LOUKIK_SANGHA);
+        const rounded = km.toFixed(1);
 
         renderMetrics([
           { icon: "fa-solid fa-location-dot", text: `Origin: ${originName}` },
-          { icon: "fa-solid fa-road", text: `Approx distance: ${approxKm} km` },
+          { icon: "fa-solid fa-road", text: `Approx distance: ${rounded} km` },
           { icon: "fa-solid fa-bolt", text: "Animated route" }
         ]);
 
         if (openDirections) {
-          openDirections.href = SANGHA_MAP_LINK;
+          openDirections.href = buildGoogleDirLink(user, LOUKIK_SANGHA);
         }
       },
       () => {
@@ -221,6 +234,7 @@
           { icon: "fa-solid fa-circle-exclamation", text: "Location permission denied" },
           { icon: "fa-solid fa-map", text: "Open map to navigate" }
         ]);
+        if (openDirections) openDirections.href = SANGHA_MAP_LINK;
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
     );
@@ -228,7 +242,6 @@
 
   useMyLocationBtn?.addEventListener("click", useMyLocation);
 
-  // Auto try once (soft)
   window.addEventListener("DOMContentLoaded", () => {
     if (openDirections) openDirections.href = SANGHA_MAP_LINK;
     setDirectionState("loading");
