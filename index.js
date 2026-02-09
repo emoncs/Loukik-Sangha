@@ -319,7 +319,7 @@ function normalizeBDPhone(raw) {
     if (statCollected) animateTextNumber(statCollected, sum, { duration: 900 });
   }
 
-  function collectPhonesFromMember(m, set) {
+  function collectPhonesFromPrivateDoc(m, set) {
     const candidates = [
       m.phone, m.phoneNumber, m.mobile, m.mobileNumber,
       m.contact, m.contactNumber, m.whatsapp, m.whatsApp
@@ -367,10 +367,10 @@ function normalizeBDPhone(raw) {
     console.error("❌ Stats onSnapshot failed:", err);
   }
 
+  // ✅ members থেকে শুধু codeSet (আগের মতো)
   try {
     onSnapshot(collection(db, "members"), (snap) => {
       const codeSet = new Set();
-      const phoneSet = new Set();
 
       snap.forEach((d) => {
         const m = d.data() || {};
@@ -378,21 +378,33 @@ function normalizeBDPhone(raw) {
 
         const code = normalizeCode(m.memberCode);
         if (code) codeSet.add(code);
-
-        collectPhonesFromMember(m, phoneSet);
       });
 
       ACTIVE_MEMBER_CODES = codeSet;
-      ACTIVE_PHONES = phoneSet;
-
       recomputeRunningMonth();
+    });
+  } catch (err) {
+    console.error("❌ Members onSnapshot failed:", err);
+  }
+
+  // ✅ phones এখন members_private থেকে (screenshot অনুযায়ী)
+  try {
+    onSnapshot(collection(db, "members_private"), (snap) => {
+      const phoneSet = new Set();
+
+      snap.forEach((d) => {
+        const m = d.data() || {};
+        collectPhonesFromPrivateDoc(m, phoneSet);
+      });
+
+      ACTIVE_PHONES = phoneSet;
 
       if (!fundVerified) {
         if (!tryVerifyFromStored()) setFundMasked();
       }
     });
   } catch (err) {
-    console.error("❌ Members onSnapshot failed:", err);
+    console.error("❌ members_private onSnapshot failed:", err);
   }
 
   try {
@@ -508,5 +520,3 @@ window.addEventListener("DOMContentLoaded", () => {
   initNoticeTicker();
   initImpactSlider();
 });
-
-
