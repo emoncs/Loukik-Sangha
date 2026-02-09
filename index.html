@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.png">
   <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.png">
 
-  <script type="module" src="index.js?v=20260208"></script>
+<script type="module" src="index.js?v=20260209"></script>
 </head>
 <body>
 
@@ -125,6 +125,11 @@
           </div>
           <div class="stat-num">৳<span id="statFund">0</span></div>
           <div class="stat-foot">Current balance</div>
+          <button class="fund-lock-btn" id="fundUnlockBtn" type="button">
+  <i class="fa-solid fa-lock"></i> Verify to View
+</button>
+<div class="fund-lock-note" id="fundLockNote">ফান্ড দেখতে ফোন নম্বর ভেরিফাই করুন</div>
+
         </article>
 
         <article class="stat-card stat-blue">
@@ -401,6 +406,25 @@
 </div>
 
   </footer>
+<div class="fund-modal" id="fundModal" aria-hidden="true">
+  <div class="fund-backdrop" id="fundBackdrop"></div>
+
+  <div class="fund-card" role="dialog" aria-modal="true" aria-labelledby="fundTitle">
+    <div class="fund-top">
+      <div class="fund-badge" id="fundTitle">Fund Verification</div>
+      <button class="fund-close" id="fundClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="fund-form">
+      <label class="fund-label" for="fundPhone">Your Phone Number</label>
+      <input class="fund-input" id="fundPhone" type="tel" placeholder="01XXXXXXXXX / +8801XXXXXXXXX" autocomplete="tel" />
+      <button class="btn btn-primary" id="fundVerifyBtn" type="button">
+        <i class="fa-solid fa-shield-halved"></i> Verify
+      </button>
+      <div class="fund-msg" id="fundMsg"></div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
