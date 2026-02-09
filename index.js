@@ -15,6 +15,60 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
+   Animated Counters (Stats)
+========================= */
+const prefersReducedMotion = (() => {
+  try {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+})();
+
+const animState = new WeakMap();
+
+function toNumber(v) {
+  if (v == null) return 0;
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  const n = Number(String(v).replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function animateTextNumber(el, target, opts = {}) {
+  if (!el) return;
+
+  const duration = Math.max(250, opts.duration ?? 800);
+  const startVal = toNumber(el.textContent);
+  const endVal = toNumber(target);
+
+  if (prefersReducedMotion || startVal === endVal) {
+    el.textContent = String(endVal);
+    return;
+  }
+
+  const prev = animState.get(el);
+  if (prev && prev.raf) cancelAnimationFrame(prev.raf);
+
+  const startTime = performance.now();
+  const state = { raf: null };
+  animState.set(el, state);
+
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  const tick = (now) => {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = Math.round(startVal + (endVal - startVal) * eased);
+    el.textContent = String(current);
+
+    if (t < 1) state.raf = requestAnimationFrame(tick);
+    else state.raf = null;
+  };
+
+  state.raf = requestAnimationFrame(tick);
+}
+
+/* =========================
    Firestore Stats
 ========================= */
 (() => {
@@ -28,12 +82,13 @@ const $ = (s, p = document) => p.querySelector(s);
   try {
     onSnapshot(doc(db, "stats", "global"), (snap) => {
       const s = snap.data() || {};
-      if (statMembers)     statMembers.textContent = s.totalMembers ?? 0;
-      if (statCollected)   statCollected.textContent = s.totalCollectedYTD ?? 0;
-      if (statDues)        statDues.textContent = s.totalDues ?? 0;
-      if (statFund)        statFund.textContent = s.availableFund ?? 0;
-      if (statOtherIncome) statOtherIncome.textContent = s.totalOtherIncome ?? 0;
-      if (statExpense)     statExpense.textContent = s.totalExpense ?? 0;
+
+      if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
+      if (statCollected)   animateTextNumber(statCollected, s.totalCollectedYTD ?? 0, { duration: 900 });
+      if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
+      if (statFund)        animateTextNumber(statFund, s.availableFund ?? 0, { duration: 900 });
+      if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
+      if (statExpense)     animateTextNumber(statExpense, s.totalExpense ?? 0, { duration: 900 });
     });
   } catch (err) {
     console.error("❌ Stats onSnapshot failed:", err);
@@ -215,5 +270,3 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
-
-
