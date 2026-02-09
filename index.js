@@ -10,13 +10,17 @@ initNavbarAuthUI();
 
 const $ = (s, p = document) => p.querySelector(s);
 
-/* Year */
+/* =========================
+   Year
+========================= */
 (() => {
   const year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
 })();
 
-/* Animated Counters */
+/* =========================
+   Animated Counters (Stats)
+========================= */
 const prefersReducedMotion = (() => {
   try {
     return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -68,34 +72,16 @@ function animateTextNumber(el, target, opts = {}) {
   state.raf = requestAnimationFrame(tick);
 }
 
-/* Time helpers (BD) */
+/* =========================
+   Time helpers (BD)
+========================= */
 function bdNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
 }
 
 function ymBD() {
   const d = bdNow();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
-}
-
-function ymFromCreatedAt(createdAt) {
-  if (!createdAt) return "";
-  let d = null;
-  if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
-  else if (createdAt instanceof Date) d = createdAt;
-  else if (typeof createdAt === "number") d = new Date(createdAt);
-  else if (typeof createdAt === "string") {
-    const dd = new Date(createdAt);
-    if (!Number.isNaN(dd.getTime())) d = dd;
-  }
-  if (!d) return "";
-
-  const bd = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-  const y = bd.getFullYear();
-  const m = String(bd.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function pad2(n) {
@@ -162,16 +148,55 @@ function parseFlexibleAnyMonth(raw) {
   return "";
 }
 
-/* Firestore Stats */
+function ymFromCreatedAt(createdAt) {
+  if (!createdAt) return "";
+  let d = null;
+
+  if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
+  else if (createdAt instanceof Date) d = createdAt;
+  else if (typeof createdAt === "number") d = new Date(createdAt);
+  else if (typeof createdAt === "string") {
+    const dd = new Date(createdAt);
+    if (!Number.isNaN(dd.getTime())) d = dd;
+  }
+
+  if (!d) return "";
+  const bd = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+  return `${bd.getFullYear()}-${pad2(bd.getMonth() + 1)}`;
+}
+
+/* =========================
+   ACTIVE payment checker
+   - Only active docs are counted
+   - Supports soft delete fields
+========================= */
+function isActivePayment(p) {
+  const x = p || {};
+
+  if (x.isDeleted === true) return false;
+  if (x.deleted === true) return false;
+  if (x.deletedAt) return false;
+  if (x.status && String(x.status).toLowerCase() === "deleted") return false;
+  if (x.active === false) return false;
+  if (x.isActive === false) return false;
+  if (x.void === true) return false;
+  if (x.isVoid === true) return false;
+
+  return true;
+}
+
+/* =========================
+   Firestore Stats
+========================= */
 (() => {
   const statMembers     = $("#statMembers");
-  const statCollected   = $("#statCollected");   // now: current month collection
+  const statCollected   = $("#statCollected");   // current month collection (active only)
   const statDues        = $("#statDues");
-  const statFund        = $("#statFund");        // cumulative available fund (kept)
+  const statFund        = $("#statFund");        // cumulative running fund (kept)
   const statOtherIncome = $("#statOtherIncome");
   const statExpense     = $("#statExpense");
 
-  // Global stats (cumulative fields stay same)
+  // global stats snapshot (kept as-is)
   try {
     onSnapshot(doc(db, "stats", "global"), (snap) => {
       const s = snap.data() || {};
@@ -179,7 +204,7 @@ function parseFlexibleAnyMonth(raw) {
       if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
       if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
 
-      // Available fund = cumulative running total (example: 500 then +200 => 700)
+      // Available fund = cumulative total (500 then +200 => 700)
       if (statFund)        animateTextNumber(statFund, s.availableFund ?? 0, { duration: 900 });
 
       if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
@@ -189,7 +214,7 @@ function parseFlexibleAnyMonth(raw) {
     console.error("❌ Stats onSnapshot failed:", err);
   }
 
-  // Monthly collection (current BD month) from payments
+  // current month collection from payments (ACTIVE ONLY)
   try {
     onSnapshot(collection(db, "payments"), (snap) => {
       const currentYM = ymBD();
@@ -197,6 +222,8 @@ function parseFlexibleAnyMonth(raw) {
 
       snap.forEach((d) => {
         const p = d.data() || {};
+        if (!isActivePayment(p)) return;
+
         const ym = parseFlexibleAnyMonth(p.month) || ymFromCreatedAt(p.createdAt);
         if (ym !== currentYM) return;
 
@@ -211,7 +238,9 @@ function parseFlexibleAnyMonth(raw) {
   }
 })();
 
-/* Hero Search */
+/* =========================
+   Hero Search
+========================= */
 (() => {
   const heroSearch = $("#heroSearch");
   const heroSearchBtn = $("#heroSearchBtn");
@@ -227,7 +256,9 @@ function parseFlexibleAnyMonth(raw) {
   });
 })();
 
-/* Notice Ticker */
+/* =========================
+   Notice Ticker
+========================= */
 function initNoticeTicker() {
   const track = document.getElementById("noticeTrack");
   const bar = document.getElementById("noticeBar");
@@ -255,7 +286,9 @@ function initNoticeTicker() {
   track.innerHTML = html + html;
 }
 
-/* Slider (Impact) */
+/* =========================
+   Slider (Impact)
+========================= */
 function initImpactSlider() {
   const slider = document.getElementById("impactSlider");
   const slidesWrap = document.getElementById("impactSlides");
@@ -307,6 +340,9 @@ window.addEventListener("DOMContentLoaded", () => {
   initImpactSlider();
 });
 
+/* =========================
+   Ritual Popup
+========================= */
 function todayBD() {
   const now = new Date();
   const bd = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
