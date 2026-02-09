@@ -1,10 +1,6 @@
 import { initNavbarAuthUI } from "./shared-ui.js";
 import { db } from "./firebase.js";
-import {
-  doc,
-  onSnapshot,
-  collection
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 initNavbarAuthUI();
 
@@ -73,168 +69,29 @@ function animateTextNumber(el, target, opts = {}) {
 }
 
 /* =========================
-   Time helpers (BD)
-========================= */
-function bdNow() {
-  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-}
-
-function ymBD() {
-  const d = bdNow();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function pad2(n) {
-  return String(Number(n)).padStart(2, "0");
-}
-
-const MONTHS = {
-  jan: 1, january: 1,
-  feb: 2, february: 2,
-  mar: 3, march: 3,
-  apr: 4, april: 4,
-  may: 5,
-  jun: 6, june: 6,
-  jul: 7, july: 7,
-  aug: 8, august: 8,
-  sep: 9, sept: 9, september: 9,
-  oct: 10, october: 10,
-  nov: 11, november: 11,
-  dec: 12, december: 12
-};
-
-function parseFlexibleAnyMonth(raw) {
-  const r = String(raw || "").trim();
-  if (!r) return "";
-
-  const s = r.toLowerCase().replace(/\s+/g, " ").trim();
-
-  let m = s.match(/^(\d{4})[-\/.](\d{1,2})$/);
-  if (m) {
-    const y = Number(m[1]);
-    const mo = Number(m[2]);
-    if (y && mo >= 1 && mo <= 12) return `${y}-${pad2(mo)}`;
-  }
-
-  m = s.match(/^(\d{4})[-\/.\s]([a-z]{3,9})$/);
-  if (m) {
-    const y = Number(m[1]);
-    const key = m[2];
-    const mo = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
-    if (y && mo) return `${y}-${pad2(mo)}`;
-  }
-
-  m = s.match(/^([a-z]{3,9})[-\/.\s](\d{4})$/);
-  if (m) {
-    const key = m[1];
-    const y = Number(m[2]);
-    const mo = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
-    if (y && mo) return `${y}-${pad2(mo)}`;
-  }
-
-  m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
-  if (m) {
-    const mo = Number(m[1]);
-    const y = Number(m[2]);
-    if (y && mo >= 1 && mo <= 12) return `${y}-${pad2(mo)}`;
-  }
-
-  const d = new Date(r);
-  if (!Number.isNaN(d.getTime())) {
-    const bd = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-    return `${bd.getFullYear()}-${pad2(bd.getMonth() + 1)}`;
-  }
-
-  return "";
-}
-
-function ymFromCreatedAt(createdAt) {
-  if (!createdAt) return "";
-  let d = null;
-
-  if (typeof createdAt?.toDate === "function") d = createdAt.toDate();
-  else if (createdAt instanceof Date) d = createdAt;
-  else if (typeof createdAt === "number") d = new Date(createdAt);
-  else if (typeof createdAt === "string") {
-    const dd = new Date(createdAt);
-    if (!Number.isNaN(dd.getTime())) d = dd;
-  }
-
-  if (!d) return "";
-  const bd = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-  return `${bd.getFullYear()}-${pad2(bd.getMonth() + 1)}`;
-}
-
-/* =========================
-   ACTIVE payment checker
-   - Only active docs are counted
-   - Supports soft delete fields
-========================= */
-function isActivePayment(p) {
-  const x = p || {};
-
-  if (x.isDeleted === true) return false;
-  if (x.deleted === true) return false;
-  if (x.deletedAt) return false;
-  if (x.status && String(x.status).toLowerCase() === "deleted") return false;
-  if (x.active === false) return false;
-  if (x.isActive === false) return false;
-  if (x.void === true) return false;
-  if (x.isVoid === true) return false;
-
-  return true;
-}
-
-/* =========================
    Firestore Stats
 ========================= */
 (() => {
   const statMembers     = $("#statMembers");
-  const statCollected   = $("#statCollected");   // current month collection (active only)
+  const statCollected   = $("#statCollected");
   const statDues        = $("#statDues");
-  const statFund        = $("#statFund");        // cumulative running fund (kept)
+  const statFund        = $("#statFund");
   const statOtherIncome = $("#statOtherIncome");
   const statExpense     = $("#statExpense");
 
-  // global stats snapshot (kept as-is)
   try {
     onSnapshot(doc(db, "stats", "global"), (snap) => {
       const s = snap.data() || {};
 
       if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
+      if (statCollected)   animateTextNumber(statCollected, s.totalCollectedYTD ?? 0, { duration: 900 });
       if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
-
-      // Available fund = cumulative total (500 then +200 => 700)
       if (statFund)        animateTextNumber(statFund, s.availableFund ?? 0, { duration: 900 });
-
       if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
       if (statExpense)     animateTextNumber(statExpense, s.totalExpense ?? 0, { duration: 900 });
     });
   } catch (err) {
     console.error("❌ Stats onSnapshot failed:", err);
-  }
-
-  // current month collection from payments (ACTIVE ONLY)
-  try {
-    onSnapshot(collection(db, "payments"), (snap) => {
-      const currentYM = ymBD();
-      let sum = 0;
-
-      snap.forEach((d) => {
-        const p = d.data() || {};
-        if (!isActivePayment(p)) return;
-
-        const ym = parseFlexibleAnyMonth(p.month) || ymFromCreatedAt(p.createdAt);
-        if (ym !== currentYM) return;
-
-        const amt = toNumber(p.amount);
-        if (amt > 0) sum += amt;
-      });
-
-      if (statCollected) animateTextNumber(statCollected, sum, { duration: 900 });
-    });
-  } catch (err) {
-    console.error("❌ Monthly payments onSnapshot failed:", err);
   }
 })();
 
@@ -340,9 +197,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initImpactSlider();
 });
 
-/* =========================
-   Ritual Popup
-========================= */
 function todayBD() {
   const now = new Date();
   const bd = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
@@ -417,3 +271,4 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
+
