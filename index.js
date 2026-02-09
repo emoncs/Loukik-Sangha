@@ -19,42 +19,6 @@ const $ = (s, p = document) => p.querySelector(s);
 })();
 
 /* =========================
-   ✅ Mobile Nav Fallback
-   (যদি shared-ui.js এ না থাকে, তাও index page এ কাজ করবে)
-========================= */
-(() => {
-  const navToggle = $("#navToggle");
-  const navMenu = $("#navMenu");
-  if (!navToggle || !navMenu) return;
-
-  const closeMenu = () => {
-    navMenu.classList.remove("open");
-    navToggle.setAttribute("aria-expanded", "false");
-  };
-
-  navToggle.addEventListener("click", () => {
-    const isOpen = navMenu.classList.toggle("open");
-    navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!navMenu.classList.contains("open")) return;
-    const t = e.target;
-    if (t instanceof Node) {
-      if (!navMenu.contains(t) && !navToggle.contains(t)) closeMenu();
-    }
-  });
-
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
-
-  navMenu.querySelectorAll("a").forEach(a => {
-    a.addEventListener("click", closeMenu);
-  });
-})();
-
-/* =========================
    Animated Counters
 ========================= */
 const prefersReducedMotion = (() => {
@@ -238,12 +202,13 @@ function isActivePayment(p) {
 ========================= */
 (() => {
   const statMembers     = $("#statMembers");
-  const statCollected   = $("#statCollected");
+  const statCollected   = $("#statCollected");   // ✅ RUNNING MONTH collection (active members only)
   const statDues        = $("#statDues");
-  const statFund        = $("#statFund");
+  const statFund        = $("#statFund");        // cumulative (kept)
   const statOtherIncome = $("#statOtherIncome");
   const statExpense     = $("#statExpense");
 
+  // global stats doc (unchanged)
   try {
     onSnapshot(doc(db, "stats", "global"), (snap) => {
       const s = snap.data() || {};
@@ -257,6 +222,7 @@ function isActivePayment(p) {
     console.error("❌ Stats onSnapshot failed:", err);
   }
 
+  // running month collection: payments of active members only
   let ACTIVE_MEMBER_CODES = new Set();
   let PAYMENTS_CACHE = [];
 
@@ -280,6 +246,7 @@ function isActivePayment(p) {
     if (statCollected) animateTextNumber(statCollected, sum, { duration: 900 });
   }
 
+  // watch members to build ACTIVE set
   try {
     onSnapshot(collection(db, "members"), (snap) => {
       const set = new Set();
@@ -296,6 +263,7 @@ function isActivePayment(p) {
     console.error("❌ Members onSnapshot failed:", err);
   }
 
+  // watch payments (cache) then recompute
   try {
     onSnapshot(collection(db, "payments"), (snap) => {
       const arr = [];
@@ -487,23 +455,3 @@ async function initRitualPopupFromJSON(){
 window.addEventListener("DOMContentLoaded", () => {
   initRitualPopupFromJSON();
 });
-
-/* =========================
-   ✅ Back to top
-========================= */
-(() => {
-  const btn = document.getElementById("toTop");
-  if (!btn) return;
-
-  const onScroll = () => {
-    if (window.scrollY > 600) btn.classList.add("show");
-    else btn.classList.remove("show");
-  };
-
-  btn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
-  });
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-})();
