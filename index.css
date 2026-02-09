@@ -957,3 +957,36 @@ body{
   .hero-actions a.btn.btn-primary{ animation:none !important; }
   .hero-actions a.btn.btn-primary::after{ animation:none !important; }
 }
+.f-bottom-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.f-dev{
+  font-size:13px;
+  opacity:.95;
+  color:#eef6ff;
+  white-space:nowrap;
+}
+
+.f-dev a{
+  color:#a5f3fc;
+  font-weight:900;
+  text-decoration:none;
+  margin-left:4px;
+}
+
+.f-dev a:hover{
+  text-decoration:underline;
+}
+
+/* mobile */
+@media (max-width: 640px){
+  .f-bottom-row{
+    flex-direction:column;
+    gap:8px;
+  }
+}
+
