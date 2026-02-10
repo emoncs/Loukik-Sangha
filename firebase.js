@@ -11,12 +11,16 @@ const firebaseConfig = {
   projectId: "loukik-sangha-7df0c",
   storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
   messagingSenderId: "913283407503",
-  appId: "1:913283407503:web:1a2d75baf3024af9e81afa"
+  appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
+
+  // ✅ add for Realtime Database (Presence / Live Visitors)
+  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.firebaseio.com"
 };
 
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
-const app = initializeApp(firebaseConfig);
+// ✅ changed: export app so other modules (live-visitors.js) can import it
+export const app = initializeApp(firebaseConfig);
 
 /**
  * ✅ Key fix:
