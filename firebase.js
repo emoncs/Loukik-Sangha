@@ -11,14 +11,18 @@ const firebaseConfig = {
   projectId: "loukik-sangha-7df0c",
   storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
   messagingSenderId: "913283407503",
-  appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
-  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.firebaseio.com"
+  appId: "1:913283407503:web:1a2d75baf3024af9e81afa"
 };
 
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
-export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
+/**
+ * ✅ Key fix:
+ * initializeAuth with browserLocalPersistence
+ * -> page change / refresh হলেও logout হবে না
+ */
 export const auth = initializeAuth(app, {
   persistence: browserLocalPersistence
 });
