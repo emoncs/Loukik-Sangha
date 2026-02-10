@@ -1237,5 +1237,39 @@ html[data-theme="dark"] .quick-amt{
   background: rgba(255,255,255,.06);
   border-color: rgba(255,255,255,.12);
 }
+/* =========================
+   Dark Theme (matched with your palette)
+========================= */
+html[data-theme="dark"]{
+  --bg:#0b1020;                 /* deep blue-black */
+  --card:#121a2e;               /* card surface */
+  --text:#e5e7eb;               /* light text */
+  --muted:#94a3b8;              /* muted text */
+  --border:rgba(255,255,255,.12);
+  --shadow:0 16px 32px rgba(0,0,0,.45);
+
+  /* brand colors tuned for dark */
+  --blue:#60a5fa;
+  --teal:#2dd4bf;
+
+  --statBlue1:#60a5fa;
+  --statBlue2:#2563eb;
+
+  --statGreen1:#4ade80;
+  --statGreen2:#16a34a;
+
+  --statOrange1:#fbbf24;
+  --statOrange2:#d97706;
+}
+
+/* Optional: smoother background */
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(900px 420px at 10% -10%, rgba(96,165,250,.08), transparent),
+    radial-gradient(700px 360px at 90% 10%, rgba(45,212,191,.06), transparent),
+    var(--bg);
+  color: var(--text);
+}
+
 
 
