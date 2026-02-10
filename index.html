@@ -17,6 +17,7 @@
 
 <script type="module" src="index.js?v=20260209"></script>
   <script src="features.js?v=20260210" defer></script>
+  <script type="module" src="live-visitors.js"></script>
 
 </head>
 <body>
@@ -53,6 +54,13 @@
         </button>
         <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
       </nav>
+      <div class="live-pill" title="Live visitors">
+  <i class="fa-solid fa-signal"></i>
+  <span class="live-label">Live</span>
+  <span class="live-dot" aria-hidden="true"></span>
+  <span id="liveCount" class="live-count">0</span>
+</div>
+
     </div>
   </header>
 
@@ -506,6 +514,7 @@
 
 </body>
 </html>
+
 
 
 
