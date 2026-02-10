@@ -16,13 +16,8 @@ const firebaseConfig = {
 
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
-/**
- * ✅ Key fix:
- * initializeAuth with browserLocalPersistence
- * -> page change / refresh হলেও logout হবে না
- */
 export const auth = initializeAuth(app, {
   persistence: browserLocalPersistence
 });
