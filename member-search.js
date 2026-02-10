@@ -536,7 +536,7 @@ initNavbarAuthUI();
 
     if (snapHint) {
       snapHint.textContent = usedFallback
-        ? "Some payments had no month, so month was derived from createdAt."
+        ? "For payments where the month was not specified, the payment date was used instead."
         : "Snapshot is calculated from payments.month.";
     }
   }
@@ -793,3 +793,4 @@ initNavbarAuthUI();
     }
   })();
 })();
+
