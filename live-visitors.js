@@ -1,4 +1,7 @@
-import { app } from "./firebase.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+
 import {
   getDatabase,
   ref,
@@ -8,13 +11,38 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
+// Try to import app from your firebase.js (root-safe)
+let app;
+try {
+  const mod = await import("/firebase.js?v=" + Date.now());
+  app = mod.app;
+} catch (e) {
+  app = null;
+}
+
+if (!app) {
+  // Fallback: initialize here (same config)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAmJYe6zJ_yDS9kvKKBHyLIZdAJogl-ER0",
+    authDomain: "loukik-sangha-7df0c.firebaseapp.com",
+    projectId: "loukik-sangha-7df0c",
+    storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
+    messagingSenderId: "913283407503",
+    appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
+    databaseURL: "https://loukik-sangha-7df0c-default-rtdb.firebaseio.com"
+  };
+  app = initializeApp(firebaseConfig);
+}
+
 const db = getDatabase(app);
 
 function getOrCreateVisitorId() {
   const k = "ls_vid";
   let id = localStorage.getItem(k);
   if (!id) {
-    id = (crypto.randomUUID ? crypto.randomUUID() : ("v_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+    id = (crypto.randomUUID
+      ? crypto.randomUUID()
+      : ("v_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
     localStorage.setItem(k, id);
   }
   return id;
@@ -56,6 +84,7 @@ if (liveEl) {
 
       count++;
     }
+
     liveEl.textContent = String(count);
   });
 }
