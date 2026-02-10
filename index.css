@@ -1213,63 +1213,196 @@ body{
   min-height: 92px;
 }
 
-/* Dark mode overrides (works with JS: html[data-theme="dark"]) */
-html[data-theme="dark"]{
-  color-scheme: dark;
-}
-html[data-theme="dark"] body{
-  background: #0b1020;
-  color: #e5e7eb;
-}
-html[data-theme="dark"] .tool-card,
-html[data-theme="dark"] .theme-toggle{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.12);
-}
-html[data-theme="dark"] .qr-box,
-html[data-theme="dark"] .calc-row,
-html[data-theme="dark"] .calc-out{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.12);
-}
-html[data-theme="dark"] .tool-sub{ color: rgba(229,231,235,.72); }
-html[data-theme="dark"] .quick-amt{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.12);
-}
 /* =========================
-   Dark Theme (matched with your palette)
+   DARK MODE (matched to your current design)
+   Paste at END of index.css
 ========================= */
 html[data-theme="dark"]{
-  --bg:#0b1020;                 /* deep blue-black */
-  --card:#121a2e;               /* card surface */
-  --text:#e5e7eb;               /* light text */
-  --muted:#94a3b8;              /* muted text */
-  --border:rgba(255,255,255,.12);
-  --shadow:0 16px 32px rgba(0,0,0,.45);
+  color-scheme: dark;
 
-  /* brand colors tuned for dark */
+  --bg:#0b1020;
+  --card:#0f172a;
+  --text:#e5e7eb;
+  --muted:#9aa7b6;
+  --border:rgba(255,255,255,.12);
+  --shadow:0 16px 34px rgba(0,0,0,.55);
+
   --blue:#60a5fa;
   --teal:#2dd4bf;
 
-  --statBlue1:#60a5fa;
-  --statBlue2:#2563eb;
+  --statBlue1:#3b82f6;
+  --statBlue2:#1d4ed8;
 
-  --statGreen1:#4ade80;
-  --statGreen2:#16a34a;
+  --statGreen1:#22c55e;
+  --statGreen2:#15803d;
 
-  --statOrange1:#fbbf24;
+  --statOrange1:#f59e0b;
   --statOrange2:#d97706;
 }
 
-/* Optional: smoother background */
+/* Body background like your light version but dark */
 html[data-theme="dark"] body{
   background:
-    radial-gradient(900px 420px at 10% -10%, rgba(96,165,250,.08), transparent),
-    radial-gradient(700px 360px at 90% 10%, rgba(45,212,191,.06), transparent),
+    radial-gradient(900px 420px at 10% -10%, rgba(96,165,250,.10), rgba(0,0,0,0)),
+    radial-gradient(900px 420px at 95% 0%, rgba(45,212,191,.10), rgba(0,0,0,0)),
     var(--bg);
-  color: var(--text);
+  color:var(--text);
 }
+
+/* Topbar in dark */
+html[data-theme="dark"] .topbar{
+  background:rgba(15,23,42,.78);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
+}
+
+/* Brand small text */
+html[data-theme="dark"] .brand-text small{ color:var(--muted); }
+
+/* Links: you had hardcoded color:#0b1220 */
+html[data-theme="dark"] .nav-link{
+  color:var(--text);
+  opacity:.92;
+}
+html[data-theme="dark"] .nav-link:hover{
+  background:rgba(96,165,250,.10);
+}
+html[data-theme="dark"] .nav-link.active{
+  color:var(--blue);
+  background:rgba(96,165,250,.12);
+}
+
+/* Buttons with hardcoded #fff background */
+html[data-theme="dark"] .btn-soft{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+  box-shadow:0 16px 26px rgba(0,0,0,.25);
+}
+html[data-theme="dark"] .nav-toggle{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  box-shadow:0 14px 22px rgba(0,0,0,.28);
+}
+
+/* Brand logo card */
+html[data-theme="dark"] .brand-logo{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  box-shadow:0 16px 28px rgba(0,0,0,.35);
+}
+
+/* Hero background had white gradient; replace */
+html[data-theme="dark"] .hero{
+  background:
+    radial-gradient(980px 520px at 50% -10%, rgba(96,165,250,.14), rgba(0,0,0,0)),
+    linear-gradient(180deg, rgba(15,23,42,.0) 0%, var(--bg) 72%);
+}
+
+/* Hero subtitle had hardcoded #5f6b7a */
+html[data-theme="dark"] .hero-sub{ color:rgba(229,231,235,.72); }
+
+/* Searchbar uses white rgba + border rgba */
+html[data-theme="dark"] .searchbar{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  box-shadow:0 22px 38px rgba(0,0,0,.35);
+}
+html[data-theme="dark"] .searchbar input{ color:var(--text); }
+
+/* Panels/cards: you used rgba(255,255,255,.92) অনেক জায়গায় */
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .slider,
+html[data-theme="dark"] .activity-card,
+html[data-theme="dark"] .team-card{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  box-shadow:0 22px 40px rgba(0,0,0,.35);
+}
+
+/* Section title stays fine via var(--text), but ensure */
+html[data-theme="dark"] .section-title{ color:var(--text); }
+
+/* Team section text hardcoded */
+html[data-theme="dark"] .team-sub,
+html[data-theme="dark"] .team-role,
+html[data-theme="dark"] .activity-body p,
+html[data-theme="dark"] .impact-sub,
+html[data-theme="dark"] .verify-text{
+  color:rgba(229,231,235,.70);
+}
+
+/* Chips + icons: chip color hardcoded #0b1220 */
+html[data-theme="dark"] .chip{
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.05);
+  color:var(--text);
+}
+html[data-theme="dark"] .iconbtn{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  box-shadow:0 14px 22px rgba(0,0,0,.30);
+}
+
+/* Verify box had white overlay */
+html[data-theme="dark"] .verify-box{
+  border:1px solid var(--border);
+  background:
+    radial-gradient(520px 200px at 15% 0%, rgba(96,165,250,.10), rgba(0,0,0,0)),
+    radial-gradient(520px 200px at 95% 0%, rgba(45,212,191,.10), rgba(0,0,0,0)),
+    rgba(255,255,255,.05);
+}
+
+/* Ritual modal/card */
+html[data-theme="dark"] .ritual-backdrop{ background:rgba(0,0,0,.70); }
+html[data-theme="dark"] .ritual-card{
+  background:rgba(15,23,42,.92);
+  border:1px solid var(--border);
+  box-shadow:0 40px 80px rgba(0,0,0,.55);
+}
+html[data-theme="dark"] .ritual-close{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+html[data-theme="dark"] .ritual-item{
+  border:1px solid var(--border);
+  background:
+    radial-gradient(260px 140px at 0% 0%, rgba(96,165,250,.08), rgba(0,0,0,0)),
+    rgba(255,255,255,.04);
+}
+html[data-theme="dark"] .ritual-item p{ color:rgba(229,231,235,.70); }
+
+/* Fund modal/card */
+html[data-theme="dark"] .fund-backdrop{ background:rgba(0,0,0,.72); }
+html[data-theme="dark"] .fund-card{
+  background:rgba(15,23,42,.92);
+  border:1px solid var(--border);
+  box-shadow:0 44px 88px rgba(0,0,0,.60);
+}
+html[data-theme="dark"] .fund-close{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+html[data-theme="dark"] .fund-label{ color:var(--text); }
+html[data-theme="dark"] .fund-input{
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  border:1px solid var(--border);
+  box-shadow:0 12px 22px rgba(0,0,0,.30);
+}
+
+/* Donation tools (your new section) */
+html[data-theme="dark"] .qr-box,
+html[data-theme="dark"] .calc-row,
+html[data-theme="dark"] .calc-out{
+  background:rgba(255,255,255,.05);
+  border-color:var(--border);
+}
+
+/* Footer: already dark gradient; keep. Just ensure links readable */
+html[data-theme="dark"] .f-link{ color:#eef6ff; }
 
 
 
