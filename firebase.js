@@ -13,6 +13,17 @@ const firebaseConfig = {
   messagingSenderId: "913283407503",
   appId: "1:913283407503:web:1a2d75baf3024af9e81afa"
 };
+const firebaseConfig = {
+  apiKey: "AIzaSyAmJYe6zJ_yDS9kvKKBHyLIZdAJogl-ER0",
+  authDomain: "loukik-sangha-7df0c.firebaseapp.com",
+  projectId: "loukik-sangha-7df0c",
+  storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
+  messagingSenderId: "913283407503",
+  appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
+
+  // ✅ ADD THIS (Realtime DB URL)
+  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.firebaseio.com"
+};
 
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
@@ -23,3 +34,4 @@ export const auth = initializeAuth(app, {
 });
 
 export const db = getFirestore(app);
+
