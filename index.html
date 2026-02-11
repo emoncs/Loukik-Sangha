@@ -15,10 +15,9 @@
   <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.png">
   <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.png">
 
-<script type="module" src="index.js?v=20260209"></script>
+  <script type="module" src="index.js?v=20260211_fundopen"></script>
   <script src="features.js?v=20260210" defer></script>
   <script type="module" src="live-visitors.js?v=20260210_99"></script>
-
 </head>
 <body>
 
@@ -28,15 +27,15 @@
         <span class="brand-logo">
           <img src="Images/logo.png" alt="Loukik Sangha Logo">
         </span>
-<span class="brand-text">
-  <strong>Loukik Sangha</strong>
-  <small>
-    Seva is Our Dharma. 🕉️
-    <span class="since-inline">Since 2018</span>
-  </small>
-</span>
-
+        <span class="brand-text">
+          <strong>Loukik Sangha</strong>
+          <small>
+            Seva is Our Dharma. 🕉️
+            <span class="since-inline">Since 2018</span>
+          </small>
+        </span>
       </a>
+
       <button class="nav-toggle" id="navToggle" type="button"
               aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
         <i class="fa-solid fa-bars"></i>
@@ -49,17 +48,18 @@
         <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
         <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
         <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+
         <button class="theme-toggle icon-only" id="themeToggle" type="button" aria-label="Toggle theme">
-        <i id="themeIcon" class="fa-solid fa-moon"></i>
+          <i id="themeIcon" class="fa-solid fa-moon"></i>
         </button>
       </nav>
-      <div class="live-pill" title="Live visitors">
-  <i class="fa-solid fa-signal"></i>
-  <span class="live-label">Live</span>
-  <span class="live-dot" aria-hidden="true"></span>
-  <span id="liveCount" class="live-count">0</span>
-</div>
 
+      <div class="live-pill" title="Live visitors">
+        <i class="fa-solid fa-signal"></i>
+        <span class="live-label">Live</span>
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="liveCount" class="live-count">0</span>
+      </div>
     </div>
   </header>
 
@@ -79,7 +79,6 @@
   <main class="main">
     <section class="hero">
       <div class="wrap hero-inner">
-
         <h1 class="hero-title">
           Welcome to <span class="g1">Loukik</span> <span class="g2">Sangha</span>
         </h1>
@@ -100,7 +99,6 @@
           <a class="btn btn-primary" href="donate.html"><i class="fa-regular fa-heart"></i> Donate Now</a>
           <a class="btn btn-soft" href="rules.html"><i class="fa-regular fa-file-lines"></i> View Rules</a>
         </div>
-
       </div>
     </section>
 
@@ -141,11 +139,6 @@
           </div>
           <div class="stat-num">৳<span id="statFund">0</span></div>
           <div class="stat-foot">Current balance</div>
-          <button class="fund-lock-btn" id="fundUnlockBtn" type="button">
-  <i class="fa-solid fa-lock"></i> Verify to View
-</button>
-<div class="fund-lock-note" id="fundLockNote">ফান্ড দেখতে ফোন নম্বর ভেরিফাই করুন</div>
-
         </article>
 
         <article class="stat-card stat-blue">
@@ -168,75 +161,76 @@
 
       </div>
     </section>
-<section class="donation-tools">
-  <div class="wrap">
-    <h2 class="section-title">Donate Easily</h2>
-    <p class="impact-sub" style="text-align:center;">Scan QR or calculate your impact before donating.</p>
 
-    <div class="donation-tools-grid">
-      <!-- (23) QR Card -->
-      <article class="tool-card">
-        <div class="tool-head">
-          <div class="tool-ic"><i class="fa-solid fa-qrcode"></i></div>
-          <div>
-            <h3 class="tool-title">Donation QR for bKash</h3>
-            <p class="tool-sub">Scan to donate quickly. You can also download the QR.</p>
-          </div>
+    <section class="donation-tools">
+      <div class="wrap">
+        <h2 class="section-title">Donate Easily</h2>
+        <p class="impact-sub" style="text-align:center;">Scan QR or calculate your impact before donating.</p>
+
+        <div class="donation-tools-grid">
+          <article class="tool-card">
+            <div class="tool-head">
+              <div class="tool-ic"><i class="fa-solid fa-qrcode"></i></div>
+              <div>
+                <h3 class="tool-title">Donation QR for bKash</h3>
+                <p class="tool-sub">Scan to donate quickly. You can also download the QR.</p>
+              </div>
+            </div>
+
+            <div class="qr-box">
+              <img id="donationQR" class="qr-img" src="Images/donation-qr.png" alt="Donation QR Code" loading="lazy">
+            </div>
+
+            <div class="tool-actions">
+              <button class="btn btn-primary" id="downloadQRBtn" type="button">
+                <i class="fa-solid fa-download"></i> Download QR
+              </button>
+              <a class="btn btn-soft" href="donate.html">
+                <i class="fa-regular fa-heart"></i> Go to Donate Page
+              </a>
+            </div>
+          </article>
+
+          <article class="tool-card">
+            <div class="tool-head">
+              <div class="tool-ic"><i class="fa-solid fa-calculator"></i></div>
+              <div>
+                <h3 class="tool-title">Donation Calculator</h3>
+                <p class="tool-sub">Enter an amount to estimate the impact.</p>
+              </div>
+            </div>
+
+            <div class="calc-form">
+              <label class="calc-label" for="donationAmount">Donation Amount (BDT)</label>
+              <div class="calc-row">
+                <span class="calc-prefix">৳</span>
+                <input id="donationAmount" class="calc-input" type="text" inputmode="numeric" placeholder="e.g. 500" autocomplete="off">
+              </div>
+
+              <div class="quick-amounts" aria-label="Quick amounts">
+                <button class="quick-amt" type="button" data-amt="200">৳200</button>
+                <button class="quick-amt" type="button" data-amt="500">৳500</button>
+                <button class="quick-amt" type="button" data-amt="1000">৳1,000</button>
+                <button class="quick-amt" type="button" data-amt="2000">৳2,000</button>
+              </div>
+
+              <pre id="donationCalcResult" class="calc-out">Enter an amount to see the impact.</pre>
+            </div>
+
+            <div class="tool-actions">
+              <a class="btn btn-primary" href="donate.html">
+                <i class="fa-regular fa-heart"></i> Donate Now
+              </a>
+              <a class="btn btn-soft" href="contact.html">
+                <i class="fa-solid fa-phone"></i> Need Help?
+              </a>
+            </div>
+          </article>
         </div>
+      </div>
+    </section>
 
-        <div class="qr-box">
-          <img id="donationQR" class="qr-img" src="Images/donation-qr.png" alt="Donation QR Code" loading="lazy">
-        </div>
-
-        <div class="tool-actions">
-          <button class="btn btn-primary" id="downloadQRBtn" type="button">
-            <i class="fa-solid fa-download"></i> Download QR
-          </button>
-          <a class="btn btn-soft" href="donate.html">
-            <i class="fa-regular fa-heart"></i> Go to Donate Page
-          </a>
-        </div>
-      </article>
-
-      <!-- (33) Calculator Card -->
-      <article class="tool-card">
-        <div class="tool-head">
-          <div class="tool-ic"><i class="fa-solid fa-calculator"></i></div>
-          <div>
-            <h3 class="tool-title">Donation Calculator</h3>
-            <p class="tool-sub">Enter an amount to estimate the impact.</p>
-          </div>
-        </div>
-
-        <div class="calc-form">
-          <label class="calc-label" for="donationAmount">Donation Amount (BDT)</label>
-          <div class="calc-row">
-            <span class="calc-prefix">৳</span>
-            <input id="donationAmount" class="calc-input" type="text" inputmode="numeric" placeholder="e.g. 500" autocomplete="off">
-          </div>
-
-          <div class="quick-amounts" aria-label="Quick amounts">
-            <button class="quick-amt" type="button" data-amt="200">৳200</button>
-            <button class="quick-amt" type="button" data-amt="500">৳500</button>
-            <button class="quick-amt" type="button" data-amt="1000">৳1,000</button>
-            <button class="quick-amt" type="button" data-amt="2000">৳2,000</button>
-          </div>
-
-          <pre id="donationCalcResult" class="calc-out">Enter an amount to see the impact.</pre>
-        </div>
-
-        <div class="tool-actions">
-          <a class="btn btn-primary" href="donate.html">
-            <i class="fa-regular fa-heart"></i> Donate Now
-          </a>
-          <a class="btn btn-soft" href="contact.html">
-            <i class="fa-solid fa-phone"></i> Need Help?
-          </a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
+    <!-- The rest of your page stays same... (committee, slider, activities, ritual modal, footer) -->
 
     <section class="stats">
       <div class="wrap">
@@ -318,7 +312,6 @@
                 <p class="team-role">Social Media Manager</p>
                 <div class="team-meta">
                   <span class="chip"><i class="fa-solid fa-bullhorn"></i>Media</span>
-
                   <span class="chip"><i class="fa-solid fa-circle-check"></i></span>
                 </div>
                 <div class="team-cta">
@@ -473,42 +466,23 @@
       </div>
     </div>
 
-<div class="wrap f-bottom">
-  <div class="f-line"></div>
+    <div class="wrap f-bottom">
+      <div class="f-line"></div>
 
-  <div class="f-bottom-row">
-    <div class="f-copy">
-      © <span id="year"></span> Loukik Sangha. All rights reserved.
+      <div class="f-bottom-row">
+        <div class="f-copy">
+          © <span id="year"></span> Loukik Sangha. All rights reserved.
+        </div>
+
+        <div class="f-dev">
+          Developed by
+          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
+            Emon Shil
+          </a>
+        </div>
+      </div>
     </div>
-
-    <div class="f-dev">
-      Developed by
-      <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
-        Emon Shil
-      </a>
-    </div>
-  </div>
-</div>
-
   </footer>
-<div class="fund-modal" id="fundModal" aria-hidden="true">
-  <div class="fund-backdrop" id="fundBackdrop"></div>
 
-  <div class="fund-card" role="dialog" aria-modal="true" aria-labelledby="fundTitle">
-    <div class="fund-top">
-      <div class="fund-badge" id="fundTitle">Fund Verification</div>
-      <button class="fund-close" id="fundClose" aria-label="Close">✕</button>
-    </div>
-
-    <div class="fund-form">
-      <label class="fund-label" for="fundPhone">Your Phone Number</label>
-      <input class="fund-input" id="fundPhone" type="tel" placeholder="01XXXXXXXXX / +8801XXXXXXXXX" autocomplete="tel" />
-      <button class="btn btn-primary" id="fundVerifyBtn" type="button">
-        <i class="fa-solid fa-shield-halved"></i> Verify
-      </button>
-      <div class="fund-msg" id="fundMsg"></div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
