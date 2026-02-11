@@ -185,27 +185,8 @@ function isActivePayment(p) {
   return true;
 }
 
-function digitsOnly(s) {
-  return String(s || "").replace(/\D/g, "");
-}
-
-function normalizeBDPhone(raw) {
-  const d = digitsOnly(raw);
-  if (!d) return "";
-
-  if (d.startsWith("880") && d.length >= 13) {
-    const rest = d.slice(3);
-    if (rest.length >= 10) return "0" + rest.slice(-10);
-  }
-
-  if (d.length === 11 && d.startsWith("0")) return d;
-  if (d.length === 10 && d.startsWith("1")) return "0" + d;
-  if (d.length > 11) return d.slice(-11);
-  return d;
-}
-
 /* =========================
-   Fund Modal + Stats (robust)
+   Stats (Fund verify removed)
 ========================= */
 (() => {
   const statMembers     = $("#statMembers");
@@ -215,89 +196,8 @@ function normalizeBDPhone(raw) {
   const statOtherIncome = $("#statOtherIncome");
   const statExpense     = $("#statExpense");
 
-  const FUND_KEY = "ls_fund_verified_phone";
   let ACTIVE_MEMBER_CODES = new Set();
   let PAYMENTS_CACHE = [];
-
-  let ACTIVE_PHONES = new Set();
-  let fundVerified = false;
-  let fundValueCache = 0;
-
-  function setFundMasked() {
-    if (!statFund) return;
-    statFund.textContent = "••••";
-  }
-
-  function openFundModal() {
-    const fundModal = $("#fundModal");
-    const fundPhone = $("#fundPhone");
-    const fundMsg = $("#fundMsg");
-    if (!fundModal) return;
-    if (fundMsg) {
-      fundMsg.textContent = "";
-      fundMsg.classList.remove("ok", "bad");
-    }
-    fundModal.classList.add("show");
-    fundModal.setAttribute("aria-hidden", "false");
-    setTimeout(() => fundPhone?.focus(), 50);
-  }
-
-  function closeFundModal() {
-    const fundModal = $("#fundModal");
-    if (!fundModal) return;
-    fundModal.classList.remove("show");
-    fundModal.setAttribute("aria-hidden", "true");
-  }
-
-  function unlockFund(phoneNorm) {
-    fundVerified = true;
-    try { localStorage.setItem(FUND_KEY, phoneNorm); } catch {}
-    if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 900 });
-    closeFundModal();
-  }
-
-  function tryVerifyFromStored() {
-    let saved = "";
-    try { saved = localStorage.getItem(FUND_KEY) || ""; } catch {}
-    const s = normalizeBDPhone(saved);
-    if (s && ACTIVE_PHONES.has(s)) {
-      fundVerified = true;
-      if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 700 });
-      return true;
-    }
-    return false;
-  }
-
-  function doVerifyInput() {
-    const fundPhone = $("#fundPhone");
-    const fundMsg = $("#fundMsg");
-
-    const input = normalizeBDPhone(fundPhone?.value || "");
-    if (!input) {
-      if (fundMsg) {
-        fundMsg.textContent = "ফোন নম্বর দিন";
-        fundMsg.classList.remove("ok");
-        fundMsg.classList.add("bad");
-      }
-      return;
-    }
-
-    if (ACTIVE_PHONES.has(input)) {
-      if (fundMsg) {
-        fundMsg.textContent = "Verified ✅ এখন Available Fund দেখা যাবে";
-        fundMsg.classList.remove("bad");
-        fundMsg.classList.add("ok");
-      }
-      unlockFund(input);
-      return;
-    }
-
-    if (fundMsg) {
-      fundMsg.textContent = "Match হয়নি ❌ (Active member phone দরকার)";
-      fundMsg.classList.remove("ok");
-      fundMsg.classList.add("bad");
-    }
-  }
 
   function recomputeRunningMonth() {
     const curYM = ymBD();
@@ -319,55 +219,19 @@ function normalizeBDPhone(raw) {
     if (statCollected) animateTextNumber(statCollected, sum, { duration: 900 });
   }
 
-  function collectPhonesFromPrivateDoc(m, set) {
-    const candidates = [
-      m.phone, m.phoneNumber, m.mobile, m.mobileNumber,
-      m.contact, m.contactNumber, m.whatsapp, m.whatsApp
-    ];
-    for (const c of candidates) {
-      const n = normalizeBDPhone(c);
-      if (n) set.add(n);
-    }
-  }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    setFundMasked();
-
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("#fundUnlockBtn")) openFundModal();
-      if (e.target.closest("#fundBackdrop")) closeFundModal();
-      if (e.target.closest("#fundClose")) closeFundModal();
-      if (e.target.closest("#fundVerifyBtn")) doVerifyInput();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeFundModal();
-      if (e.key === "Enter" && document.activeElement?.id === "fundPhone") doVerifyInput();
-    });
-  });
-
   try {
     onSnapshot(doc(db, "stats", "global"), (snap) => {
       const s = snap.data() || {};
       if (statMembers)     animateTextNumber(statMembers, s.totalMembers ?? 0, { duration: 700 });
       if (statDues)        animateTextNumber(statDues, s.totalDues ?? 0, { duration: 900 });
-
-      fundValueCache = toNumber(s.availableFund ?? 0);
-
+      if (statFund)        animateTextNumber(statFund, s.availableFund ?? 0, { duration: 900 });
       if (statOtherIncome) animateTextNumber(statOtherIncome, s.totalOtherIncome ?? 0, { duration: 900 });
       if (statExpense)     animateTextNumber(statExpense, s.totalExpense ?? 0, { duration: 900 });
-
-      if (fundVerified) {
-        if (statFund) animateTextNumber(statFund, fundValueCache ?? 0, { duration: 900 });
-      } else {
-        setFundMasked();
-      }
     });
   } catch (err) {
     console.error("❌ Stats onSnapshot failed:", err);
   }
 
-  // ✅ members থেকে শুধু codeSet (আগের মতো)
   try {
     onSnapshot(collection(db, "members"), (snap) => {
       const codeSet = new Set();
@@ -385,26 +249,6 @@ function normalizeBDPhone(raw) {
     });
   } catch (err) {
     console.error("❌ Members onSnapshot failed:", err);
-  }
-
-  // ✅ phones এখন members_private থেকে (screenshot অনুযায়ী)
-  try {
-    onSnapshot(collection(db, "members_private"), (snap) => {
-      const phoneSet = new Set();
-
-      snap.forEach((d) => {
-        const m = d.data() || {};
-        collectPhonesFromPrivateDoc(m, phoneSet);
-      });
-
-      ACTIVE_PHONES = phoneSet;
-
-      if (!fundVerified) {
-        if (!tryVerifyFromStored()) setFundMasked();
-      }
-    });
-  } catch (err) {
-    console.error("❌ members_private onSnapshot failed:", err);
   }
 
   try {
