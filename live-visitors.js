@@ -15,8 +15,9 @@ const firebaseConfig = {
   storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
   messagingSenderId: "913283407503",
   appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
-  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.firebaseio.com"
+  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
