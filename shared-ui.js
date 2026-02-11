@@ -5,14 +5,13 @@ export function isAdminUser(user) {
   return !!user && (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
 }
 
+/* ✅ Single source of truth for mobile nav (delegated + capture + idempotent) */
 export function initMobileNav() {
+  // prevent double-binding across pages/modules
   if (window.__ls_mobile_nav_bound) return;
   window.__ls_mobile_nav_bound = true;
 
-  const isMobile = () => {
-    try { return window.matchMedia("(max-width: 860px)").matches; }
-    catch { return window.innerWidth <= 860; }
-  };
+  const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
 
   const getBtn = () => document.getElementById("navToggle");
   const getMenu = () => document.getElementById("navMenu");
@@ -22,63 +21,57 @@ export function initMobileNav() {
     if (btn) btn.setAttribute("aria-expanded", v ? "true" : "false");
   };
 
-  const open = () => {
+  const setOpen = (open) => {
     const menu = getMenu();
     if (!menu) return;
-    menu.classList.add("open");
-    setExpanded(true);
-  };
-
-  const close = () => {
-    const menu = getMenu();
-    if (!menu) return;
-    menu.classList.remove("open");
-    setExpanded(false);
+    menu.classList.toggle("open", !!open);
+    setExpanded(!!open);
   };
 
   const toggle = () => {
     const menu = getMenu();
     if (!menu) return;
-    menu.classList.contains("open") ? close() : open();
+    setOpen(!menu.classList.contains("open"));
   };
 
-  // ✅ 1) Toggle button (capture) — reliable
-  document.addEventListener("click", (e) => {
-    const btnClick = e.target.closest("#navToggle");
-    if (!btnClick) return;
-    if (!isMobile()) return;
+  const close = () => setOpen(false);
 
-    e.preventDefault();
-    e.stopPropagation();
-    toggle();
-  }, true);
+  // ✅ One capture listener to control everything (prevents open->instant close)
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btnClick = e.target.closest("#navToggle");
+      const menuClick = e.target.closest("#navMenu");
 
-  // ✅ 2) Close rules: link click, outside click (capture)
-  document.addEventListener("click", (e) => {
-    const menu = getMenu();
-    if (!menu || !menu.classList.contains("open")) return;
-    if (!isMobile()) return;
+      // toggle button
+      if (btnClick) {
+        if (isMobile()) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggle();
+        }
+        return;
+      }
 
-    const clickedToggle = e.target.closest("#navToggle");
-    if (clickedToggle) return;
+      const menu = getMenu();
+      if (!menu || !menu.classList.contains("open")) return;
 
-    const insideMenu = e.target.closest("#navMenu");
-    if (insideMenu) {
-      // close only when a link is clicked
-      if (e.target.closest("#navMenu a")) close();
-      return;
-    }
+      // inside menu: close only if a link clicked
+      if (menuClick) {
+        if (e.target.closest("#navMenu a")) close();
+        return;
+      }
 
-    // outside click closes
-    close();
-  }, true);
+      // outside click closes
+      close();
+    },
+    true
+  );
 
-  // ✅ ESC closes
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") close();
   });
 
-  // ✅ Resize to desktop closes
   window.addEventListener("resize", () => {
     if (!isMobile()) close();
   });
@@ -88,14 +81,17 @@ export function initNavbarAuthUI() {
   const yearEl = document.querySelector("#year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // active nav highlight
   const current = (location.pathname.split("/").pop() || "index.html").toLowerCase();
   document.querySelectorAll("[data-page]").forEach((a) => {
     const page = (a.getAttribute("data-page") || "").toLowerCase();
     if (page === current) a.classList.add("active");
   });
 
+  // ✅ mobile nav init ONLY here (no duplicate listeners)
   initMobileNav();
 
+  // auth buttons
   const loginLink = document.querySelector("#adminLoginLink");
   const logoutBtn = document.querySelector("#logoutBtn");
   const roleBadge = document.querySelector("#roleBadge");
@@ -122,6 +118,7 @@ export function initNavbarAuthUI() {
   });
 }
 
+/** ✅ Admin page guard: login+admin না হলে redirect (NO false redirect / NO loop) */
 export function requireAdminGuard() {
   return new Promise((resolve) => {
     let redirected = false;
