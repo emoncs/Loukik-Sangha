@@ -1549,6 +1549,35 @@ html[data-theme="dark"] .since-inline{
   flex:0 0 auto;
   white-space:nowrap;
 }
+/* ===== Topbar Layout Corrected ===== */
+.topbar .nav-inner{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+/* push everything except brand to right */
+.menu{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-left:auto;
+}
+
+/* theme button always visible */
+.theme-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* live pill sits at far right */
+.live-pill{
+  margin-left:12px;
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+
 
 
 
