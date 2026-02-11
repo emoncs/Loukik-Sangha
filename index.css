@@ -1529,6 +1529,27 @@ html[data-theme="dark"] .since-inline{
   .brand-text small{ font-size:11px; }
 }
 
+/* topbar layout: brand left, nav right, live far right */
+.topbar .nav-inner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:nowrap;
+}
+
+.menu{
+  margin-left:auto;      /* ✅ pushes nav to the right */
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.live-pill{
+  margin-left:12px;      /* nav এর পরে থাকবে */
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+
 
 
 
