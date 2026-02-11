@@ -1472,6 +1472,63 @@ html[data-theme="dark"] .since-inline{
   .live-label{ display:none; }
   .live-pill{ gap:8px; padding:7px 10px; }
 }
+/* keep header items inside on mobile */
+.topbar .nav-inner{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;              /* ✅ allows wrap */
+}
+
+.brand{
+  min-width:0;                 /* ✅ prevents overflow */
+}
+
+.menu{
+  min-width:0;
+}
+
+/* live pill stays inside */
+.live-pill{
+  margin-left:auto;            /* push right on desktop */
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  max-width:100%;
+  white-space:nowrap;
+}
+
+/* 📱 Mobile: make it compact so it never goes outside */
+@media (max-width: 520px){
+  .topbar .nav-inner{
+    flex-wrap:nowrap;          /* keep in one line */
+  }
+
+  .brand-text small .since-inline{
+    display:none;              /* optional: reduce width */
+  }
+
+  .live-pill{
+    margin-left:8px;
+    padding:6px 10px;          /* smaller */
+    gap:6px;
+    flex:0 0 auto;
+  }
+
+  .live-label{                 /* ✅ hide "Live" text on mobile */
+    display:none;
+  }
+
+  .live-count{
+    min-width:18px;
+    text-align:center;
+  }
+}
+@media (max-width: 520px){
+  .brand-text strong{ font-size:14px; }
+  .brand-text small{ font-size:11px; }
+}
+
 
 
 
