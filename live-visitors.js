@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { app } from "./firebase.js";
 import {
   getDatabase,
   ref,
@@ -8,19 +8,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAmJYe6zJ_yDS9kvKKBHyLIZdAJogl-ER0",
-  authDomain: "loukik-sangha-7df0c.firebaseapp.com",
-  projectId: "loukik-sangha-7df0c",
-  storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
-  messagingSenderId: "913283407503",
-  appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
-  databaseURL: "https://loukik-sangha-7df0c-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
-
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const rtdb = getDatabase(app);
 
 function getOrCreateVisitorId() {
   const k = "ls_vid";
@@ -35,28 +23,23 @@ function getOrCreateVisitorId() {
 }
 
 const vid = getOrCreateVisitorId();
-const myRef = ref(db, `presence/${vid}`);
-const connectedRef = ref(db, ".info/connected");
+const myRef = ref(rtdb, `presence/${vid}`);
+const connectedRef = ref(rtdb, ".info/connected");
 
 onValue(connectedRef, async (snap) => {
   if (snap.val() === true) {
-    try {
-      await onDisconnect(myRef).set(null);
-      await set(myRef, { online: true, lastSeen: serverTimestamp() });
-    } catch (e) {
-      console.error("presence setup error:", e);
-    }
+    await onDisconnect(myRef).set(null);
+    await set(myRef, { online: true, lastSeen: serverTimestamp() });
   }
 });
 
 setInterval(() => {
-  set(myRef, { online: true, lastSeen: serverTimestamp() })
-    .catch((e) => console.error("heartbeat error:", e));
+  set(myRef, { online: true, lastSeen: serverTimestamp() }).catch(console.error);
 }, 25000);
 
 const liveEl = document.querySelector("#liveCount");
 if (liveEl) {
-  const presenceRef = ref(db, "presence");
+  const presenceRef = ref(rtdb, "presence");
   onValue(presenceRef, (snap) => {
     const now = Date.now();
     const data = snap.val() || {};
@@ -67,7 +50,6 @@ if (liveEl) {
       const row = data[k];
       if (!row || row.online !== true) continue;
 
-      // lastSeen should be number in snapshot; if not, ignore stale filter
       const lastSeen = typeof row.lastSeen === "number" ? row.lastSeen : 0;
       if (lastSeen && (now - lastSeen) > STALE_MS) continue;
 
