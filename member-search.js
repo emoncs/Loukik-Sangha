@@ -4,147 +4,112 @@ import { db } from "./firebase.js";
 
 initNavbarAuthUI();
 // ===============================
-// FIX: Mobile Nav Toggle + Dark Theme Toggle
-// (No other logic changes)
+// ✅ MOBILE NAV FIX (single clean binding)
 // ===============================
-// ✅ HARD NAV FIX: remove duplicate listeners + bind once (mobile safe)
 (() => {
-  const $ = (s, p = document) => p.querySelector(s);
-
-  const toggle = $("#navToggle");
-  const menu = $("#navMenu");
-
-  if (!toggle || !menu) return;
-
-  // ---- 1) Remove ALL previous listeners by cloning nodes ----
-  const newToggle = toggle.cloneNode(true);
-  toggle.parentNode.replaceChild(newToggle, toggle);
-
-  const newMenu = menu.cloneNode(true);
-  menu.parentNode.replaceChild(newMenu, menu);
-
-  // ---- 2) Bind our only listener ----
-  const closeMenu = () => {
-    newMenu.classList.remove("open");
-    newToggle.setAttribute("aria-expanded", "false");
-  };
-
-  const openMenu = () => {
-    newMenu.classList.add("open");
-    newToggle.setAttribute("aria-expanded", "true");
-  };
-
-  const toggleMenu = () => {
-    newMenu.classList.contains("open") ? closeMenu() : openMenu();
-  };
-
-  // ✅ Use CAPTURE + stopImmediatePropagation to kill other handlers
-  newToggle.addEventListener(
-    "click",
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
-      toggleMenu();
-    },
-    true
-  );
-
-  // outside click close (capture)
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (!newMenu.classList.contains("open")) return;
-      const t = e.target;
-      if (newMenu.contains(t) || newToggle.contains(t)) return;
-      closeMenu();
-    },
-    true
-  );
-
-  // esc close
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
-
-  // link click close
-  newMenu.addEventListener("click", (e) => {
-    const a = e.target.closest("a");
-    if (a) closeMenu();
-  });
-})();
-
-(() => {
-  const $ = (s, p = document) => p.querySelector(s);
-
- (() => {
   const $ = (s, p = document) => p.querySelector(s);
 
   const navToggle = $("#navToggle");
   const navMenu = $("#navMenu");
 
-  if (navToggle && navMenu && navToggle.dataset.bound !== "1") {
-    navToggle.dataset.bound = "1";
+  const dd = $("#moreDD") || $(".nav-dd");
+  const ddBtn = $("#moreBtn") || dd?.querySelector(".nav-dd-btn");
 
-    const closeMenu = () => {
-      navMenu.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
-    };
+  const themeBtn = $("#themeToggle") || $(".theme-toggle");
+  const root = document.documentElement;
 
-    const openMenu = () => {
-      navMenu.classList.add("open");
-      navToggle.setAttribute("aria-expanded", "true");
-    };
+  if (!navToggle || !navMenu) return;
 
-    const toggleMenu = () => {
-      navMenu.classList.contains("open") ? closeMenu() : openMenu();
-    };
+  // prevent double-binding
+  if (navToggle.dataset.bound === "1") return;
+  navToggle.dataset.bound = "1";
 
-    // ✅ IMPORTANT: stopPropagation + pointerdown
-    navToggle.addEventListener("pointerdown", (e) => {
+  const closeMenu = () => {
+    navMenu.classList.remove("open");
+    navToggle.setAttribute("aria-expanded", "false");
+    if (dd) dd.classList.remove("is-open");
+    if (ddBtn) ddBtn.setAttribute("aria-expanded", "false");
+  };
+
+  const toggleMenu = (e) => {
+    if (e) {
       e.preventDefault();
       e.stopPropagation();
-      toggleMenu();
-    });
-
-    // close on outside tap/click
-    document.addEventListener("pointerdown", (e) => {
-      if (!navMenu.classList.contains("open")) return;
-      const t = e.target;
-      if (navMenu.contains(t) || navToggle.contains(t)) return;
+    }
+    const open = !navMenu.classList.contains("open");
+    if (open) {
+      navMenu.classList.add("open");
+      navToggle.setAttribute("aria-expanded", "true");
+    } else {
       closeMenu();
-    });
+    }
+  };
 
-    // close on Esc
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMenu();
-    });
+  // ✅ click works everywhere (mobile/desktop)
+  navToggle.addEventListener("click", toggleMenu);
 
-    // close when clicking a link
-    navMenu.addEventListener("click", (e) => {
-      const a = e.target.closest("a");
-      if (a) closeMenu();
-    });
-  }
+  // close on outside click
+  document.addEventListener("click", (e) => {
+    if (!navMenu.classList.contains("open")) return;
+    if (navMenu.contains(e.target) || navToggle.contains(e.target)) return;
+    closeMenu();
+  });
 
-  // Mobile "More" dropdown (keep yours, but pointerdown safer)
-  const dd = $(".nav-dd");
-  const ddBtn = $(".nav-dd-btn");
-  if (dd && ddBtn && ddBtn.dataset.bound !== "1") {
-    ddBtn.dataset.bound = "1";
-    ddBtn.addEventListener("pointerdown", (e) => {
+  // close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  // close when clicking a link inside menu
+  navMenu.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (a) closeMenu();
+  });
+
+  // ✅ Mobile "More" dropdown (tap)
+  if (dd && ddBtn) {
+    ddBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       dd.classList.toggle("is-open");
+      ddBtn.setAttribute("aria-expanded", dd.classList.contains("is-open") ? "true" : "false");
     });
-    document.addEventListener("pointerdown", (e) => {
+
+    document.addEventListener("click", (e) => {
       if (!dd.classList.contains("is-open")) return;
       if (dd.contains(e.target)) return;
       dd.classList.remove("is-open");
+      ddBtn.setAttribute("aria-expanded", "false");
     });
   }
 
-  // theme part (যেমন আছে তেমন রাখবে)
+  // ✅ Theme toggle (simple + stable)
+  const applyTheme = (mode) => {
+    const isDark = mode === "dark";
+    root.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark", isDark);
+    try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch {}
+  };
+
+  const initTheme = () => {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") return applyTheme(saved);
+    } catch {}
+    const prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    applyTheme(prefersDark ? "dark" : "light");
+  };
+
+  initTheme();
+
+  if (themeBtn && themeBtn.dataset.bound !== "1") {
+    themeBtn.dataset.bound = "1";
+    themeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isDarkNow = root.classList.contains("dark") || document.body.classList.contains("dark");
+      applyTheme(isDarkNow ? "light" : "dark");
+    });
+  }
 })();
 
 
@@ -928,3 +893,4 @@ initNavbarAuthUI();
     }
   })();
 })();
+
