@@ -1586,3 +1586,65 @@ html[data-theme="dark"] .calc-out{
     box-shadow:none;
   }
 }
+.since-inline{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  margin-left:10px;
+  padding:5px 14px;
+  border-radius:999px;
+  font-size:11.5px;
+  font-weight:1100;
+  letter-spacing:.4px;
+  color:#fff;
+  background:linear-gradient(
+    270deg,
+    #ff0080,
+    #ff8c00,
+    #ffd700,
+    #00c853,
+    #00bcd4,
+    #2979ff,
+    #7b1fa2,
+    #ff0080
+  );
+  background-size: 800% 800%;
+  animation: rainbowMove 8s linear infinite;
+  box-shadow:
+    0 0 12px rgba(255,0,128,.4),
+    0 0 24px rgba(41,121,255,.3),
+    inset 0 0 6px rgba(255,255,255,.25);
+  border:1px solid rgba(255,255,255,.25);
+  overflow:hidden;
+}
+
+/* Rainbow animation */
+@keyframes rainbowMove{
+  0%{ background-position:0% 50%; }
+  50%{ background-position:100% 50%; }
+  100%{ background-position:0% 50%; }
+}
+
+/* Shine effect */
+.since-inline::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-120%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(
+    120deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.6) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  transform:skewX(-25deg);
+  animation: shineMove 5s infinite;
+}
+
+@keyframes shineMove{
+  0%{ left:-120%; }
+  60%{ left:120%; }
+  100%{ left:120%; }
+}
