@@ -8,7 +8,7 @@
   <meta name="google-site-verification" content="googlef95ab0717272e7fa.html">
   <title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
 
-  <link rel="stylesheet" href="index.css?v=20260208" />
+  <link rel="stylesheet" href="index.css?v=20260211_final_navdrop_search_live" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="Images/logo.png">
@@ -45,18 +45,24 @@
         <a class="nav-link" data-page="index.html" href="index.html">Home</a>
         <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
         <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
-        <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
-        <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
-        <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
+
+        <div class="nav-dd">
+          <button class="nav-dd-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            More <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="nav-dd-list" role="menu" aria-label="More links">
+            <a class="nav-dd-link" role="menuitem" data-page="rules.html" href="rules.html">Rules</a>
+            <a class="nav-dd-link" role="menuitem" data-page="vision.html" href="vision.html">Vision</a>
+            <a class="nav-dd-link" role="menuitem" data-page="contact.html" href="contact.html">Contact</a>
+          </div>
+        </div>
 
         <button class="theme-toggle icon-only" id="themeToggle" type="button" aria-label="Toggle theme">
           <i id="themeIcon" class="fa-solid fa-moon"></i>
         </button>
       </nav>
 
-      <div class="live-pill" title="Live visitors">
-        <i class="fa-solid fa-signal"></i>
-        <span class="live-label">Live</span>
+      <div class="live-pill" title="Live visitors" aria-label="Live visitors">
         <span class="live-dot" aria-hidden="true"></span>
         <span id="liveCount" class="live-count">0</span>
       </div>
@@ -88,8 +94,8 @@
           We work for community support, donations, transparency, and social welfare activities.
         </p>
 
-        <div class="searchbar" role="search" aria-label="Member Search">
-          <input id="heroSearch" type="text" placeholder="Search by member name or phone..." autocomplete="off" />
+        <div class="searchbar searchbar-sm" role="search" aria-label="Member Search">
+          <input id="heroSearch" type="text" placeholder="Search member name or phone..." autocomplete="off" />
           <button id="heroSearchBtn" class="btn btn-primary btn-search" type="button">
             <i class="fa-solid fa-magnifying-glass"></i> Search
           </button>
@@ -229,8 +235,6 @@
         </div>
       </div>
     </section>
-
-    <!-- The rest of your page stays same... (committee, slider, activities, ritual modal, footer) -->
 
     <section class="stats">
       <div class="wrap">
@@ -393,17 +397,17 @@
 
         <div class="activity-grid">
           <article class="activity-card">
-            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Relief Distribution"></div>
             <div class="activity-body"><h3>Relief Distribution</h3><p>Essential help for families in difficult times.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Community Meeting"></div>
             <div class="activity-body"><h3>Community Meeting</h3><p>Regular meetings to make decisions together.</p></div>
           </article>
 
           <article class="activity-card">
-            <div class="activity-media"><img src="Images/4.jpg" alt="Activity"></div>
+            <div class="activity-media"><img src="Images/4.jpg" alt="Medical Support"></div>
             <div class="activity-body"><h3>Medical Support</h3><p>Emergency support for members when needed.</p></div>
           </article>
         </div>
