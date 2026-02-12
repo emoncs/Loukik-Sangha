@@ -1,7 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
-  initializeAuth,
-  browserLocalPersistence
+  getAuth,
+  setPersistence,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  inMemoryPersistence
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
@@ -15,19 +19,39 @@ const firebaseConfig = {
   databaseURL: "https://loukik-sangha-7df0c-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
-// ✅ changed: export app so other modules (live-visitors.js) can import it
+// ✅ same: export app so other modules can import it
 export const app = initializeApp(firebaseConfig);
+
+// ✅ FIX: Messenger/In-app browser safe auth init
+export const auth = getAuth(app);
 
 /**
  * ✅ Key fix:
- * initializeAuth with browserLocalPersistence
- * -> page change / refresh হলেও logout হবে না
+ * Messenger/Facebook in-app browser অনেক সময় localStorage/IndexedDB restrict করে।
+ * তাই persistence একটার পর একটা fallback করে set করা হচ্ছে।
  */
-export const auth = initializeAuth(app, {
-  persistence: browserLocalPersistence
-});
+async function setBestPersistence() {
+  const tries = [
+    indexedDBLocalPersistence,      // best (works in most browsers)
+    browserLocalPersistence,        // your old one
+    browserSessionPersistence,      // fallback
+    inMemoryPersistence             // last fallback (still works per session)
+  ];
+
+  for (const p of tries) {
+    try {
+      await setPersistence(auth, p);
+      return true;
+    } catch (e) {
+      // try next persistence silently
+    }
+  }
+  return false;
+}
+
+// ✅ IMPORTANT export: data load করার আগে এটাকে await/then করলে Messenger issue যাবে
+export const authReady = setBestPersistence();
 
 export const db = getFirestore(app);
