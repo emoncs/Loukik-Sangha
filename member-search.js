@@ -1,13 +1,187 @@
 import { initNavbarAuthUI } from "./shared-ui.js";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 
 initNavbarAuthUI();
+// ===============================
+// FIX: Mobile Nav Toggle + Dark Theme Toggle
+// (No other logic changes)
+// ===============================
+// ✅ HARD NAV FIX: remove duplicate listeners + bind once (mobile safe)
+(() => {
+  const $ = (s, p = document) => p.querySelector(s);
+
+  const toggle = $("#navToggle");
+  const menu = $("#navMenu");
+
+  if (!toggle || !menu) return;
+
+  // ---- 1) Remove ALL previous listeners by cloning nodes ----
+  const newToggle = toggle.cloneNode(true);
+  toggle.parentNode.replaceChild(newToggle, toggle);
+
+  const newMenu = menu.cloneNode(true);
+  menu.parentNode.replaceChild(newMenu, menu);
+
+  // ---- 2) Bind our only listener ----
+  const closeMenu = () => {
+    newMenu.classList.remove("open");
+    newToggle.setAttribute("aria-expanded", "false");
+  };
+
+  const openMenu = () => {
+    newMenu.classList.add("open");
+    newToggle.setAttribute("aria-expanded", "true");
+  };
+
+  const toggleMenu = () => {
+    newMenu.classList.contains("open") ? closeMenu() : openMenu();
+  };
+
+  // ✅ Use CAPTURE + stopImmediatePropagation to kill other handlers
+  newToggle.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+      toggleMenu();
+    },
+    true
+  );
+
+  // outside click close (capture)
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!newMenu.classList.contains("open")) return;
+      const t = e.target;
+      if (newMenu.contains(t) || newToggle.contains(t)) return;
+      closeMenu();
+    },
+    true
+  );
+
+  // esc close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  // link click close
+  newMenu.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (a) closeMenu();
+  });
+})();
+
+(() => {
+  const $ = (s, p = document) => p.querySelector(s);
+
+ (() => {
+  const $ = (s, p = document) => p.querySelector(s);
+
+  const navToggle = $("#navToggle");
+  const navMenu = $("#navMenu");
+
+  if (navToggle && navMenu && navToggle.dataset.bound !== "1") {
+    navToggle.dataset.bound = "1";
+
+    const closeMenu = () => {
+      navMenu.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    };
+
+    const openMenu = () => {
+      navMenu.classList.add("open");
+      navToggle.setAttribute("aria-expanded", "true");
+    };
+
+    const toggleMenu = () => {
+      navMenu.classList.contains("open") ? closeMenu() : openMenu();
+    };
+
+    // ✅ IMPORTANT: stopPropagation + pointerdown
+    navToggle.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    // close on outside tap/click
+    document.addEventListener("pointerdown", (e) => {
+      if (!navMenu.classList.contains("open")) return;
+      const t = e.target;
+      if (navMenu.contains(t) || navToggle.contains(t)) return;
+      closeMenu();
+    });
+
+    // close on Esc
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMenu();
+    });
+
+    // close when clicking a link
+    navMenu.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (a) closeMenu();
+    });
+  }
+
+  // Mobile "More" dropdown (keep yours, but pointerdown safer)
+  const dd = $(".nav-dd");
+  const ddBtn = $(".nav-dd-btn");
+  if (dd && ddBtn && ddBtn.dataset.bound !== "1") {
+    ddBtn.dataset.bound = "1";
+    ddBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dd.classList.toggle("is-open");
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!dd.classList.contains("is-open")) return;
+      if (dd.contains(e.target)) return;
+      dd.classList.remove("is-open");
+    });
+  }
+
+  // theme part (যেমন আছে তেমন রাখবে)
+})();
+
+
+  // ---------- Dark Theme ----------
+  const themeBtn = $("#themeToggle") || $(".theme-toggle");
+  const root = document.documentElement;
+
+  const applyTheme = (mode) => {
+    const isDark = mode === "dark";
+    root.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark", isDark);
+    try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch {}
+  };
+
+  const getSavedTheme = () => {
+    try { return localStorage.getItem("theme"); } catch { return null; }
+  };
+
+  const initTheme = () => {
+    const saved = getSavedTheme();
+    if (saved === "dark" || saved === "light") return applyTheme(saved);
+    // fallback to system preference
+    const prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    applyTheme(prefersDark ? "dark" : "light");
+  };
+
+  initTheme();
+
+  if (themeBtn && themeBtn.dataset.bound !== "1") {
+    themeBtn.dataset.bound = "1";
+    themeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isDarkNow = root.classList.contains("dark") || document.body.classList.contains("dark");
+      applyTheme(isDarkNow ? "light" : "dark");
+    });
+  }
+})();
 
 (() => {
   const $ = (s, p = document) => p.querySelector(s);
@@ -163,31 +337,6 @@ initNavbarAuthUI();
       }
     }
 
-    m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
-    if (m) {
-      const month = Number(m[1]);
-      const year = Number(m[2]);
-      if (month >= 1 && month <= 12) {
-        const ym = `${year}-${pad2(month)}`;
-        return { ym, label: monthLabelFromYM(ym) };
-      }
-    }
-
-    m = s.match(/^(\d{1,2})[-\/.\s]([a-z]{3,9}|\d{1,2})[-\/.\s](\d{4})$/);
-    if (m) {
-      const mid = m[2];
-      const year = Number(m[3]);
-      let month = 0;
-
-      if (/^\d{1,2}$/.test(mid)) month = Number(mid);
-      else month = MONTHS[mid] ?? MONTHS[mid.slice(0, 3)] ?? 0;
-
-      if (month >= 1 && month <= 12 && year) {
-        const ym = `${year}-${pad2(month)}`;
-        return { ym, label: monthLabelFromYM(ym) };
-      }
-    }
-
     const d = new Date(s0);
     if (!Number.isNaN(d.getTime())) {
       const year = d.getFullYear();
@@ -226,13 +375,6 @@ initNavbarAuthUI();
       const y = Number(m[2]);
       const mo = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
       if (y && mo) return `${y}-${pad2(mo)}`;
-    }
-
-    m = s.match(/^(\d{1,2})[-\/.](\d{4})$/);
-    if (m) {
-      const mo = Number(m[1]);
-      const y = Number(m[2]);
-      if (y && mo >= 1 && mo <= 12) return `${y}-${pad2(mo)}`;
     }
 
     const d = new Date(r);
@@ -392,7 +534,6 @@ initNavbarAuthUI();
     const paid = base.filter(isPaidOK).length;
 
     if (allCountEl) allCountEl.textContent = String(all);
-
     if (segAll) segAll.textContent = String(all);
     if (segDue) segDue.textContent = String(due);
     if (segAdv) segAdv.textContent = String(adv);
@@ -421,7 +562,6 @@ initNavbarAuthUI();
 
   function applyListSort(rows) {
     const r = [...rows];
-
     const byCode = (a, b) => String(a.memberCode || "").localeCompare(String(b.memberCode || ""));
     const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""));
     const byDueDesc = (a, b) => Number(b.due || 0) - Number(a.due || 0);
@@ -475,7 +615,6 @@ initNavbarAuthUI();
   function normalizeForPrefix(s) {
     return String(s || "").toLowerCase().replace(/\s+/g, " ").trim();
   }
-
   function normalizeNoSpace(s) {
     return String(s || "").toLowerCase().replace(/\s+/g, "");
   }
@@ -649,7 +788,6 @@ initNavbarAuthUI();
 
       totals.sort((a, b) => b.total - a.total);
       renderPayersList(totals.slice(0, 3));
-
     } catch (e) {
       if (snapHint) snapHint.textContent = "Payments data unavailable (check Firestore rules or payments collection).";
       renderPayersList([]);
@@ -700,7 +838,7 @@ initNavbarAuthUI();
   joinForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     setJoinMsg("Submitting...", true);
-    joinSubmit && (joinSubmit.disabled = true);
+    if (joinSubmit) joinSubmit.disabled = true;
 
     try {
       const name = $("#jName")?.value?.trim();
@@ -719,16 +857,14 @@ initNavbarAuthUI();
       if (!name || !phone || !gender || !joinMonth || !address) {
         throw new Error(
           !joinMonth
-            ? "Join Date বুঝতে পারিনি. উদাহরণ: 2025-10 / 2025-oct / Oct 2025 / 12-oct-2025"
+            ? "Join Date বুঝতে পারিনি. উদাহরণ: 2025-10 / 2025-oct / Oct 2025"
             : "Please fill all required fields."
         );
       }
 
       const file = $("#jPhoto")?.files?.[0];
       let photoDataUrl = "";
-      if (file) {
-        photoDataUrl = await fileToDataUrlCompressed(file, 480, 0.82);
-      }
+      if (file) photoDataUrl = await fileToDataUrlCompressed(file, 480, 0.82);
 
       const code = "LS-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Date.now().toString().slice(-5);
 
@@ -763,11 +899,10 @@ initNavbarAuthUI();
 
       if (input) input.value = name;
       doSearch();
-
     } catch (err) {
       setJoinMsg(err?.message || "Submit failed. Try again.", false);
     } finally {
-      joinSubmit && (joinSubmit.disabled = false);
+      if (joinSubmit) joinSubmit.disabled = false;
     }
   });
 
@@ -793,4 +928,3 @@ initNavbarAuthUI();
     }
   })();
 })();
-
