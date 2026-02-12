@@ -4,16 +4,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Donate for Community Welfare | Loukik Sangha</title>
-<link rel="icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="Images/logo.png">
-<link rel="icon" type="image/png" sizes="16x16" href="Images/logo.png">
-<link rel="apple-touch-icon" sizes="180x180" href="Images/logo.png">
-  <link rel="stylesheet" href="donate.css" />
+
+  <title>Donate for Community Welfare | Loukik Sangha</title>
+  <meta name="description" content="Donate to Loukik Sangha to support medical aid, education support, disaster relief, and urgent community needs in Bangladesh. Secure methods, transparent verification, and reliable records." />
+  <meta name="robots" content="index,follow" />
+  <meta name="author" content="Loukik Sangha" />
+  <link rel="canonical" href="https://loukiksangha.org/donate.html" />
+  <meta name="theme-color" content="#0b1220" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Donate for Community Welfare | Loukik Sangha" />
+  <meta property="og:description" content="Support medical aid, education support, disaster relief & urgent community needs. Donate securely & submit confirmation for verification." />
+  <meta property="og:url" content="https://loukiksangha.org/donate.html" />
+  <meta property="og:image" content="https://loukiksangha.org/Images/logo.png" />
+
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="Images/logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.png">
+
+  <link rel="stylesheet" href="donate.css?v=20260212" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script type="module" src="live-visitors.js"></script>
 
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"NGO",
+    "name":"Loukik Sangha",
+    "url":"https://loukiksangha.org",
+    "logo":"https://loukiksangha.org/Images/logo.png",
+    "areaServed":"Bangladesh"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {"@type":"Question","name":"How is my donation verified?","acceptedAnswer":{"@type":"Answer","text":"After payment, submit confirmation (name, phone, method, amount, TrxID/reference). Admin verifies and records it."}},
+      {"@type":"Question","name":"Do you provide receipts?","acceptedAnswer":{"@type":"Answer","text":"Verified donations can be issued a receipt/record entry by the admin based on confirmation details."}},
+      {"@type":"Question","name":"Which methods are supported?","acceptedAnswer":{"@type":"Answer","text":"bKash, Nagad, Rocket, Bank transfer, and Cash are supported."}}
+    ]
+  }
+  </script>
 </head>
+
 <body>
 
   <header class="topbar">
@@ -24,11 +61,15 @@
         </span>
         <span class="brand-text">
           <strong>Loukik Sangha</strong>
-          <small>Seva is Our Dharma. 🕉️</small>
+          <small>
+            Seva is Our Dharma. 🕉️
+            <span class="since-inline">Since 2018</span>
+          </small>
         </span>
       </a>
 
-      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
+      <button class="nav-toggle" id="navToggle" type="button"
+              aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
         <i class="fa-solid fa-bars"></i>
       </button>
 
@@ -36,251 +77,396 @@
         <a class="nav-link" data-page="index.html" href="index.html">Home</a>
         <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
         <a class="nav-link" data-page="donate.html" href="donate.html">Donate</a>
-        <a class="nav-link" data-page="rules.html" href="rules.html">Rules</a>
-        <a class="nav-link" data-page="vision.html" href="vision.html">Vision</a>
-        <a class="nav-link" data-page="contact.html" href="contact.html">Contact</a>
-        <a class="btn btn-primary" data-page="admin-login.html" href="admin-login.html">Login</a>
+
+        <div class="nav-dd" id="moreDD">
+          <button class="nav-dd-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            More <i class="fa-solid fa-chevron-down"></i>
+          </button>
+
+          <div class="nav-dd-list" id="moreList" role="menu" aria-label="More links">
+            <a class="nav-dd-link" role="menuitem" data-page="rules.html" href="rules.html">Rules</a>
+            <a class="nav-dd-link" role="menuitem" data-page="vision.html" href="vision.html">Vision</a>
+            <a class="nav-dd-link" role="menuitem" data-page="contact.html" href="contact.html">Contact</a>
+          </div>
+        </div>
       </nav>
+
+      <div class="live-pill" title="Live visitors" aria-label="Live visitors">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="liveCount" class="live-count">0</span>
+      </div>
     </div>
   </header>
 
   <main class="main">
-    <section class="hero">
-      <div class="wrap hero-inner">
-        <h1 class="hero-title">Donate</h1>
-        <p class="hero-sub">Support the community. Choose a method to donate securely.</p>
 
-        <div class="hero-note">
-          <h2 class="hero-note-title">মানবিক সহায়তায় পাশে থাকুন</h2>
-          <p class="hero-note-text">
-            আপনার সামান্য দানও কারও বড় সহায়তা হতে পারে। Loukik Sangha এর মাধ্যমে অসহায় মানুষদের চিকিৎসা,
-            শিক্ষা, দুর্যোগ সহায়তা ও জরুরি প্রয়োজনে সাহায্য পৌঁছে দেওয়া হয়।
-          </p>
-          <p class="hero-note-text">
-            Even a small contribution can create a big impact. Your donation helps us support people with medical aid,
-            education support, disaster relief, and urgent community needs—transparently and responsibly.
-          </p>
+    <section class="d-hero">
+      <div class="wrap d-hero-inner">
+
+        <div class="d-hero-grid">
+          <div class="d-hero-left">
+            <div class="d-kicker">
+              <span class="d-kicker-pill"><i class="fa-solid fa-shield-halved"></i> Verified Process</span>
+              <span class="d-kicker-pill"><i class="fa-solid fa-clipboard-check"></i> Transparent Records</span>
+            </div>
+
+            <h1 class="d-title">Donate</h1>
+            <p class="d-sub">
+              Support the community with a secure method. Submit confirmation for verification and tracking.
+            </p>
+
+            <div class="d-impact" aria-label="Impact areas">
+              <div class="d-impact-item"><i class="fa-solid fa-kit-medical"></i><span>Medical Aid</span></div>
+              <div class="d-impact-item"><i class="fa-solid fa-graduation-cap"></i><span>Education</span></div>
+              <div class="d-impact-item"><i class="fa-solid fa-cloud-bolt"></i><span>Disaster Relief</span></div>
+              <div class="d-impact-item"><i class="fa-solid fa-people-group"></i><span>Urgent Needs</span></div>
+            </div>
+
+            <div class="d-cta">
+              <a class="btn btn-primary" href="#donateForm"><i class="fa-solid fa-pen-to-square"></i> Submit Confirmation</a>
+              <a class="btn btn-soft" href="#methods"><i class="fa-solid fa-money-check-dollar"></i> View Methods</a>
+            </div>
+
+            <div class="d-note">
+              <div class="d-note-head">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+                <div>
+                  <div class="d-note-title">মানবিক সহায়তায় পাশে থাকুন</div>
+                  <div class="d-note-sub">Small help can create a big impact—responsibly & transparently.</div>
+                </div>
+              </div>
+              <p class="d-note-text">
+                আপনার সামান্য দানও কারও বড় সহায়তা হতে পারে। Loukik Sangha এর মাধ্যমে চিকিৎসা, শিক্ষা, দুর্যোগ সহায়তা ও জরুরি প্রয়োজনে সাহায্য পৌঁছে দেওয়া হয়।
+              </p>
+            </div>
+          </div>
+
+          <aside class="d-hero-right" aria-label="Quick steps">
+            <div class="d-side">
+              <div class="d-side-top">
+                <div class="d-side-ic"><i class="fa-solid fa-stopwatch"></i></div>
+                <div>
+                  <h3 class="d-side-title">Quick Steps</h3>
+                  <p class="d-side-sub">Finish in under 1 minute</p>
+                </div>
+              </div>
+
+              <ol class="d-steps">
+                <li><span class="d-step-dot"></span><div><b>Choose a method</b><small>bKash / Nagad / Rocket / Bank / Cash</small></div></li>
+                <li><span class="d-step-dot"></span><div><b>Send donation</b><small>Use reference: <b>Donation</b></small></div></li>
+                <li><span class="d-step-dot"></span><div><b>Submit confirmation</b><small>Name, phone, amount, TrxID</small></div></li>
+                <li><span class="d-step-dot"></span><div><b>Admin verifies</b><small>Gets recorded in system</small></div></li>
+              </ol>
+
+              <div class="d-side-actions">
+                <a class="btn btn-primary btn-sm" href="#donateForm"><i class="fa-solid fa-paper-plane"></i> Submit Now</a>
+                <button class="btn btn-soft btn-sm" type="button" id="copyRefText" data-copytext="Donation">
+                  <i class="fa-regular fa-copy"></i> Copy “Donation”
+                </button>
+              </div>
+
+              <div class="d-side-mini">
+                <i class="fa-solid fa-lock"></i>
+                <span>Confirmation is stored securely for verification.</span>
+              </div>
+            </div>
+          </aside>
         </div>
+
       </div>
     </section>
 
-    <section class="content">
+    <section class="d-content" id="methods">
       <div class="wrap">
-        <div class="panel">
-          <div class="panel-head">
-            <h2 class="panel-title">Donation Methods</h2>
-            <span class="pill"><i class="fa-solid fa-shield-heart"></i> Verified</span>
+        <div class="d-panel">
+
+          <div class="d-panel-head">
+            <div>
+              <h2 class="d-panel-title">Donation Methods</h2>
+              <p class="d-panel-sub">Copy number/account → choose method → submit confirmation.</p>
+            </div>
+            <span class="d-badge"><i class="fa-solid fa-badge-check"></i> Verified</span>
           </div>
 
-<!-- Donation Methods -->
-<div class="cards">
+          <div class="d-tip">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Make sure <b>method</b>, <b>amount</b>, and <b>TrxID/reference</b> match your confirmation.</span>
+          </div>
 
-  <!-- bKash -->
-  <div class="card">
-    <div class="card-top">
-      <div class="ic green"><i class="fa-solid fa-mobile-screen"></i></div>
-      <div class="card-title">
-        <h3>bKash</h3>
-        <p class="meta">Send Money to our personal number</p>
-      </div>
-    </div>
+          <div class="d-cards">
 
-    <div class="info">
-      <div class="kv"><span>Number</span><b id="bkashNumber">01868789807</b></div>
-      <div class="kv"><span>Type</span><b>Personal</b></div>
-    </div>
+            <div class="d-card" data-method="bKash">
+              <div class="d-card-top">
+                <div class="d-mark"><img src="Images/bkash.png" alt="bKash" loading="lazy"></div>
+                <div class="d-card-title">
+                  <h3>bKash</h3>
+                  <p class="d-meta">Send Money to our verified number</p>
+                </div>
+              </div>
 
-    <div class="actions">
-      <button class="btn btn-soft btn-sm" type="button" data-copy="#bkashNumber">
-        <i class="fa-regular fa-copy"></i> Copy Number
-      </button>
+              <div class="d-info">
+                <div class="d-kv"><span>Number</span><b id="bkashNumber">01868789807</b></div>
+                <div class="d-kv"><span>Type</span><b>Personal</b></div>
+                <div class="d-kv"><span>Reference</span><b>Donation</b></div>
+              </div>
 
-      <!-- just replace the phone number later -->
-      <a class="btn btn-primary btn-sm" href="tel:+8801868789807">
-        <i class="fa-solid fa-phone"></i> Call
-      </a>
-    </div>
-  </div>
-
-  <!-- Nagad -->
-  <div class="card">
-    <div class="card-top">
-      <div class="ic blue"><i class="fa-solid fa-wallet"></i></div>
-      <div class="card-title">
-        <h3>Nagad</h3>
-        <p class="meta">Send Money to our personal number</p>
-      </div>
-    </div>
-
-    <div class="info">
-      <div class="kv"><span>Number</span><b id="nagadNumber">01868789807</b></div>
-      <div class="kv"><span>Type</span><b>Personal</b></div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-soft btn-sm" type="button" data-copy="#nagadNumber">
-        <i class="fa-regular fa-copy"></i> Copy Number
-      </button>
-
-      <!-- just replace the phone number later -->
-      <a class="btn btn-primary btn-sm" href="tel:+8801868789807">
-        <i class="fa-solid fa-phone"></i> Call
-      </a>
-    </div>
-  </div>
-
-  <!-- Bank -->
-  <div class="card">
-    <div class="card-top">
-      <div class="ic green"><i class="fa-solid fa-building-columns"></i></div>
-      <div class="card-title">
-        <h3>Bank</h3>
-        <p class="meta">Direct bank transfer (use details below)</p>
-      </div>
-    </div>
-
-    <div class="info">
-      <div class="kv"><span>Account</span><b id="bankAccount">XXXXXXXXXX</b></div>
-      <div class="kv"><span>Branch</span><b>Dhaka</b></div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount">
-        <i class="fa-regular fa-copy"></i> Copy Account
-      </button>
-      <a class="btn btn-primary btn-sm" href="#bankDetails">
-        <i class="fa-solid fa-circle-info"></i> View Details
-      </a>
-    </div>
-  </div>
-
-  <!-- Cash -->
-  <div class="card">
-    <div class="card-top">
-      <div class="ic blue"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-      <div class="card-title">
-        <h3>Cash</h3>
-        <p class="meta">Submit cash with receipt entry</p>
-      </div>
-    </div>
-
-    <div class="info">
-      <div class="kv"><span>Process</span><b>Contact Admin</b></div>
-      <div class="kv"><span>Receipt</span><b>Manual entry</b></div>
-    </div>
-
-    <div class="actions">
-      <a class="btn btn-primary btn-sm" href="contact.html">
-        <i class="fa-solid fa-location-dot"></i> Contact
-      </a>
-      <!-- you will add the phone number later -->
-      <a class="btn btn-soft btn-sm" href="tel:+8801XXXXXXXXX">
-        <i class="fa-solid fa-phone"></i> Call
-      </a>
-    </div>
-  </div>
-
-</div>
-
-
-          <!-- NEW: Bank details (realistic for transfer) -->
-          <div class="bank-details" id="bankDetails">
-            <div class="bank-head">
-              <div class="bank-ic"><i class="fa-solid fa-building-columns"></i></div>
-              <div>
-                <h3 class="bank-title">Bank Transfer Details</h3>
-                <p class="bank-sub">Use these details to send money via your bank app/branch, then submit confirmation below.</p>
+              <div class="d-actions">
+                <button class="btn btn-soft btn-sm" type="button" data-copy="#bkashNumber"><i class="fa-regular fa-copy"></i> Copy</button>
+                <button class="btn btn-soft btn-sm" type="button" data-prefill="bKash"><i class="fa-solid fa-wand-magic-sparkles"></i> Use in Form</button>
+                <a class="btn btn-primary btn-sm" href="tel:+8801868789807"><i class="fa-solid fa-phone"></i> Call</a>
               </div>
             </div>
 
-            <div class="bank-grid">
-              <div class="bank-kv"><span>Bank Name</span><b id="bankName">Your Bank Name</b></div>
-              <div class="bank-kv"><span>Account Name</span><b id="bankAccName">Loukik Sangha</b></div>
-              <div class="bank-kv"><span>Account Number</span><b id="bankAccount2">XXXXXXXXXX</b></div>
-              <div class="bank-kv"><span>Branch</span><b id="bankBranch">Dhaka</b></div>
-              <div class="bank-kv"><span>Routing No</span><b id="bankRouting">XXXXXXXXX</b></div>
-              <div class="bank-kv"><span>Reference</span><b>Donation</b></div>
-            </div>
+            <div class="d-card" data-method="Nagad">
+              <div class="d-card-top">
+                <div class="d-mark"><img src="Images/nagad.png" alt="Nagad" loading="lazy"></div>
+                <div class="d-card-title">
+                  <h3>Nagad</h3>
+                  <p class="d-meta">Send Money to our verified number</p>
+                </div>
+              </div>
 
-            <div class="bank-actions">
-              <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount2">
-                <i class="fa-regular fa-copy"></i> Copy Account
-              </button>
-              <a class="btn btn-primary btn-sm" href="#donateForm">
-                <i class="fa-solid fa-pen-to-square"></i> Submit Confirmation
-              </a>
-            </div>
-          </div>
+              <div class="d-info">
+                <div class="d-kv"><span>Number</span><b id="nagadNumber">01868789807</b></div>
+                <div class="d-kv"><span>Type</span><b>Personal</b></div>
+                <div class="d-kv"><span>Reference</span><b>Donation</b></div>
+              </div>
 
-          <div class="premium">
-            <div class="premium-head">
-              <div class="premium-ic"><i class="fa-solid fa-receipt"></i></div>
-              <div>
-                <h3 class="premium-title">Donation Confirmation</h3>
-                <p class="premium-sub">Submit a confirmation so admin can verify and record your donation.</p>
+              <div class="d-actions">
+                <button class="btn btn-soft btn-sm" type="button" data-copy="#nagadNumber"><i class="fa-regular fa-copy"></i> Copy</button>
+                <button class="btn btn-soft btn-sm" type="button" data-prefill="Nagad"><i class="fa-solid fa-wand-magic-sparkles"></i> Use in Form</button>
+                <a class="btn btn-primary btn-sm" href="tel:+8801868789807"><i class="fa-solid fa-phone"></i> Call</a>
               </div>
             </div>
 
-            <form class="form" id="donateForm">
-              <div class="form-grid">
-                <div class="field">
-                  <label>Full Name</label>
-                  <input id="dName" required placeholder="Your name" />
+            <div class="d-card" data-method="Rocket">
+              <div class="d-card-top">
+                <div class="d-mark"><img src="Images/rocket.png" alt="Rocket" loading="lazy"></div>
+                <div class="d-card-title">
+                  <h3>Rocket</h3>
+                  <p class="d-meta">Send Money to our Rocket number</p>
+                </div>
+              </div>
+
+              <div class="d-info">
+                <div class="d-kv"><span>Number</span><b id="rocketNumber">01868789807</b></div>
+                <div class="d-kv"><span>Type</span><b>Personal</b></div>
+                <div class="d-kv"><span>Reference</span><b>Donation</b></div>
+              </div>
+
+              <div class="d-actions">
+                <button class="btn btn-soft btn-sm" type="button" data-copy="#rocketNumber"><i class="fa-regular fa-copy"></i> Copy</button>
+                <button class="btn btn-soft btn-sm" type="button" data-prefill="Rocket"><i class="fa-solid fa-wand-magic-sparkles"></i> Use in Form</button>
+                <a class="btn btn-primary btn-sm" href="tel:+8801868789807"><i class="fa-solid fa-phone"></i> Call</a>
+              </div>
+            </div>
+
+            <div class="d-card" data-method="Bank">
+              <div class="d-card-top">
+                <div class="d-mark"><img src="Images/bank.png" alt="Bank" loading="lazy"></div>
+                <div class="d-card-title">
+                  <h3>Bank Transfer</h3>
+                  <p class="d-meta">Direct transfer (use details below)</p>
+                </div>
+              </div>
+
+              <div class="d-info">
+                <div class="d-kv"><span>Account</span><b id="bankAccount">XXXXXXXXXX</b></div>
+                <div class="d-kv"><span>Branch</span><b>Dhaka</b></div>
+                <div class="d-kv"><span>Reference</span><b>Donation</b></div>
+              </div>
+
+              <div class="d-actions">
+                <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount"><i class="fa-regular fa-copy"></i> Copy</button>
+                <button class="btn btn-soft btn-sm" type="button" data-prefill="Bank"><i class="fa-solid fa-wand-magic-sparkles"></i> Use in Form</button>
+                <a class="btn btn-primary btn-sm" href="#bankDetails"><i class="fa-solid fa-circle-info"></i> View Details</a>
+              </div>
+            </div>
+
+            <div class="d-card" data-method="Cash">
+              <div class="d-card-top">
+                <div class="d-ic"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="d-card-title">
+                  <h3>Cash</h3>
+                  <p class="d-meta">Submit cash with receipt entry</p>
+                </div>
+              </div>
+
+              <div class="d-info">
+                <div class="d-kv"><span>Process</span><b>Contact Admin</b></div>
+                <div class="d-kv"><span>Receipt</span><b>Manual entry</b></div>
+                <div class="d-kv"><span>Reference</span><b>Donation</b></div>
+              </div>
+
+              <div class="d-actions">
+                <button class="btn btn-soft btn-sm" type="button" data-prefill="Cash"><i class="fa-solid fa-wand-magic-sparkles"></i> Use in Form</button>
+                <a class="btn btn-primary btn-sm" href="contact.html"><i class="fa-solid fa-location-dot"></i> Contact</a>
+                <a class="btn btn-soft btn-sm" href="tel:+8801XXXXXXXXX"><i class="fa-solid fa-phone"></i> Call</a>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="d-bank" id="bankDetails">
+            <div class="d-bank-head">
+              <div class="d-bank-ic"><img class="d-bank-logo" src="Images/bank.png" alt="Bank" loading="lazy"></div>
+              <div>
+                <h3 class="d-bank-title">Bank Transfer Details</h3>
+                <p class="d-bank-sub">Use these details to send money via your bank app/branch, then submit confirmation below.</p>
+              </div>
+            </div>
+
+            <div class="d-bank-grid">
+              <div class="d-bank-kv"><span>Bank Name</span><b id="bankName">Your Bank Name</b></div>
+              <div class="d-bank-kv"><span>Account Name</span><b id="bankAccName">Loukik Sangha</b></div>
+              <div class="d-bank-kv"><span>Account Number</span><b id="bankAccount2">XXXXXXXXXX</b></div>
+              <div class="d-bank-kv"><span>Branch</span><b id="bankBranch">Dhaka</b></div>
+              <div class="d-bank-kv"><span>Routing No</span><b id="bankRouting">XXXXXXXXX</b></div>
+              <div class="d-bank-kv"><span>Reference</span><b>Donation</b></div>
+            </div>
+
+            <div class="d-bank-actions">
+              <button class="btn btn-soft btn-sm" type="button" data-copy="#bankAccount2"><i class="fa-regular fa-copy"></i> Copy Account</button>
+              <a class="btn btn-primary btn-sm" href="#donateForm"><i class="fa-solid fa-pen-to-square"></i> Submit Confirmation</a>
+            </div>
+          </div>
+
+          <div class="d-confirm" id="confirm">
+            <div class="d-confirm-head">
+              <div class="d-confirm-ic"><i class="fa-solid fa-receipt"></i></div>
+              <div>
+                <h3 class="d-confirm-title">Donation Confirmation</h3>
+                <p class="d-confirm-sub">Submit confirmation for verification. You’ll get a reference ID after submission.</p>
+              </div>
+            </div>
+
+            <!-- ✅ FIX: quick amount buttons are now .d-qa-amt -->
+            <div class="d-quick" aria-label="Quick amounts">
+              <button type="button" class="d-qa-amt" data-amount="200">৳200</button>
+              <button type="button" class="d-qa-amt" data-amount="500">৳500</button>
+              <button type="button" class="d-qa-amt" data-amount="1000">৳1000</button>
+              <button type="button" class="d-qa-amt" data-amount="2000">৳2000</button>
+              <button type="button" class="d-qa-amt" data-amount="5000">৳5000</button>
+            </div>
+
+            <form class="d-form" id="donateForm" novalidate>
+              <div class="d-form-grid">
+                <div class="d-field">
+                  <label for="dName">Full Name</label>
+                  <input id="dName" required placeholder="Your name" autocomplete="name" />
                 </div>
 
-                <div class="field">
-                  <label>Phone</label>
-                  <input id="dPhone" required placeholder="01XXXXXXXXX" />
+                <div class="d-field">
+                  <label for="dPhone">Phone</label>
+                  <input id="dPhone" required placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" />
                 </div>
 
-                <div class="field">
-                  <label>Method</label>
+                <div class="d-field">
+                  <label for="dMethod">Method</label>
                   <select id="dMethod" required>
                     <option value="">Select method</option>
                     <option>bKash</option>
                     <option>Nagad</option>
+                    <option>Rocket</option>
                     <option>Bank</option>
                     <option>Cash</option>
                   </select>
                 </div>
 
-                <div class="field">
-                  <label>Amount (৳)</label>
+                <div class="d-field">
+                  <label for="dAmount">Amount (৳)</label>
                   <input id="dAmount" type="number" min="1" required placeholder="e.g. 500" />
                 </div>
 
-                <div class="field">
-                  <label>Transaction ID (TrxID)</label>
-                  <input id="dTrx" required placeholder="e.g. 9A7B... (from payment app)" />
+                <div class="d-field">
+                  <label for="dTrx">Transaction ID / Reference</label>
+                  <input id="dTrx" required placeholder="TrxID / reference from payment app" />
                 </div>
 
-                <div class="field">
-                  <label>Message (Optional)</label>
+                <div class="d-field">
+                  <label for="dMsg">Message (Optional)</label>
                   <input id="dMsg" placeholder="Purpose / note (optional)" />
+                </div>
+
+                <div class="d-field d-wide" id="extraWrap" hidden>
+                  <div class="d-extra">
+                    <div class="d-extra-head">
+                      <i class="fa-solid fa-circle-info"></i>
+                      <div>
+                        <div class="d-extra-title">Extra Details</div>
+                        <div class="d-extra-sub" id="extraHint">Provide additional info for faster verification.</div>
+                      </div>
+                    </div>
+
+                    <div class="d-extra-grid">
+                      <div class="d-field">
+                        <label for="dSender">Sender Number / Account (Optional)</label>
+                        <input id="dSender" placeholder="01XXXXXXXXX / account" />
+                      </div>
+                      <div class="d-field">
+                        <label for="dDate">Payment Date (Optional)</label>
+                        <input id="dDate" type="date" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Submit Confirmation</button>
+              <div class="d-form-actions">
+                <button class="btn btn-primary" type="submit" id="submitBtn"><i class="fa-solid fa-paper-plane"></i> Submit Confirmation</button>
                 <button class="btn btn-soft" type="button" id="clearBtn"><i class="fa-solid fa-rotate-left"></i> Clear</button>
               </div>
 
-              <p class="hint" id="formMsg"></p>
+              <p class="d-hint" id="formMsg"></p>
+
+              <div class="d-refbox" id="refBox" hidden>
+                <div class="d-ref-left">
+                  <i class="fa-solid fa-check-circle"></i>
+                  <div>
+                    <div class="d-ref-title">Submitted</div>
+                    <div class="d-ref-sub">Reference: <b id="refId">—</b></div>
+                  </div>
+                </div>
+                <button class="btn btn-soft btn-sm" type="button" data-copy="#refId"><i class="fa-regular fa-copy"></i> Copy Ref</button>
+              </div>
             </form>
           </div>
 
-          <div class="note">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>After payment, submit confirmation (name, phone, amount, TrxID). Admin will verify and update records.</span>
+          <div class="d-faq">
+            <div class="d-faq-head">
+              <h3 class="d-faq-title">Donation Help & Trust</h3>
+              <p class="d-faq-sub">Clear answers to common questions</p>
+            </div>
+
+            <details class="d-faq-item">
+              <summary>How is my donation verified?</summary>
+              <div class="d-qa-body">Submit confirmation after payment. Admin checks transaction/reference and records it as verified.</div>
+            </details>
+
+            <details class="d-faq-item">
+              <summary>What should I write as reference?</summary>
+              <div class="d-qa-body">Use <b>Donation</b>. If your payment app requires a note, write “Donation” or “Loukik Sangha Donation”.</div>
+            </details>
+
+            <details class="d-faq-item">
+              <summary>When will it be updated?</summary>
+              <div class="d-qa-body">Usually within a short time after verification. Keep your TrxID/reference correct for faster processing.</div>
+            </details>
           </div>
+
+          <div class="d-last">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>After payment, submit confirmation (name, phone, method, amount, TrxID/reference). Admin will verify and update records.</span>
+          </div>
+
         </div>
       </div>
     </section>
+
   </main>
 
   <footer class="footer">
     <div class="wrap footer-grid">
-
       <div class="f-col">
         <div class="f-brand">
           <img class="f-logo" src="Images/logo.png" alt="Loukik Sangha Logo">
@@ -317,6 +503,7 @@
         <a class="f-link" href="terms.html">Terms & Conditions</a>
         <a class="f-link" href="contact.html">Contact</a>
       </div>
+
       <div class="f-col">
         <h3 class="f-title">Contact</h3>
         <p class="f-text">Email: info@loukiksangha.org</p>
@@ -327,14 +514,22 @@
 
     <div class="wrap f-bottom">
       <div class="f-line"></div>
-      <div class="f-copy">
-        © <span id="year"></span> Loukik Sangha. All rights reserved.
+
+      <!-- ✅ Copy in middle + Dev right -->
+      <div class="f-bottom-row">
+        <div></div>
+        <div class="f-copy">
+          © <span id="year"></span> Loukik Sangha. All rights reserved.
+        </div>
+        <div class="f-dev">
+          Developed by <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">Emon Shil</a>
+        </div>
       </div>
     </div>
   </footer>
 
-<script type="module" src="donate.js"></script>
+  <div class="d-toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+  <script type="module" src="donate.js?v=20260212"></script>
+</body>
 </html>
-
-
