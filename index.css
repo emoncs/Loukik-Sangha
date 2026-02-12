@@ -1372,6 +1372,30 @@ button{ font:inherit; }
   .live-pill{ gap:6px; padding:6px 9px; }
   .live-count{ font-size:12px; min-width:16px; }
 }
+/* Touch devices: hover disable + dropdown inline accordion */
+@media (hover: none) and (pointer: coarse){
+  /* hover দিয়ে dropdown show করা বন্ধ */
+  .nav-dd:hover .nav-dd-list{ display:none; }
+
+  /* dropdown list inline */
+  .nav-dd-list{
+    position: static;
+    display: none;
+    width: 100%;
+    min-width: unset;
+    margin-top: 8px;
+    box-shadow: none;
+    background: rgba(2,6,23,.02);
+  }
+
+  /* open করলে দেখাবে */
+  .nav-dd.is-open .nav-dd-list{ display:block; }
+
+  /* mobile menu এ underline বার remove (optional but recommended) */
+  .nav-link::after,
+  .nav-dd-btn::after,
+  .nav-dd-link::after{ display:none; }
+}
 
 /* =========================================
    REDUCED MOTION
@@ -1648,3 +1672,4 @@ html[data-theme="dark"] .calc-out{
   60%{ left:120%; }
   100%{ left:120%; }
 }
+
