@@ -20,46 +20,89 @@ initNavbarAuthUI();
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   /* =========================
-     Theme Toggle (kept)
-     (NAV-related kichu nai)
+     ✅ Theme Toggle (FULL + FIXED)
+     - shared-ui.js এর theme লাগবে না
+     - CSS selector mismatch fix:
+       -> html[data-theme="dark"] used (primary)
+       -> legacy support: html.dark + body.dark optional
+     - storage key unified: ls_theme (new), fallback: theme (old)
   ========================= */
   const themeBtn = $("#themeToggle") || $(".theme-toggle");
   const root = document.documentElement;
 
+  const LS_KEY = "ls_theme"; // new
+  const OLD_KEY = "theme";   // your old key
+
+  const systemTheme = () =>
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+
   const applyTheme = (mode) => {
-    const isDark = mode === "dark";
+    const m = (mode === "system" || !mode) ? systemTheme() : mode;
+    const isDark = m === "dark";
+
+    // ✅ Primary (recommended): CSS should use html[data-theme="dark"]
+    root.dataset.theme = m;
+    root.style.colorScheme = m;
+
+    // ✅ Legacy support (if your CSS uses .dark)
     root.classList.toggle("dark", isDark);
     document.body.classList.toggle("dark", isDark);
-    try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch {}
+
+    // persist
+    try {
+      localStorage.setItem(LS_KEY, m);
+      // keep old key in sync (optional)
+      localStorage.setItem(OLD_KEY, m);
+    } catch {}
   };
 
   const getSavedTheme = () => {
-    try { return localStorage.getItem("theme"); } catch { return null; }
+    try {
+      // prefer new key, fallback to old
+      return localStorage.getItem(LS_KEY) || localStorage.getItem(OLD_KEY);
+    } catch {
+      return null;
+    }
   };
 
   const initTheme = () => {
     const saved = getSavedTheme();
-    if (saved === "dark" || saved === "light") return applyTheme(saved);
-
-    const prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    applyTheme(prefersDark ? "dark" : "light");
+    if (saved === "dark" || saved === "light" || saved === "system") {
+      applyTheme(saved);
+      return;
+    }
+    applyTheme("system");
   };
 
   initTheme();
+
+  // ✅ If user changes OS theme and user chose "system"
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener?.("change", () => {
+      const saved = getSavedTheme();
+      if (!saved || saved === "system") applyTheme("system");
+    });
+  }
 
   if (themeBtn && themeBtn.dataset.bound !== "1") {
     themeBtn.dataset.bound = "1";
     themeBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      const isDarkNow = root.classList.contains("dark") || document.body.classList.contains("dark");
-      applyTheme(isDarkNow ? "light" : "dark");
+
+      // detect current from dataset first
+      const current = root.dataset.theme || (root.classList.contains("dark") ? "dark" : "light");
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
     });
   }
 
   /* =========================================================
      ✅ NOTE:
      Mobile NAV Toggle / More dropdown logic REMOVED from here.
-     (তুমি nav.js-এ রেখেছো)
+     (তুমি shared-ui.js এ রেখেছো)
   ========================================================= */
 
   /* =========================
