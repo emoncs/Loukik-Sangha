@@ -152,3 +152,56 @@ export function requireAdminGuard() {
     });
   });
 }
+// ✅ Theme toggle (single source of truth)
+export function initThemeToggle() {
+  // prevent double binding
+  if (window.__ls_theme_bound) return;
+  window.__ls_theme_bound = true;
+
+  const root = document.documentElement; // <html>
+  const btn = document.getElementById("themeToggle");
+  const STORAGE_KEY = "ls_theme"; // "light" | "dark" | "system"
+
+  const systemTheme = () =>
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+
+  const applyTheme = (mode) => {
+    const m = (mode === "system" || !mode) ? systemTheme() : mode;
+
+    // ✅ CSS should read this
+    root.dataset.theme = m;     // html[data-theme="dark"]
+    root.style.colorScheme = m; // nicer inputs/scrollbars
+
+    // optional icon swap
+    if (btn) {
+      btn.setAttribute("aria-label", `Theme: ${m}`);
+      btn.classList.toggle("is-dark", m === "dark");
+    }
+  };
+
+  // initial
+  const saved = localStorage.getItem(STORAGE_KEY) || "system";
+  applyTheme(saved);
+
+  // click toggle
+  if (btn) {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const current = root.dataset.theme || systemTheme();
+      const next = current === "dark" ? "light" : "dark";
+      localStorage.setItem(STORAGE_KEY, next);
+      applyTheme(next);
+    });
+  }
+
+  // system change support (only if user chose system)
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener?.("change", () => {
+      const now = localStorage.getItem(STORAGE_KEY) || "system";
+      if (now === "system") applyTheme("system");
+    });
+  }
+}
