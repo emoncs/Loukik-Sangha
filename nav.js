@@ -1,86 +1,190 @@
-/* nav.js — Mobile menu fix (guaranteed) */
-(function () {
+/* nav.js — Universal Navbar Controller (All Pages)
+   ✅ Mobile + Desktop
+   ✅ No blur/backdrop
+   ✅ Theme toggle + icon sync (localStorage)
+   ✅ Active nav highlight
+   ✅ Idempotent (no double-binding)
+*/
+
+(() => {
+  const $ = (s, p = document) => p.querySelector(s);
+
+  const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
+
+  /* =========================
+     Theme
+  ========================= */
+  function initTheme() {
+    const root = document.documentElement;
+    const btn = $("#themeToggle");
+    const icon = $("#themeIcon");
+
+    if (!btn) return;
+
+    if (btn.dataset.boundTheme === "1") return;
+    btn.dataset.boundTheme = "1";
+
+    const KEY = "ls_theme"; // "dark" | "light"
+
+    const apply = (mode) => {
+      const m = mode === "dark" ? "dark" : "light";
+      root.setAttribute("data-theme", m);
+
+      try { localStorage.setItem(KEY, m); } catch {}
+
+      if (icon) {
+        // ✅ dark হলে sun দেখাবে, light হলে moon
+        icon.className = m === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+      }
+      btn.setAttribute("aria-pressed", m === "dark" ? "true" : "false");
+    };
+
+    const getInitial = () => {
+      try {
+        const saved = localStorage.getItem(KEY);
+        if (saved === "dark" || saved === "light") return saved;
+      } catch {}
+
+      try {
+        const prefersDark =
+          window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        return prefersDark ? "dark" : "light";
+      } catch {
+        return "light";
+      }
+    };
+
+    apply(getInitial());
+
+    btn.addEventListener("click", () => {
+      const cur = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      apply(cur === "dark" ? "light" : "dark");
+    });
+  }
+
+  /* =========================
+     Active Nav Highlight
+  ========================= */
+  function initActiveNav() {
+    const current = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    document.querySelectorAll("[data-page]").forEach((a) => {
+      const page = (a.getAttribute("data-page") || "").toLowerCase();
+      if (page === current) a.classList.add("active");
+      else a.classList.remove("active");
+    });
+  }
+
+  /* =========================
+     Mobile Nav + Dropdown
+  ========================= */
   function initNav() {
-    const btn  = document.getElementById("navToggle");
-    const menu = document.getElementById("navMenu");
-    if (!btn || !menu) return false;
+    const navToggle = $("#navToggle");
+    const navMenu = $("#navMenu");
+
+    const dd = $("#moreDD") || $(".nav-dd");
+    const ddBtn = $("#moreBtn") || dd?.querySelector(".nav-dd-btn");
+
+    if (!navToggle || !navMenu) return;
 
     // prevent double-binding
-    if (btn.dataset.bound === "1") return true;
-    btn.dataset.bound = "1";
+    if (navToggle.dataset.boundNav === "1") return;
+    navToggle.dataset.boundNav = "1";
 
-    const setExpanded = (v) => btn.setAttribute("aria-expanded", v ? "true" : "false");
+    const setExpanded = (open) => navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+    const closeDropdown = () => {
+      dd?.classList.remove("is-open");
+      ddBtn?.setAttribute("aria-expanded", "false");
+    };
 
     const openMenu = () => {
-      menu.classList.add("open");
-      // fallback (if CSS fails)
-      menu.style.display = "flex";
+      navMenu.classList.add("open");
       setExpanded(true);
+      // ✅ only scroll lock on mobile
+      if (isMobile()) document.body.style.overflow = "hidden";
     };
 
     const closeMenu = () => {
-      menu.classList.remove("open");
-      // fallback for mobile where CSS uses display:none
-      if (window.innerWidth <= 860) menu.style.display = "none";
-      else menu.style.display = "";
+      navMenu.classList.remove("open");
       setExpanded(false);
+      closeDropdown();
+      document.body.style.overflow = "";
     };
 
-    const toggleMenu = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (menu.classList.contains("open")) closeMenu();
+    const toggleMenu = () => {
+      const open = navMenu.classList.contains("open");
+      if (open) closeMenu();
       else openMenu();
     };
 
-    // click + touch support
-    btn.addEventListener("click", toggleMenu, { passive: false });
-    btn.addEventListener("touchstart", toggleMenu, { passive: false });
+    // Hamburger click
+    navToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu();
+    });
 
-    // click outside closes
+    // Dropdown click toggle (mobile only)
+    ddBtn?.addEventListener("click", (e) => {
+      if (!isMobile()) return; // desktop: hover/focus handles
+      e.preventDefault();
+      e.stopPropagation();
+      const open = dd.classList.toggle("is-open");
+      ddBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    // Click outside closes (only if menu open)
     document.addEventListener("click", (e) => {
-      if (!menu.classList.contains("open")) return;
-      if (menu.contains(e.target) || btn.contains(e.target)) return;
-      closeMenu();
+      if (!navMenu.classList.contains("open")) return;
+
+      const insideMenu = e.target.closest("#navMenu");
+      const insideToggle = e.target.closest("#navToggle");
+
+      if (!insideMenu && !insideToggle) closeMenu();
     });
 
-    // link click closes
-    menu.addEventListener("click", (e) => {
-      const a = e.target.closest && e.target.closest("a");
-      if (a) closeMenu();
+    // Click link closes (mobile)
+    navMenu.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      if (isMobile()) closeMenu();
     });
 
-    // resize → reset
+    // ESC closes
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMenu();
+    });
+
+    // Resize: close when switching to desktop
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 860) {
-        menu.style.display = ""; // desktop layout
-        menu.classList.remove("open");
+      if (!isMobile()) {
+        // reset
+        document.body.style.overflow = "";
+        navMenu.classList.remove("open");
         setExpanded(false);
-      } else {
-        if (!menu.classList.contains("open")) menu.style.display = "none";
+        closeDropdown();
       }
     });
+  }
 
-    // init correct state
-    if (window.innerWidth <= 860) {
-      if (!menu.classList.contains("open")) menu.style.display = "none";
-      setExpanded(false);
-    }
-
-    // footer year
+  /* =========================
+     Footer Year
+  ========================= */
+  function initYear() {
     const y = document.getElementById("year");
     if (y) y.textContent = new Date().getFullYear();
-
-    return true;
   }
 
-  // Try now
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initNav);
-  } else {
+  function boot() {
+    initTheme();
+    initActiveNav();
     initNav();
+    initYear();
   }
 
-  // Extra retry (in case something loads late)
-  setTimeout(initNav, 300);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
 })();
