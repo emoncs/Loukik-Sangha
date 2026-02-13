@@ -6,23 +6,29 @@
   <meta name="robots" content="index,follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="googlef95ab0717272e7fa.html">
+
   <title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
 
-  <link rel="stylesheet" href="index.css?v=20260211_final_navdrop_search_live" />
+  <link rel="stylesheet" href="index.css?v=20260213_premium_nav" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="Images/logo.webp">
   <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.webp">
   <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.webp">
 
-  <script type="module" src="index.js?v=20260211_fundopen"></script>
+  <!-- ✅ Keep your existing scripts -->
+  <script type="module" src="index.js?v=20260213_premium_nav" defer></script>
   <script src="features.js?v=20260210" defer></script>
-  <script type="module" src="live-visitors.js?v=20260210_99"></script>
+  <script type="module" src="live-visitors.js?v=20260210_99" defer></script>
+  <script src="nav.js?v=1" defer></script>
 </head>
+
 <body>
 
   <header class="topbar">
     <div class="wrap nav-inner">
+
       <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
         <span class="brand-logo">
           <img src="Images/logo.webp" alt="Loukik Sangha Logo">
@@ -36,18 +42,21 @@
         </span>
       </a>
 
+      <!-- ✅ Mobile toggle -->
       <button class="nav-toggle" id="navToggle" type="button"
               aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
         <i class="fa-solid fa-bars"></i>
       </button>
 
+      <!-- ✅ Menu -->
       <nav class="menu" id="navMenu" aria-label="Main Navigation">
         <a class="nav-link" data-page="index.html" href="index.html">Home</a>
         <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
         <a class="nav-link" data-page="donate.html" href="donate.html">Donate us</a>
 
-        <div class="nav-dd">
-          <button class="nav-dd-btn" type="button" aria-haspopup="true" aria-expanded="false">
+        <!-- ✅ Dropdown (HTML is here) -->
+        <div class="nav-dd" id="moreDD">
+          <button class="nav-dd-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false">
             More <i class="fa-solid fa-chevron-down"></i>
           </button>
           <div class="nav-dd-list" role="menu" aria-label="More links">
@@ -56,10 +65,12 @@
             <a class="nav-dd-link" role="menuitem" data-page="contact.html" href="contact.html">Contact</a>
           </div>
         </div>
-      <div class="live-pill" title="Live visitors" aria-label="Live visitors">
-        <span class="live-dot" aria-hidden="true"></span>
-        <span id="liveCount" class="live-count">0</span>
-      </div>
+
+        <div class="live-pill" title="Live visitors" aria-label="Live visitors">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span id="liveCount" class="live-count">0</span>
+        </div>
+
         <button class="theme-toggle icon-only" id="themeToggle" type="button" aria-label="Toggle theme">
           <i id="themeIcon" class="fa-solid fa-moon"></i>
         </button>
@@ -79,6 +90,7 @@
       </div>
     </div>
   </div>
+
   <main class="main">
     <section class="hero">
       <div class="wrap hero-inner">
@@ -477,17 +489,221 @@
 
         <div class="f-dev">
           Developed by
-          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
-            Emon Shil
-          </a>
+          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">Emon Shil</a>
         </div>
       </div>
     </div>
   </footer>
+<!-- =========================
+     🌟 Welcome Donation Popup
+========================= -->
+<div class="welcome-pop" id="welcomePop" aria-hidden="true">
+  <div class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
 
+    <button class="welcome-close" id="welcomeClose" type="button" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div class="welcome-top">
+      <img src="Images/logo.webp" alt="Loukik Sangha Logo" class="welcome-logo">
+      <h3 id="welcomeTitle">Welcome to Loukik Sangha 🕉️</h3>
+    </div>
+
+    <p class="welcome-text">
+      Seva is our Dharma. আপনার ছোট্ট সহায়তাই আমাদের সমাজকে আরও শক্তিশালী করে।
+    </p>
+
+
+    <div class="welcome-actions">
+      <a class="welcome-btn donate" href="donate.html">
+        <i class="fa-solid fa-hand-holding-heart"></i>
+        Donate Now
+      </a>
+      <button class="welcome-btn later" id="welcomeLater" type="button">
+        Maybe Later
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  const pop = document.getElementById("welcomePop");
+  const closeBtn = document.getElementById("welcomeClose");
+  const laterBtn = document.getElementById("welcomeLater");
+
+  if (!pop) return;
+
+  const open = () => {
+    pop.classList.add("open");
+    pop.setAttribute("aria-hidden", "false");
+    document.body.classList.add("no-scroll");
+  };
+
+  const close = () => {
+    pop.classList.remove("open");
+    pop.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("no-scroll");
+  };
+
+  // Always show on every visit
+  window.addEventListener("load", () => {
+    setTimeout(open, 300);
+  });
+
+  closeBtn?.addEventListener("click", close);
+  laterBtn?.addEventListener("click", close);
+
+  pop.addEventListener("click", (e) => {
+    if (e.target === pop) close();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+})();
+</script>
+<!-- =========================
+   Loukik Sangha Messenger (Ultra Clean Production Version)
+   No plugin required • No whitelist needed • Works everywhere
+========================= -->
+
+<a href="https://m.me/106972091717321"
+   target="_blank"
+   rel="noopener"
+   class="ls-messenger-btn"
+   id="lsMessengerBtn">
+
+  <span class="ls-msg-icon">
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none">
+      <path d="M24 4C12.95 4 4 12.05 4 21.98c0 5.66 2.91 10.7 7.47 14.01V44l7.15-3.92c1.7.47 3.5.73 5.38.73 11.05 0 20-8.05 20-17.98C44 12.05 35.05 4 24 4Z" fill="white"/>
+      <path d="M14.6 28.7 20.8 18.9c.55-.88 1.74-1.12 2.59-.52l4.1 2.9c.33.23.76.23 1.09.01l5.52-4.2c.73-.55 1.74.3 1.25 1.08l-6.2 9.8c-.55.88-1.74 1.12-2.59.52l-4.1-2.9c-.33-.23-.76-.23-1.09-.01l-5.52 4.2c-.73.55-1.74-.3-1.25-1.08Z" fill="#2563eb"/>
+    </svg>
+  </span>
+
+  <span class="ls-msg-text">
+    <b>Chat Now</b>
+    <small>Messenger</small>
+  </span>
+
+</a>
+
+<div class="ls-msg-tooltip" id="lsMsgTooltip">
+  <span class="dot"></span>
+  <div>
+    <b>সাহায্য লাগবে?</b>
+    <small>এখনই মেসেজ করুন</small>
+  </div>
+  <button id="lsMsgClose">✕</button>
+</div>
+
+<style>
+:root{
+  --ls-dark:#0b1220;
+  --ls-blue:#1d4ed8;
+  --ls-cyan:#06b6d4;
+}
+
+/* Floating Button */
+.ls-messenger-btn{
+  position:fixed;
+  right:18px;
+  bottom:20px;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  border-radius:18px;
+  text-decoration:none;
+  background:linear-gradient(135deg,var(--ls-dark),var(--ls-blue),var(--ls-cyan));
+  color:#eef6ff;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  transition:.2s ease;
+}
+.ls-messenger-btn:hover{
+  transform:translateY(-2px);
+}
+.ls-msg-icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:rgba(255,255,255,.15);
+}
+.ls-msg-text b{
+  font-size:14px;
+  font-weight:900;
+}
+.ls-msg-text small{
+  display:block;
+  font-size:12px;
+  opacity:.9;
+}
+
+/* Tooltip */
+.ls-msg-tooltip{
+  position:fixed;
+  right:18px;
+  bottom:90px;
+  background:linear-gradient(135deg,var(--ls-dark),var(--ls-blue),var(--ls-cyan));
+  color:#eef6ff;
+  padding:10px 14px;
+  border-radius:16px;
+  display:none;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 18px 40px rgba(0,0,0,.25);
+  transform:translateY(10px);
+  opacity:0;
+  transition:.3s ease;
+  z-index:99999;
+}
+.ls-msg-tooltip.show{
+  display:flex;
+  transform:translateY(0);
+  opacity:1;
+}
+.ls-msg-tooltip .dot{
+  width:8px;
+  height:8px;
+  background:#22c55e;
+  border-radius:50%;
+  box-shadow:0 0 0 5px rgba(34,197,94,.2);
+}
+.ls-msg-tooltip button{
+  background:rgba(255,255,255,.2);
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+  padding:4px 8px;
+  font-weight:700;
+}
+
+/* Mobile Adjust */
+@media(max-width:480px){
+  .ls-messenger-btn{right:12px;bottom:14px;}
+  .ls-msg-tooltip{right:12px;bottom:80px;}
+}
+</style>
+
+<script>
+(function(){
+  const tooltip=document.getElementById("lsMsgTooltip");
+  const closeBtn=document.getElementById("lsMsgClose");
+
+  setTimeout(()=>{
+    tooltip.classList.add("show");
+  },1500);
+
+  closeBtn.addEventListener("click",(e)=>{
+    e.preventDefault();
+    tooltip.classList.remove("show");
+  });
+})();
+</script>
 </body>
 </html>
-
-
-
-
