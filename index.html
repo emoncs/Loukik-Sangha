@@ -484,9 +484,90 @@
       </div>
     </div>
   </footer>
+<div id="welcomePopup" style="
+    display: flex; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; 
+    top: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    background-color: rgba(0,0,0,0.85); 
+    align-items: center; 
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);">
 
+    <div style="
+        background-color: #ffffff; 
+        padding: 40px 20px; 
+        border-radius: 20px; 
+        text-align: center; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        width: 85%;
+        max-width: 350px;
+        position: relative;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        animation: fadeIn 0.3s ease-out;">
+
+        <h2 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 24px;">
+            Welcome to <br>Loukik Sangha
+        </h2>
+        
+        <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 30px;">
+            Thank you for visiting us. Support our mission today.
+        </p>
+        
+        <a href="donate.html" style="
+            background-color: #e91e63; 
+            color: #ffffff; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            display: block;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            transition: transform 0.2s;">
+            Donate Now
+        </a>
+
+        <button onclick="closePopup()" style="
+            background: none; 
+            border: none; 
+            color: #999; 
+            text-decoration: none; 
+            cursor: pointer; 
+            margin-top: 20px;
+            font-size: 14px;
+            letter-spacing: 1px;">
+            NOT NOW
+        </button>
+    </div>
+</div>
+
+<style>
+    /* Smooth entry animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+
+<script>
+    // Logic to close the popup
+    function closePopup() {
+        document.getElementById('welcomePopup').style.display = 'none';
+    }
+
+    // Force show on every refresh (default behavior)
+    window.onload = function() {
+        document.getElementById('welcomePopup').style.display = 'flex';
+    };
+</script>
 </body>
 </html>
+
 
 
 
