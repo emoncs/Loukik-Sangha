@@ -6,29 +6,23 @@
   <meta name="robots" content="index,follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="googlef95ab0717272e7fa.html">
-
   <title>Loukik Sangha | Hindu Community Welfare & Charity Organization</title>
 
-  <link rel="stylesheet" href="index.css?v=20260213_premium_nav" />
+  <link rel="stylesheet" href="index.css?v=20260211_final_navdrop_search_live" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="Images/logo.webp">
   <link rel="icon" type="image/png" sizes="16x16" href="Images/logo.webp">
   <link rel="apple-touch-icon" sizes="180x180" href="Images/logo.webp">
 
-  <!-- ✅ Keep your existing scripts -->
-  <script type="module" src="index.js?v=20260213_premium_nav" defer></script>
+  <script type="module" src="index.js?v=20260211_fundopen"></script>
   <script src="features.js?v=20260210" defer></script>
-  <script type="module" src="live-visitors.js?v=20260210_99" defer></script>
-  <script src="nav.js?v=1" defer></script>
+  <script type="module" src="live-visitors.js?v=20260210_99"></script>
 </head>
-
 <body>
 
   <header class="topbar">
     <div class="wrap nav-inner">
-
       <a class="brand" href="index.html" aria-label="Loukik Sangha Home">
         <span class="brand-logo">
           <img src="Images/logo.webp" alt="Loukik Sangha Logo">
@@ -42,21 +36,18 @@
         </span>
       </a>
 
-      <!-- ✅ Mobile toggle -->
       <button class="nav-toggle" id="navToggle" type="button"
               aria-label="Toggle menu" aria-controls="navMenu" aria-expanded="false">
         <i class="fa-solid fa-bars"></i>
       </button>
 
-      <!-- ✅ Menu -->
       <nav class="menu" id="navMenu" aria-label="Main Navigation">
         <a class="nav-link" data-page="index.html" href="index.html">Home</a>
         <a class="nav-link" data-page="member-search.html" href="member-search.html">Members</a>
         <a class="nav-link" data-page="donate.html" href="donate.html">Donate us</a>
 
-        <!-- ✅ Dropdown (HTML is here) -->
-        <div class="nav-dd" id="moreDD">
-          <button class="nav-dd-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false">
+        <div class="nav-dd">
+          <button class="nav-dd-btn" type="button" aria-haspopup="true" aria-expanded="false">
             More <i class="fa-solid fa-chevron-down"></i>
           </button>
           <div class="nav-dd-list" role="menu" aria-label="More links">
@@ -65,12 +56,10 @@
             <a class="nav-dd-link" role="menuitem" data-page="contact.html" href="contact.html">Contact</a>
           </div>
         </div>
-
-        <div class="live-pill" title="Live visitors" aria-label="Live visitors">
-          <span class="live-dot" aria-hidden="true"></span>
-          <span id="liveCount" class="live-count">0</span>
-        </div>
-
+      <div class="live-pill" title="Live visitors" aria-label="Live visitors">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="liveCount" class="live-count">0</span>
+      </div>
         <button class="theme-toggle icon-only" id="themeToggle" type="button" aria-label="Toggle theme">
           <i id="themeIcon" class="fa-solid fa-moon"></i>
         </button>
@@ -90,7 +79,6 @@
       </div>
     </div>
   </div>
-
   <main class="main">
     <section class="hero">
       <div class="wrap hero-inner">
@@ -489,82 +477,17 @@
 
         <div class="f-dev">
           Developed by
-          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">Emon Shil</a>
+          <a href="https://emoncs.vercel.app/" target="_blank" rel="noopener">
+            Emon Shil
+          </a>
         </div>
       </div>
     </div>
   </footer>
-<!-- =========================
-     🌟 Welcome Donation Popup
-========================= -->
-<div class="welcome-pop" id="welcomePop" aria-hidden="true">
-  <div class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
-
-    <button class="welcome-close" id="welcomeClose" type="button" aria-label="Close">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-
-    <div class="welcome-top">
-      <img src="Images/logo.webp" alt="Loukik Sangha Logo" class="welcome-logo">
-      <h3 id="welcomeTitle">Welcome to Loukik Sangha 🕉️</h3>
-    </div>
-
-    <p class="welcome-text">
-      Seva is our Dharma. আপনার ছোট্ট সহায়তাই আমাদের সমাজকে আরও শক্তিশালী করে।
-    </p>
-
-
-    <div class="welcome-actions">
-      <a class="welcome-btn donate" href="donate.html">
-        <i class="fa-solid fa-hand-holding-heart"></i>
-        Donate Now
-      </a>
-      <button class="welcome-btn later" id="welcomeLater" type="button">
-        Maybe Later
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<script>
-(() => {
-  const pop = document.getElementById("welcomePop");
-  const closeBtn = document.getElementById("welcomeClose");
-  const laterBtn = document.getElementById("welcomeLater");
-
-  if (!pop) return;
-
-  const open = () => {
-    pop.classList.add("open");
-    pop.setAttribute("aria-hidden", "false");
-    document.body.classList.add("no-scroll");
-  };
-
-  const close = () => {
-    pop.classList.remove("open");
-    pop.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("no-scroll");
-  };
-
-  // Always show on every visit
-  window.addEventListener("load", () => {
-    setTimeout(open, 300);
-  });
-
-  closeBtn?.addEventListener("click", close);
-  laterBtn?.addEventListener("click", close);
-
-  pop.addEventListener("click", (e) => {
-    if (e.target === pop) close();
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
-  });
-})();
-</script>
 
 </body>
 </html>
+
+
+
 
