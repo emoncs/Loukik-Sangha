@@ -20,96 +20,6 @@ const $ = (s, p = document) => p.querySelector(s);
   if (year) year.textContent = new Date().getFullYear();
 })();
 
-/* =========================
-   ✅ Theme Toggle (FULL + FIXED in this file)
-   - primary: html[data-theme="dark"|"light"]
-   - legacy: html.dark + body.dark (if your CSS uses .dark)
-   - storage: ls_theme (new) + theme (old fallback)
-========================= */
-(() => {
-  const themeBtn = $("#themeToggle") || $(".theme-toggle");
-  const root = document.documentElement;
-
-  const LS_KEY = "ls_theme"; // new key (recommended)
-  const OLD_KEY = "theme";   // old key (your previous)
-
-  const systemTheme = () =>
-    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-
-  const getSaved = () => {
-    try {
-      return localStorage.getItem(LS_KEY) || localStorage.getItem(OLD_KEY) || "";
-    } catch {
-      return "";
-    }
-  };
-
-  const setSaved = (mode) => {
-    try {
-      localStorage.setItem(LS_KEY, mode);
-      localStorage.setItem(OLD_KEY, mode); // keep old in sync
-    } catch {}
-  };
-
-  const applyTheme = (mode) => {
-    const m = (mode === "system" || !mode) ? systemTheme() : mode;
-    const isDark = m === "dark";
-
-    // ✅ primary selector
-    root.dataset.theme = m;        // html[data-theme="dark"]
-    root.style.colorScheme = m;    // better UI consistency
-
-    // ✅ legacy support (only if your CSS uses .dark)
-    root.classList.toggle("dark", isDark);
-    document.body.classList.toggle("dark", isDark);
-
-    if (themeBtn) {
-      themeBtn.setAttribute("aria-label", `Theme: ${m}`);
-      themeBtn.classList.toggle("is-dark", isDark);
-    }
-  };
-
-  // init
-  const saved = getSaved();
-  if (saved === "dark" || saved === "light" || saved === "system") applyTheme(saved);
-  else applyTheme("system");
-
-  // click toggle (dark <-> light)
-  if (themeBtn && themeBtn.dataset.bound !== "1") {
-    themeBtn.dataset.bound = "1";
-    themeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      const current =
-        root.dataset.theme ||
-        (root.classList.contains("dark") || document.body.classList.contains("dark") ? "dark" : "light");
-
-      const next = current === "dark" ? "light" : "dark";
-      setSaved(next);
-      applyTheme(next);
-    });
-  }
-
-  // system changes only when user chose system or not set
-  if (window.matchMedia) {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener?.("change", () => {
-      const now = getSaved();
-      if (!now || now === "system") applyTheme("system");
-    });
-  }
-})();
-
-const prefersReducedMotion = (() => {
-  try {
-    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  } catch {
-    return false;
-  }
-})();
-
 const animState = new WeakMap();
 
 function toNumber(v) {
@@ -509,3 +419,4 @@ window.addEventListener("DOMContentLoaded", () => {
     ddBtn?.setAttribute("aria-expanded", "false");
   });
 })();
+
