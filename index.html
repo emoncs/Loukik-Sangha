@@ -492,71 +492,68 @@
     top: 0; 
     width: 100vw; 
     height: 100vh; 
-    background-color: rgba(0,0,0,0.75); 
+    background-color: rgba(0,0,0,0.8); 
     align-items: center; 
     justify-content: center;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);">
 
     <div style="
-        background: linear-gradient(145deg, #ffffff, #f9f4e8); 
-        padding: 40px 30px; 
+        background: #ffffff; 
+        padding: 45px 25px 30px 25px; 
         border-radius: 25px; 
         text-align: center; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
-        width: 85%;
-        max-width: 380px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5); 
+        width: 88%;
+        max-width: 360px;
         position: relative;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        animation: premiumShow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        font-family: 'Poppins', sans-serif;
+        animation: premiumShow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
 
         <div style="
-            width: 100px; 
-            height: 100px; 
-            margin: -90px auto 20px auto; 
+            width: 90px; 
+            height: 90px; 
+            margin: -85px auto 15px auto; 
             background: white; 
             border-radius: 50%; 
             padding: 5px; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            border: 3px solid #d4af37;"> <img src="Images/logo.webp" alt="Loukik Sangha" style="
-                width: 100%; 
-                height: 100%; 
-                object-fit: contain; 
-                border-radius: 50%;">
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border: 3px solid #d4af37;">
+            <img src="Images/logo.webp" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
         </div>
 
-        <h2 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">
+        <h2 style="color: #1a1a1a; margin: 0; font-size: 24px; font-weight: 700;">
             Welcome to <br><span style="color: #d4af37;">Loukik Sangha</span>
         </h2>
 
-        <div style="width: 50px; height: 2px; background: #d4af37; margin: 15px auto;"></div>
+        <div style="width: 40px; height: 2px; background: #eee; margin: 15px auto;"></div>
         
-        <p style="color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 30px;">
-            Thank you for visiting us. Your support empowers our community initiatives.
+        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 25px;">
+            Your generosity powers our community projects. Every contribution matters.
         </p>
         
-        <a href="donate.html" style="
-            background: linear-gradient(to right, #d4af37, #b8860b); 
+        <a href="donate.html" class="rainbow-btn" style="
+            background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd1de8, #ff2400);
+            background-size: 1800% 1800%;
             color: #ffffff; 
             padding: 16px 0; 
             text-decoration: none; 
             border-radius: 12px; 
-            font-weight: 600; 
+            font-weight: bold; 
             display: block;
             font-size: 18px;
-            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
-            transition: all 0.3s ease;">
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: rainbowAnimation 8s ease infinite;">
             Donate Now
         </a>
 
         <button onclick="closePopup()" style="
             background: none; 
             border: none; 
-            color: #888; 
+            color: #aaa; 
             cursor: pointer; 
             margin-top: 20px;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;">
             Close
@@ -565,17 +562,24 @@
 </div>
 
 <style>
-    /* Premium Scale-in Animation */
-    @keyframes premiumShow {
-        0% { opacity: 0; transform: translateY(30px) scale(0.9); }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
+    /* Rainbow Flow Animation */
+    @keyframes rainbowAnimation {
+        0% { background-position: 0% 82%; }
+        50% { background-position: 100% 19%; }
+        100% { background-position: 0% 82%; }
     }
 
-    /* Subtle hover effect for the button */
-    a[href="donate.html"]:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(184, 134, 11, 0.6);
+    /* Modal Entry */
+    @keyframes premiumShow {
+        from { opacity: 0; transform: scale(0.8) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Slight hover for interaction */
+    .rainbow-btn:hover {
+        transform: scale(1.03);
         filter: brightness(1.1);
+        transition: 0.3s;
     }
 </style>
 
@@ -583,14 +587,10 @@
     function closePopup() {
         document.getElementById('welcomePopup').style.display = 'none';
     }
-    
-    // Ensures visibility on every refresh
-    window.onload = function() {
-        document.getElementById('welcomePopup').style.display = 'flex';
-    };
 </script>
 </body>
 </html>
+
 
 
 
