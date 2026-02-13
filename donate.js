@@ -5,9 +5,8 @@
 // ✅ Quick amounts fixed
 // ✅ Copy buttons fixed
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { db as sharedDb, authReady } from "./firebase.js";
 import {
-  getFirestore,
   collection,
   addDoc,
   serverTimestamp
@@ -82,9 +81,8 @@ import {
 
   const setMenuTop = () => {
     if (!navMenu || !topbar) return;
-    // ensure menu opens below the sticky topbar height (dynamic)
     const h = Math.round(topbar.getBoundingClientRect().height || 72);
-    navMenu.style.top = `${h + 10}px`; // a little gap
+    navMenu.style.top = `${h + 10}px`;
   };
 
   const openMenu = () => {
@@ -124,7 +122,6 @@ import {
       if (window.innerWidth > 860) closeMenu();
     });
 
-    // ESC closes menu
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeMenu();
     });
@@ -153,7 +150,7 @@ import {
 
   if (moreDD && moreBtn) {
     moreBtn.addEventListener("click", (e) => {
-      if (!isMobile()) return; // desktop hover uses CSS
+      if (!isMobile()) return;
       e.preventDefault();
       e.stopPropagation();
       toggleMore();
@@ -237,31 +234,6 @@ import {
   });
 
   /* =========================
-     Firebase init (safe)
-  ========================= */
-  let db = null;
-  let firebaseReady = false;
-
-  try {
-    const firebaseConfig = {
-      apiKey: "AIzaSyAmJYe6zJ_yDS9kvKKBHyLIZdAJogl-ER0",
-      authDomain: "loukik-sangha-7df0c.firebaseapp.com",
-      projectId: "loukik-sangha-7df0c",
-      storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
-      messagingSenderId: "913283407503",
-      // ✅ IMPORTANT: put your real appId here, otherwise Firebase throws error
-      appId: "REPLACE_WITH_YOUR_APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    firebaseReady = true;
-  } catch (err) {
-    console.warn("Firebase init failed (UI still works):", err);
-    firebaseReady = false;
-  }
-
-  /* =========================
      Form submit
   ========================= */
   const form = $("#donateForm");
@@ -283,10 +255,16 @@ import {
     submitBtn.style.opacity = busy ? ".75" : "1";
   };
 
-  // If firebase not ready, disable submit (but everything else works)
+  // ✅ Use shared db from firebase.js
+  let db = sharedDb;
+  let firebaseReady = !!db;
+
+  // Messenger/in-app safe: wait persistence setup (doesn't block Firestore, but helps stability)
+  Promise.resolve(authReady).catch(() => {});
+
   if (submitBtn && !firebaseReady) {
     submitBtn.disabled = true;
-    setMsg("Submission is disabled: Firebase appId missing/invalid. Fix appId to enable form.", false);
+    setMsg("Submission is disabled: Firebase not ready. Check firebase.js path/import.", false);
   }
 
   clearBtn?.addEventListener("click", () => {
@@ -308,7 +286,7 @@ import {
 
     if (!firebaseReady || !db) {
       toast("Firebase not ready");
-      setMsg("Firebase not ready. Please fix appId in firebaseConfig.", false);
+      setMsg("Firebase not ready. Please check firebase.js config/import.", false);
       return;
     }
 
