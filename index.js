@@ -1,5 +1,4 @@
 // index.js  (home page)
-// ✅ shared-ui.js থেকে theme system বাদ দিয়ে এখানে full theme toggle রাখা হলো
 import { initNavbarAuthUI } from "./shared-ui.js";
 import { db } from "./firebase.js";
 import {
@@ -18,6 +17,14 @@ const $ = (s, p = document) => p.querySelector(s);
 (() => {
   const year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
+})();
+
+const prefersReducedMotion = (() => {
+  try {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
 })();
 
 const animState = new WeakMap();
@@ -419,4 +426,3 @@ window.addEventListener("DOMContentLoaded", () => {
     ddBtn?.setAttribute("aria-expanded", "false");
   });
 })();
-
