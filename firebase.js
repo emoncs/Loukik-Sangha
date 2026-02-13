@@ -13,23 +13,18 @@ const firebaseConfig = {
   apiKey: "AIzaSyAmJYe6zJ_yDS9kvKKBHyLIZdAJogl-ER0",
   authDomain: "loukik-sangha-7df0c.firebaseapp.com",
   projectId: "loukik-sangha-7df0c",
-
-  // ✅ Recommended canonical bucket format
-  storageBucket: "loukik-sangha-7df0c.appspot.com",
-
+  storageBucket: "loukik-sangha-7df0c.firebasestorage.app",
   messagingSenderId: "913283407503",
   appId: "1:913283407503:web:1a2d75baf3024af9e81afa",
-
-  // (optional) only needed if you actually use RTDB somewhere
   databaseURL: "https://loukik-sangha-7df0c-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 export const ADMIN_EMAIL = "emonshil2@gmail.com";
 
-// ✅ export app so other modules can import it
+// ✅ same: export app so other modules can import it
 export const app = initializeApp(firebaseConfig);
 
-// ✅ Messenger/In-app browser safe auth init
+// ✅ FIX: Messenger/In-app browser safe auth init
 export const auth = getAuth(app);
 
 /**
@@ -40,7 +35,7 @@ export const auth = getAuth(app);
 async function setBestPersistence() {
   const tries = [
     indexedDBLocalPersistence,      // best (works in most browsers)
-    browserLocalPersistence,        // old one
+    browserLocalPersistence,        // your old one
     browserSessionPersistence,      // fallback
     inMemoryPersistence             // last fallback (still works per session)
   ];
