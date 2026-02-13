@@ -1,155 +1,28 @@
-
+// member-search.js
 import { initNavbarAuthUI } from "./shared-ui.js";
-import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 initNavbarAuthUI();
-// ===============================
-// FIX: Mobile Nav Toggle + Dark Theme Toggle
-// (No other logic changes)
-// ===============================
-// ✅ HARD NAV FIX: remove duplicate listeners + bind once (mobile safe)
-(() => {
-  const $ = (s, p = document) => p.querySelector(s);
-
-  const toggle = $("#navToggle");
-  const menu = $("#navMenu");
-
-  if (!toggle || !menu) return;
-
-  // ---- 1) Remove ALL previous listeners by cloning nodes ----
-  const newToggle = toggle.cloneNode(true);
-  toggle.parentNode.replaceChild(newToggle, toggle);
-
-  const newMenu = menu.cloneNode(true);
-  menu.parentNode.replaceChild(newMenu, menu);
-
-  // ---- 2) Bind our only listener ----
-  const closeMenu = () => {
-    newMenu.classList.remove("open");
-    newToggle.setAttribute("aria-expanded", "false");
-  };
-
-  const openMenu = () => {
-    newMenu.classList.add("open");
-    newToggle.setAttribute("aria-expanded", "true");
-  };
-
-  const toggleMenu = () => {
-    newMenu.classList.contains("open") ? closeMenu() : openMenu();
-  };
-
-  // ✅ Use CAPTURE + stopImmediatePropagation to kill other handlers
-  newToggle.addEventListener(
-    "click",
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
-      toggleMenu();
-    },
-    true
-  );
-
-  // outside click close (capture)
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (!newMenu.classList.contains("open")) return;
-      const t = e.target;
-      if (newMenu.contains(t) || newToggle.contains(t)) return;
-      closeMenu();
-    },
-    true
-  );
-
-  // esc close
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
-
-  // link click close
-  newMenu.addEventListener("click", (e) => {
-    const a = e.target.closest("a");
-    if (a) closeMenu();
-  });
-})();
 
 (() => {
   const $ = (s, p = document) => p.querySelector(s);
 
- (() => {
-  const $ = (s, p = document) => p.querySelector(s);
+  /* =========================
+     Footer Year
+  ========================= */
+  const yearEl = $("#year");
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  const navToggle = $("#navToggle");
-  const navMenu = $("#navMenu");
-
-  if (navToggle && navMenu && navToggle.dataset.bound !== "1") {
-    navToggle.dataset.bound = "1";
-
-    const closeMenu = () => {
-      navMenu.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
-    };
-
-    const openMenu = () => {
-      navMenu.classList.add("open");
-      navToggle.setAttribute("aria-expanded", "true");
-    };
-
-    const toggleMenu = () => {
-      navMenu.classList.contains("open") ? closeMenu() : openMenu();
-    };
-
-    // ✅ IMPORTANT: stopPropagation + pointerdown
-    navToggle.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleMenu();
-    });
-
-    // close on outside tap/click
-    document.addEventListener("pointerdown", (e) => {
-      if (!navMenu.classList.contains("open")) return;
-      const t = e.target;
-      if (navMenu.contains(t) || navToggle.contains(t)) return;
-      closeMenu();
-    });
-
-    // close on Esc
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMenu();
-    });
-
-    // close when clicking a link
-    navMenu.addEventListener("click", (e) => {
-      const a = e.target.closest("a");
-      if (a) closeMenu();
-    });
-  }
-
-  // Mobile "More" dropdown (keep yours, but pointerdown safer)
-  const dd = $(".nav-dd");
-  const ddBtn = $(".nav-dd-btn");
-  if (dd && ddBtn && ddBtn.dataset.bound !== "1") {
-    ddBtn.dataset.bound = "1";
-    ddBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dd.classList.toggle("is-open");
-    });
-    document.addEventListener("pointerdown", (e) => {
-      if (!dd.classList.contains("is-open")) return;
-      if (dd.contains(e.target)) return;
-      dd.classList.remove("is-open");
-    });
-  }
-
-  // theme part (যেমন আছে তেমন রাখবে)
-})();
-
-
-  // ---------- Dark Theme ----------
+  /* =========================
+     Theme Toggle (kept)
+     (NAV-related kichu nai)
+  ========================= */
   const themeBtn = $("#themeToggle") || $(".theme-toggle");
   const root = document.documentElement;
 
@@ -167,7 +40,7 @@ initNavbarAuthUI();
   const initTheme = () => {
     const saved = getSavedTheme();
     if (saved === "dark" || saved === "light") return applyTheme(saved);
-    // fallback to system preference
+
     const prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
     applyTheme(prefersDark ? "dark" : "light");
   };
@@ -182,14 +55,16 @@ initNavbarAuthUI();
       applyTheme(isDarkNow ? "light" : "dark");
     });
   }
-})();
 
-(() => {
-  const $ = (s, p = document) => p.querySelector(s);
+  /* =========================================================
+     ✅ NOTE:
+     Mobile NAV Toggle / More dropdown logic REMOVED from here.
+     (তুমি nav.js-এ রেখেছো)
+  ========================================================= */
 
-  const yearEl = $("#year");
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
-
+  /* =========================
+     Member Search + Join + Insights
+  ========================= */
   const input = $("#q");
   const btn = $("#searchBtn");
   const countEl = $("#count");
