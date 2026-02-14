@@ -161,6 +161,12 @@
 
       </div>
     </section>
+<!-- =========================
+     DAILY GITA (Playlist Loop)
+     Put files:
+     audio/01.mp3, audio/02.mp3 ... (each <25MB)
+     captions/gita-bn.vtt (one file)
+========================= -->
 <section class="gita-player-section" id="daily-gita">
   <div class="gita-player-card">
 
@@ -171,8 +177,9 @@
 
     <!-- Hidden native controls; we use custom UI -->
     <audio id="gitaAudio" preload="metadata" crossorigin="anonymous">
-      <source src="audio/full-gita.mp3" type="audio/mpeg">
-      <!-- CC Track (WebVTT) -->
+      <!-- ✅ source id added so JS can swap tracks -->
+      <source id="gitaSource" src="" type="audio/mpeg">
+      <!-- ✅ one CC track (same for all parts) -->
       <track id="gitaTrack" kind="subtitles" srclang="bn" label="Bangla UCCHARON" src="captions/gita-bn.vtt" default>
     </audio>
 
@@ -180,8 +187,8 @@
       <!-- Left: Play/Pause + time -->
       <div class="gita-controls">
         <button class="gita-btn" id="btnPlay" type="button" aria-label="Play/Pause">
-  <span class="gita-btn-icon" id="btnIcon">▶</span>
-</button>
+          <span class="gita-btn-icon" id="btnIcon">▶</span>
+        </button>
 
         <div class="gita-time">
           <span id="curTime">0:00</span>
@@ -194,6 +201,13 @@
           <span></span><span></span><span></span><span></span><span></span>
           <span></span><span></span><span></span><span></span><span></span>
         </div>
+      </div>
+
+      <!-- ✅ Playlist row (small, fits your design) -->
+      <div class="gita-playlist">
+        <button class="gita-mini" id="btnPrevTrack" type="button" aria-label="Previous">⟵</button>
+        <select class="gita-select" id="gitaSelect" aria-label="Select part"></select>
+        <button class="gita-mini" id="btnNextTrack" type="button" aria-label="Next">⟶</button>
       </div>
 
       <!-- Progress bar (seek) -->
@@ -210,7 +224,7 @@
         </div>
 
         <div class="cc-body" id="ccText">
-          <span class="cc-muted">CC is loading……</span>
+          <span class="cc-muted">CC is loading…</span>
         </div>
       </div>
     </div>
@@ -747,6 +761,7 @@
 </script>
 </body>
 </html>
+
 
 
 
