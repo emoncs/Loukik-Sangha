@@ -426,3 +426,265 @@ window.addEventListener("DOMContentLoaded", () => {
     ddBtn?.setAttribute("aria-expanded", "false");
   });
 })();
+(() => {
+  const imgs = [...document.querySelectorAll("img.ritual-rotator")];
+  if (!imgs.length) return;
+
+  const parseList = (el) => {
+    const raw = (el.dataset.images || "").trim();
+    const list = raw.split(",").map(s => s.trim()).filter(Boolean);
+    // যদি data-images না দাও, fallback হিসেবে src একাই থাকবে
+    return list.length ? list : [el.getAttribute("src")];
+  };
+
+  imgs.forEach((img, idx) => {
+    const list = parseList(img);
+    if (list.length < 2) return;
+
+    let i = 0;
+    const baseDelay = 2200;          // প্রতি ইমেজ 2.2s
+    const stagger = (idx % 6) * 250; // সব কার্ড একসাথে না বদলানোর জন্য slight offset
+
+    setTimeout(() => {
+      setInterval(() => {
+        i = (i + 1) % list.length;
+
+        img.classList.add("is-fading");
+        setTimeout(() => {
+          img.src = list[i];
+          img.classList.remove("is-fading");
+        }, 420);
+
+      }, baseDelay + 300);
+    }, stagger);
+  });
+})();
+(() => {
+  const audio = document.getElementById("gitaAudio");
+  const trackEl = document.getElementById("gitaTrack");
+
+  const btnPlay = document.getElementById("btnPlay");
+  const btnIcon = document.getElementById("btnIcon");
+  const curTimeEl = document.getElementById("curTime");
+  const durTimeEl = document.getElementById("durTime");
+
+  const seekBar = document.getElementById("seekBar");
+  const seekFill = document.getElementById("seekFill");
+  const seekKnob = document.getElementById("seekKnob");
+
+  const ccText = document.getElementById("ccText");
+  const ccToggle = document.getElementById("ccToggle");
+  const ccBox = document.querySelector(".gita-cc");
+
+  const eqBars = [...document.querySelectorAll(".gita-eq span")];
+
+  if (!audio) return;
+
+  // ---------- Helpers ----------
+  const fmt = (sec) => {
+    if (!isFinite(sec)) return "0:00";
+    sec = Math.max(0, Math.floor(sec));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  };
+
+  const setSeekUI = () => {
+    const d = audio.duration || 0;
+    const t = audio.currentTime || 0;
+    const pct = d ? (t / d) * 100 : 0;
+    seekFill.style.width = `${pct}%`;
+    seekKnob.style.left = `${pct}%`;
+    seekBar.setAttribute("aria-valuenow", String(Math.round(pct)));
+    curTimeEl.textContent = fmt(t);
+    durTimeEl.textContent = fmt(d);
+  };
+
+  // ---------- CC (WebVTT cues) ----------
+  let cuesBound = false;
+  function bindCues() {
+    try {
+      const tt = audio.textTracks?.[0];
+      if (!tt) return;
+      tt.mode = "hidden"; // we render ourselves
+      if (cuesBound) return;
+      cuesBound = true;
+
+      const renderCue = () => {
+        const cue = tt.activeCues && tt.activeCues[0];
+        ccText.innerHTML = cue
+          ? cue.text.replace(/\n/g, "<br>")
+          : `<span class="cc-muted">…</span>`;
+      };
+
+      tt.addEventListener("cuechange", renderCue);
+      renderCue();
+    } catch {
+      ccText.innerHTML = `<span class="cc-muted">CC লোড হয়নি (VTT check করো)</span>`;
+    }
+  }
+
+  audio.addEventListener("loadedmetadata", () => {
+    setSeekUI();
+    bindCues();
+  });
+
+  // ---------- Play/Pause + EQ ----------
+  const ensureAudioContext = (() => {
+    let ctx, analyser, src, data;
+    return () => {
+      if (ctx) return { ctx, analyser, data };
+
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      data = new Uint8Array(analyser.frequencyBinCount);
+
+      // connect (media -> analyser -> speakers)
+      src = ctx.createMediaElementSource(audio);
+      src.connect(analyser);
+      analyser.connect(ctx.destination);
+
+      return { ctx, analyser, data };
+    };
+  })();
+
+  function setBtn(isPlaying) {
+    btnIcon.textContent = isPlaying ? "⏸" : "▶";
+  }
+
+  // ---------- Ripple helper ----------
+  function addRipple(e) {
+    if (!btnPlay) return;
+
+    const r = document.createElement("span");
+    r.className = "ripple";
+
+    const rect = btnPlay.getBoundingClientRect();
+    const clientX =
+      (e?.touches && e.touches[0]?.clientX) ??
+      (e?.changedTouches && e.changedTouches[0]?.clientX) ??
+      e?.clientX ??
+      (rect.left + rect.width / 2);
+
+    const clientY =
+      (e?.touches && e.touches[0]?.clientY) ??
+      (e?.changedTouches && e.changedTouches[0]?.clientY) ??
+      e?.clientY ??
+      (rect.top + rect.height / 2);
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    r.style.left = `${x}px`;
+    r.style.top = `${y}px`;
+
+    btnPlay.appendChild(r);
+    setTimeout(() => r.remove(), 650);
+  }
+
+  // IMPORTANT: replace old click handler with this one (ripple + play/pause)
+  btnPlay.addEventListener("click", async (e) => {
+    addRipple(e);
+
+    if (audio.paused) {
+      // resume audio context if needed (required by browsers)
+      const { ctx } = ensureAudioContext();
+      if (ctx.state === "suspended") await ctx.resume();
+
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener("play", () => setBtn(true));
+  audio.addEventListener("pause", () => setBtn(false));
+  audio.addEventListener("ended", () => setBtn(false));
+
+  // ---------- Seek / Drag ----------
+  let dragging = false;
+
+  const seekToClientX = (clientX) => {
+    const rect = seekBar.getBoundingClientRect();
+    const x = Math.min(rect.right, Math.max(rect.left, clientX));
+    const pct = (x - rect.left) / rect.width;
+    if (audio.duration) audio.currentTime = pct * audio.duration;
+    setSeekUI();
+  };
+
+  const onDown = (e) => {
+    dragging = true;
+    seekToClientX(e.touches ? e.touches[0].clientX : e.clientX);
+  };
+  const onMove = (e) => {
+    if (!dragging) return;
+    seekToClientX(e.touches ? e.touches[0].clientX : e.clientX);
+  };
+  const onUp = () => {
+    dragging = false;
+  };
+
+  seekBar.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+
+  seekBar.addEventListener("touchstart", onDown, { passive: true });
+  window.addEventListener("touchmove", onMove, { passive: true });
+  window.addEventListener("touchend", onUp);
+
+  // keyboard seek
+  seekBar.addEventListener("keydown", (e) => {
+    if (!audio.duration) return;
+    const step = 5; // seconds
+    if (e.key === "ArrowRight") audio.currentTime = Math.min(audio.duration, audio.currentTime + step);
+    if (e.key === "ArrowLeft") audio.currentTime = Math.max(0, audio.currentTime - step);
+    setSeekUI();
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    if (!dragging) setSeekUI();
+  });
+
+  // ---------- EQ animation (real-time analyser) ----------
+  function tickEQ() {
+    const { analyser, data } = ensureAudioContext();
+    analyser.getByteFrequencyData(data);
+
+    const binsPerBar = Math.floor(data.length / eqBars.length) || 1;
+
+    eqBars.forEach((bar, i) => {
+      const start = i * binsPerBar;
+      let sum = 0;
+      for (let j = 0; j < binsPerBar; j++) sum += data[start + j] || 0;
+      const avg = sum / binsPerBar; // 0..255
+      const scale = 0.5 + (avg / 255) * 1.6; // 0.5..2.1
+      bar.style.transform = `scaleY(${scale.toFixed(2)})`;
+    });
+
+    requestAnimationFrame(tickEQ);
+  }
+  requestAnimationFrame(tickEQ);
+
+  // ---------- CC toggle ----------
+  ccToggle.addEventListener("click", () => {
+    const hidden = ccBox.dataset.hidden === "1";
+    ccBox.dataset.hidden = hidden ? "0" : "1";
+    ccToggle.textContent = hidden ? "Hide" : "Show";
+    ccBox.querySelector(".cc-body").style.display = hidden ? "block" : "none";
+  });
+
+  // ---------- Auto play Gita only once per day (best-effort) ----------
+  const today = new Date().toDateString();
+  const last = localStorage.getItem("gitaAutoPlayed");
+  if (last !== today) {
+    audio
+      .play()
+      .then(() => {
+        localStorage.setItem("gitaAutoPlayed", today);
+      })
+      .catch(() => {
+        // blocked — user will press play manually; set only after successful play
+      });
+  }
+})();
