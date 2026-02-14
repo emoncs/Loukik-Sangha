@@ -161,6 +161,147 @@
 
       </div>
     </section>
+<section class="gita-player-section" id="daily-gita">
+  <div class="gita-player-card">
+
+    <div class="gita-top">
+      <span class="gita-chip">📖 Bhagavad Gita</span>
+      <h3 class="gita-title">Daily Gita Recitation</h3>
+      <p class="gita-sub">শুনুন, থামান, টেনে টেনে শুনুন—সবই এক জায়গায়।</p>
+    </div>
+
+    <!-- Hidden native controls; we use custom UI -->
+    <audio id="gitaAudio" preload="metadata" crossorigin="anonymous">
+      <source src="audio/full-gita.mp3" type="audio/mpeg">
+      <!-- CC Track (WebVTT) -->
+      <track id="gitaTrack" kind="subtitles" srclang="bn" label="Bangla UCCHARON" src="captions/gita-bn.vtt" default>
+    </audio>
+
+    <div class="gita-ui">
+      <!-- Left: Play/Pause + time -->
+      <div class="gita-controls">
+        <button class="gita-btn" id="btnPlay" type="button" aria-label="Play/Pause">
+  <span class="gita-btn-icon" id="btnIcon">▶</span>
+</button>
+
+        <div class="gita-time">
+          <span id="curTime">0:00</span>
+          <span class="dot">•</span>
+          <span id="durTime">0:00</span>
+        </div>
+
+        <!-- Right: EQ -->
+        <div class="gita-eq" aria-hidden="true" title="Equalizer">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Progress bar (seek) -->
+      <div class="gita-bar" id="seekBar" role="slider" aria-label="Seek bar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <div class="gita-bar-fill" id="seekFill"></div>
+        <div class="gita-bar-knob" id="seekKnob"></div>
+      </div>
+
+      <!-- CC Panel -->
+      <div class="gita-cc">
+        <div class="cc-head">
+          <span>CC — বাংলা উচ্চারণ</span>
+          <button class="cc-toggle" id="ccToggle" type="button">Hide</button>
+        </div>
+
+        <div class="cc-body" id="ccText">
+          <span class="cc-muted">CC লোড হচ্ছে…</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="ritual-activities" id="daily-rituals">
+  <div class="container">
+    <div class="section-head">
+      <h2>Daily Rituals</h2>
+      <p>Simple daily spiritual practices for every member.</p>
+    </div>
+
+    <div class="ritual-grid">
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/morning.jpg"
+               data-images="Images/morning.jpg,Images/morning2.jpg,Images/morning3.jpg"
+               alt="Morning Ritual">
+        </div>
+        <div class="ritual-content">
+          <h3>Morning Puja</h3>
+          <p>Offer water to Surya, chant Gayatri mantra and begin your day with devotion.</p>
+        </div>
+      </div>
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/puja1.jpg"
+               data-images="Images/puja1.jpg,Images/puja2.jpg,Images/puja3.jpg"
+               alt="Puja Kit">
+        </div>
+        <div class="ritual-content">
+          <h3>Daily Puja Kit</h3>
+          <p>Diya, incense, flowers, water, fruits and prayer book for regular home worship.</p>
+        </div>
+      </div>
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/evening1.jpg"
+               data-images="Images/evening1.jpg,Images/evening2.jpg,Images/evening3.jpg"
+               alt="Evening Aarti">
+        </div>
+        <div class="ritual-content">
+          <h3>Evening Aarti</h3>
+          <p>Light the lamp, ring the bell and sing bhajans for peace and positivity.</p>
+        </div>
+      </div>
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/japa1.jpg"
+               data-images="Images/japa1.jpg,Images/japa2.jpg,Images/japa3.jpg"
+               alt="Japa Meditation">
+        </div>
+        <div class="ritual-content">
+          <h3>Japa & Meditation</h3>
+          <p>Chant your mantra 108 times daily and maintain a calm, focused mind.</p>
+        </div>
+      </div>
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/gita.jpg"
+               data-images="Images/gita.jpg,Images/ved.jpg,Images/upanishad.jpg"
+               alt="Scripture Reading">
+        </div>
+        <div class="ritual-content">
+          <h3>Scripture Reading</h3>
+          <p>Read Gita/Ramayana daily to build discipline and spiritual clarity.</p>
+        </div>
+      </div>
+
+      <div class="ritual-box">
+        <div class="ritual-img">
+          <img class="ritual-rotator" src="Images/krishna.jpg"
+               data-images="Images/krishna.jpg,Images/shiv.jpg,Images/ram.jpg"
+               alt="avatar/god">
+        </div>
+        <div class="ritual-content">
+          <h3>Saguna Brahman</h3>
+          <p>The Infinite takes a perceivable form so that devotees may worship, love, and serve with faith. It reflects the aspect of God that responds to prayer, blesses with kindness, and guides the community with divine light.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
     <section class="donation-tools">
       <div class="wrap">
@@ -607,6 +748,7 @@
 </script>
 </body>
 </html>
+
 
 
 
