@@ -101,6 +101,7 @@
     grid-template-columns: 1fr;
   }
 }
+/* ======= YOUR EXISTING CSS (UNCHANGED) ======= */
 .gita-player-section{
   padding: 56px 0;
   background: radial-gradient(circle at top, #fff6db, #f6f8fc);
@@ -247,7 +248,6 @@
   font-size: 13px;
   min-width: 120px;
 }
-
 .gita-time .dot{ color:#94a3b8; }
 
 .gita-eq{
@@ -337,5 +337,31 @@
   .gita-player-card{ border-radius: 16px; }
   .gita-ui{ padding: 12px 14px 16px; }
   .gita-time{ min-width: 0; }
-  .gita-eq{ display:none; } /* small screens clean look */
+  .gita-eq{ display:none; }
+}
+
+/* ======= Added: playlist row styling (small) ======= */
+.gita-playlist{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top: 10px;
+  flex-wrap:wrap;
+}
+.gita-select{
+  padding:10px 12px;
+  border:1px solid rgba(15,23,42,.14);
+  border-radius:12px;
+  outline:none;
+  min-width: 220px;
+  background:#fff;
+  font-weight:800;
+}
+.gita-mini{
+  padding:10px 12px;
+  border:1px solid rgba(15,23,42,.14);
+  border-radius:12px;
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
 }
