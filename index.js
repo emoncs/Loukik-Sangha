@@ -461,6 +461,7 @@ window.addEventListener("DOMContentLoaded", () => {
 })();
 (() => {
   const audio = document.getElementById("gitaAudio");
+  const sourceEl = document.getElementById("gitaSource");
   const trackEl = document.getElementById("gitaTrack");
 
   const btnPlay = document.getElementById("btnPlay");
@@ -478,7 +479,43 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const eqBars = [...document.querySelectorAll(".gita-eq span")];
 
+  // Playlist UI
+  const sel = document.getElementById("gitaSelect");
+  const btnPrevTrack = document.getElementById("btnPrevTrack");
+  const btnNextTrack = document.getElementById("btnNextTrack");
+
   if (!audio) return;
+
+  /* =========================
+     ✅ PLAYLIST CONFIG
+     Upload your files like:
+     audio/01.mp3, audio/02.mp3, ...
+  ========================== */
+  const AUDIO_BASE = "audio/";
+  const TOTAL_PARTS = 18;     // <-- শুধু এটা change করো (তোমার ফাইল কয়টা)
+  const EXT = ".mp3";
+
+  // One CC file (same for all parts)
+  const ONE_VTT = "captions/gita-bn.vtt";
+
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  const tracks = Array.from({ length: TOTAL_PARTS }, (_, i) => {
+    const n = i + 1;
+    return {
+      n,
+      title: `Part ${pad2(n)}`,
+      src: AUDIO_BASE + pad2(n) + EXT,
+      vtt: ONE_VTT
+    };
+  });
+
+  let trackIndex = 0;
+  const TRACK_KEY = "gitaTrackIndex";
+  const savedIdx = Number(localStorage.getItem(TRACK_KEY));
+  if (!Number.isNaN(savedIdx) && savedIdx >= 0 && savedIdx < tracks.length) {
+    trackIndex = savedIdx;
+  }
 
   // ---------- Helpers ----------
   const fmt = (sec) => {
@@ -500,13 +537,17 @@ window.addEventListener("DOMContentLoaded", () => {
     durTimeEl.textContent = fmt(d);
   };
 
+  function setBtn(isPlaying) {
+    btnIcon.textContent = isPlaying ? "⏸" : "▶";
+  }
+
   // ---------- CC (WebVTT cues) ----------
   let cuesBound = false;
   function bindCues() {
     try {
       const tt = audio.textTracks?.[0];
       if (!tt) return;
-      tt.mode = "hidden"; // we render ourselves
+      tt.mode = "hidden";
       if (cuesBound) return;
       cuesBound = true;
 
@@ -524,10 +565,48 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  audio.addEventListener("loadedmetadata", () => {
+  // ---------- Playlist load/switch ----------
+  function loadTrack(i, autoplay = false) {
+    trackIndex = (i + tracks.length) % tracks.length; // ✅ loop
+    localStorage.setItem(TRACK_KEY, String(trackIndex));
+
+    const t = tracks[trackIndex];
+
+    if (sel) sel.value = String(trackIndex);
+
+    if (sourceEl) sourceEl.src = t.src;
+    else audio.src = t.src;
+
+    if (trackEl) {
+      trackEl.src = t.vtt;
+      trackEl.default = true;
+    }
+
+    cuesBound = false;
+    ccText.innerHTML = `<span class="cc-muted">CC লোড হচ্ছে…</span>`;
+
+    audio.load();
     setSeekUI();
     bindCues();
-  });
+
+    if (autoplay) audio.play().catch(() => {});
+  }
+
+  function playNext() { loadTrack(trackIndex + 1, true); }
+  function playPrev() { loadTrack(trackIndex - 1, true); }
+
+  // Build dropdown
+  if (sel) {
+    sel.innerHTML = tracks.map((t, i) =>
+      `<option value="${i}">${pad2(i + 1)} — ${t.title}</option>`
+    ).join("");
+    sel.addEventListener("change", () => loadTrack(Number(sel.value), true));
+  }
+  if (btnPrevTrack) btnPrevTrack.addEventListener("click", playPrev);
+  if (btnNextTrack) btnNextTrack.addEventListener("click", playNext);
+
+  // Load initial
+  loadTrack(trackIndex, false);
 
   // ---------- Play/Pause + EQ ----------
   const ensureAudioContext = (() => {
@@ -540,7 +619,6 @@ window.addEventListener("DOMContentLoaded", () => {
       analyser.fftSize = 256;
       data = new Uint8Array(analyser.frequencyBinCount);
 
-      // connect (media -> analyser -> speakers)
       src = ctx.createMediaElementSource(audio);
       src.connect(analyser);
       analyser.connect(ctx.destination);
@@ -549,18 +627,12 @@ window.addEventListener("DOMContentLoaded", () => {
     };
   })();
 
-  function setBtn(isPlaying) {
-    btnIcon.textContent = isPlaying ? "⏸" : "▶";
-  }
-
-  // ---------- Ripple helper ----------
+  // Ripple helper
   function addRipple(e) {
-    if (!btnPlay) return;
-
     const r = document.createElement("span");
     r.className = "ripple";
-
     const rect = btnPlay.getBoundingClientRect();
+
     const clientX =
       (e?.touches && e.touches[0]?.clientX) ??
       (e?.changedTouches && e.changedTouches[0]?.clientX) ??
@@ -573,25 +645,19 @@ window.addEventListener("DOMContentLoaded", () => {
       e?.clientY ??
       (rect.top + rect.height / 2);
 
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    r.style.left = `${x}px`;
-    r.style.top = `${y}px`;
+    r.style.left = `${clientX - rect.left}px`;
+    r.style.top = `${clientY - rect.top}px`;
 
     btnPlay.appendChild(r);
     setTimeout(() => r.remove(), 650);
   }
 
-  // IMPORTANT: replace old click handler with this one (ripple + play/pause)
   btnPlay.addEventListener("click", async (e) => {
     addRipple(e);
 
     if (audio.paused) {
-      // resume audio context if needed (required by browsers)
       const { ctx } = ensureAudioContext();
       if (ctx.state === "suspended") await ctx.resume();
-
       audio.play().catch(() => {});
     } else {
       audio.pause();
@@ -600,7 +666,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
   audio.addEventListener("play", () => setBtn(true));
   audio.addEventListener("pause", () => setBtn(false));
-  audio.addEventListener("ended", () => setBtn(false));
+
+  // ✅ Auto-next + loop to first
+  audio.addEventListener("ended", () => {
+    setBtn(false);
+    playNext();
+  });
 
   // ---------- Seek / Drag ----------
   let dragging = false;
@@ -621,9 +692,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!dragging) return;
     seekToClientX(e.touches ? e.touches[0].clientX : e.clientX);
   };
-  const onUp = () => {
-    dragging = false;
-  };
+  const onUp = () => { dragging = false; };
 
   seekBar.addEventListener("mousedown", onDown);
   window.addEventListener("mousemove", onMove);
@@ -633,10 +702,9 @@ window.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("touchmove", onMove, { passive: true });
   window.addEventListener("touchend", onUp);
 
-  // keyboard seek
   seekBar.addEventListener("keydown", (e) => {
     if (!audio.duration) return;
-    const step = 5; // seconds
+    const step = 5;
     if (e.key === "ArrowRight") audio.currentTime = Math.min(audio.duration, audio.currentTime + step);
     if (e.key === "ArrowLeft") audio.currentTime = Math.max(0, audio.currentTime - step);
     setSeekUI();
@@ -646,19 +714,23 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!dragging) setSeekUI();
   });
 
-  // ---------- EQ animation (real-time analyser) ----------
+  audio.addEventListener("loadedmetadata", () => {
+    setSeekUI();
+    bindCues();
+  });
+
+  // EQ animation
   function tickEQ() {
     const { analyser, data } = ensureAudioContext();
     analyser.getByteFrequencyData(data);
 
     const binsPerBar = Math.floor(data.length / eqBars.length) || 1;
-
     eqBars.forEach((bar, i) => {
       const start = i * binsPerBar;
       let sum = 0;
       for (let j = 0; j < binsPerBar; j++) sum += data[start + j] || 0;
-      const avg = sum / binsPerBar; // 0..255
-      const scale = 0.5 + (avg / 255) * 1.6; // 0.5..2.1
+      const avg = sum / binsPerBar;
+      const scale = 0.5 + (avg / 255) * 1.6;
       bar.style.transform = `scaleY(${scale.toFixed(2)})`;
     });
 
@@ -666,7 +738,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   requestAnimationFrame(tickEQ);
 
-  // ---------- CC toggle ----------
+  // CC toggle
   ccToggle.addEventListener("click", () => {
     const hidden = ccBox.dataset.hidden === "1";
     ccBox.dataset.hidden = hidden ? "0" : "1";
@@ -674,18 +746,14 @@ window.addEventListener("DOMContentLoaded", () => {
     ccBox.querySelector(".cc-body").style.display = hidden ? "block" : "none";
   });
 
-  // ---------- Auto play Gita only once per day (best-effort) ----------
+  // Auto play only once per day (best-effort)
   const today = new Date().toDateString();
   const last = localStorage.getItem("gitaAutoPlayed");
   if (last !== today) {
-    audio
-      .play()
-      .then(() => {
-        localStorage.setItem("gitaAutoPlayed", today);
-      })
-      .catch(() => {
-        // blocked — user will press play manually; set only after successful play
-      });
+    audio.play()
+      .then(() => localStorage.setItem("gitaAutoPlayed", today))
+      .catch(() => {});
   }
 })();
+
 
