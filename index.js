@@ -492,7 +492,7 @@ window.addEventListener("DOMContentLoaded", () => {
      audio/01.mp3, audio/02.mp3, ...
   ========================== */
   const AUDIO_BASE = "audio/";
-  const TOTAL_PARTS = 18;     // <-- শুধু এটা change করো (তোমার ফাইল কয়টা)
+  const TOTAL_PARTS = 4;     // <-- শুধু এটা change করো (তোমার ফাইল কয়টা)
   const EXT = ".mp3";
 
   // One CC file (same for all parts)
@@ -500,15 +500,22 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  const tracks = Array.from({ length: TOTAL_PARTS }, (_, i) => {
-    const n = i + 1;
-    return {
-      n,
-      title: `Part ${pad2(n)}`,
-      src: AUDIO_BASE + pad2(n) + EXT,
-      vtt: ONE_VTT
-    };
-  });
+  const TITLES = [
+  "অধ্যায় ১ — অর্জুন বিষাদ যোগ",
+  "অধ্যায় ২ — সাংখ্য যোগ",
+  "অধ্যায় ৩ — কর্ম যোগ",
+  "অধ্যায় 4 — কর্ম যোগ",
+];
+
+const tracks = Array.from({ length: TOTAL_PARTS }, (_, i) => {
+  const n = i + 1;
+  return {
+    n,
+    title: TITLES[n - 1] || `অধ্যায় ${n}`,
+    src: AUDIO_BASE + pad2(n) + EXT,
+    vtt: ONE_VTT
+  };
+});
 
   let trackIndex = 0;
   const TRACK_KEY = "gitaTrackIndex";
@@ -755,5 +762,6 @@ window.addEventListener("DOMContentLoaded", () => {
       .catch(() => {});
   }
 })();
+
 
 
