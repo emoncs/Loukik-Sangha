@@ -442,7 +442,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (list.length < 2) return;
 
     let i = 0;
-    const baseDelay = 2200;          // প্রতি ইমেজ 2.2s
+    const baseDelay = 5000;          // প্রতি ইমেজ 2.2s
     const stagger = (idx % 6) * 250; // সব কার্ড একসাথে না বদলানোর জন্য slight offset
 
     setTimeout(() => {
@@ -453,7 +453,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           img.src = list[i];
           img.classList.remove("is-fading");
-        }, 420);
+        }, 900);
 
       }, baseDelay + 300);
     }, stagger);
@@ -688,3 +688,4 @@ window.addEventListener("DOMContentLoaded", () => {
       });
   }
 })();
+
