@@ -501,10 +501,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const pad2 = (n) => String(n).padStart(2, "0");
 
   const TITLES = [
-  "অধ্যায় ১ — অর্জুন বিষাদ যোগ",
-  "অধ্যায় ২ — সাংখ্য যোগ",
-  "অধ্যায় ৩ — কর্ম যোগ",
-  "অধ্যায় 4 — কর্ম যোগ",
+  "অধ্যায় ১",
+  "অধ্যায় ২",
+  "অধ্যায় ৩",
+  "অধ্যায় 4",
 ];
 
 const tracks = Array.from({ length: TOTAL_PARTS }, (_, i) => {
@@ -762,6 +762,7 @@ const tracks = Array.from({ length: TOTAL_PARTS }, (_, i) => {
       .catch(() => {});
   }
 })();
+
 
 
 
