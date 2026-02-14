@@ -12,3 +12,330 @@
 
 /* (rest kept same) */
 .since-inline{position:relative;display:inline-flex;align-items:center;margin-left:10px;padding:5px 14px;border-radius:999px;font-size:11.5px;font-weight:1100;letter-spacing:.4px;color:#fff;background:linear-gradient(270deg,#ff0080,#ff8c00,gold,#00c853,#00bcd4,#2979ff,#7b1fa2,#ff0080);background-size:800% 800%;animation:8s linear infinite rainbowMove;box-shadow:0 0 12px rgba(255,0,128,.4),0 0 24px rgba(41,121,255,.3),inset 0 0 6px rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.25)}@keyframes rainbowMove{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}.since-inline::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(120deg,rgba(255,255,255,0) 0,rgba(255,255,255,.6) 50%,rgba(255,255,255,0) 100%);transform:skewX(-25deg);animation:5s infinite shineMove}@keyframes shineMove{0%{left:-120%}100%,60%{left:120%}}
+
+/* =========================
+   Ritual Compact Version
+========================= */
+.section-head {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.section-head h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.section-head p {
+  color: var(--muted);
+}
+.ritual-activities {
+  padding: 40px 0;
+}
+
+.ritual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px; /* কমানো হয়েছে */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ritual-box {
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+}
+
+.ritual-box:hover {
+  transform: translateY(-4px);
+}
+
+.ritual-img {
+  height: 270px; /* 200px থেকে কমানো হয়েছে */
+  overflow: hidden;
+}
+
+.ritual-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ritual-content {
+  padding: 12px 14px; /* কমানো হয়েছে */
+}
+
+.ritual-content h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.ritual-content p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+/* image transition for rotation */
+.ritual-img { position: relative; }
+.ritual-rotator{
+  transition: opacity .45s ease, transform .8s ease;
+  will-change: opacity, transform;
+}
+.ritual-rotator.is-fading{
+  opacity: 0;
+  transform: scale(1.03);
+}
+/* Responsive */
+
+@media (max-width: 992px) {
+  .ritual-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ritual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.gita-player-section{
+  padding: 56px 0;
+  background: radial-gradient(circle at top, #fff6db, #f6f8fc);
+}
+
+.gita-player-card{
+  width: min(980px, 92vw);
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid rgba(245,158,11,.22);
+  border-radius: 18px;
+  box-shadow: 0 16px 38px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+.gita-top{
+  padding: 18px 18px 10px;
+}
+
+.gita-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#f59e0b,#fbbf24);
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.gita-title{
+  margin: 10px 0 4px;
+  font-size: 20px;
+}
+
+.gita-sub{
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.gita-ui{
+  padding: 12px 18px 18px;
+  border-top: 1px solid rgba(15,23,42,.06);
+}
+
+.gita-controls{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+
+/* Premium Play/Pause Button */
+.gita-btn{
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: linear-gradient(135deg, rgba(37,99,235,.95), rgba(20,184,166,.95));
+  box-shadow:
+    0 14px 24px rgba(2,6,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.28);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  outline: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.gita-btn:hover{
+  filter: brightness(1.03);
+  box-shadow:
+    0 16px 28px rgba(2,6,23,.22),
+    inset 0 1px 0 rgba(255,255,255,.32);
+}
+
+.gita-btn:active{
+  transform: translateY(1px) scale(.98);
+  box-shadow:
+    0 10px 16px rgba(2,6,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.24);
+}
+
+/* subtle glow ring */
+.gita-btn::before{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius: 20px;
+  background: radial-gradient(circle, rgba(245,158,11,.22), transparent 65%);
+  opacity: .0;
+  transition: opacity .2s ease;
+  pointer-events:none;
+}
+
+.gita-btn:hover::before{ opacity: .9; }
+
+/* Icon */
+.gita-btn-icon{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 16px;
+  color: #fff;
+  letter-spacing: .5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  transition: transform .15s ease, background .2s ease;
+}
+
+.gita-btn:hover .gita-btn-icon{ transform: scale(1.03); }
+
+/* Ripple */
+.gita-btn .ripple{
+  position:absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.55);
+  transform: translate(-50%,-50%);
+  animation: ripple .55s ease-out;
+  pointer-events:none;
+}
+
+@keyframes ripple{
+  from{ opacity:.55; width: 10px; height:10px; }
+  to{ opacity:0; width: 110px; height:110px; }
+}
+
+.gita-time{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  color:#0b1220;
+  font-weight: 800;
+  font-size: 13px;
+  min-width: 120px;
+}
+
+.gita-time .dot{ color:#94a3b8; }
+
+.gita-eq{
+  margin-left:auto;
+  display:flex;
+  align-items:flex-end;
+  gap:4px;
+  height: 20px;
+  opacity: .9;
+}
+.gita-eq span{
+  width: 4px;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg,#f59e0b,#fbbf24);
+  transform-origin: bottom;
+  transform: scaleY(.6);
+}
+
+/* Seek bar */
+.gita-bar{
+  position: relative;
+  margin-top: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.08);
+  border: 1px solid rgba(15,23,42,.08);
+  cursor: pointer;
+}
+.gita-bar-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#f59e0b,#fbbf24);
+}
+.gita-bar-knob{
+  position:absolute;
+  top: 50%;
+  left: 0%;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid rgba(15,23,42,.18);
+  box-shadow: 0 8px 16px rgba(0,0,0,.12);
+}
+
+/* CC panel */
+.gita-cc{
+  margin-top: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(2,6,23,.03);
+  overflow:hidden;
+}
+.cc-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  color:#64748b;
+  border-bottom: 1px solid rgba(15,23,42,.06);
+}
+.cc-toggle{
+  border: 1px solid rgba(15,23,42,.12);
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 12px;
+}
+.cc-body{
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  color:#0b1220;
+}
+.cc-muted{ color:#94a3b8; }
+
+/* Mobile */
+@media (max-width: 520px){
+  .gita-player-card{ border-radius: 16px; }
+  .gita-ui{ padding: 12px 14px 16px; }
+  .gita-time{ min-width: 0; }
+  .gita-eq{ display:none; } /* small screens clean look */
+}
